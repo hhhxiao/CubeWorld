@@ -108,3 +108,9 @@ void SubChunkMesh::draw(TexturePool *pool) {
         glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, (void *)((i * 6 + 3) * sizeof(GLuint)));
     }
 }
+
+SubChunkMesh::~SubChunkMesh() {
+    if (this->VAO != 0) {
+        glDeleteVertexArrays(1, &this->VAO);
+    }
+}

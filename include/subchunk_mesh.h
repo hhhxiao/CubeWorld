@@ -17,6 +17,9 @@ class SubChunkMesh {
     };
 
    public:
+    ~SubChunkMesh();
+
+   public:
     void AddFace(const BlockFaceInfo &face);
 
     void buildData();

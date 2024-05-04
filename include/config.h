@@ -19,6 +19,10 @@ class Config {
     //
     static bool enableImgui;
 
+    static int load_radius;
+
+    static int chunk_cache_size;
+
     static glm::mat4 getProjectionMatrix();
 
     // window size

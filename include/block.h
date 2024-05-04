@@ -7,7 +7,7 @@ struct BlockPos {
     int z{0};
 };
 
-enum BlockType { air = 0, grass = 1, dirt = 2, invalid };
+enum BlockType { air, grass, dirt, bedrock, invalid };
 class Block {
    public:
    private:

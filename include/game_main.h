@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstddef>
+#include <ratio>
 #include "block.h"
 #include "chunk.h"
 #include "drawable_object.h"
@@ -11,6 +12,7 @@
 #include "level.h"
 #include "resource_manager.h"
 #include "subchunk_mesh.h"
+#include "terrain_generator.h"
 #include "texture.h"
 
 class GameMain {
@@ -25,16 +27,16 @@ class GameMain {
         this->texture_pool_->init(resource_manager_->texture_path());
         this->level = new Level();
 
-        for (int x = 0; x < 16; x++) {
-            for (int z = 0; z < 16; z++) {
-                subchunk.setBlock(x + z / 8, 0 + x / 4, z, dirt);
-                subchunk.setBlock(x + z / 8, 1 + x / 4, z, dirt);
-                subchunk.setBlock(x + z / 8, 2 + x / 4, z, dirt);
-                subchunk.setBlock(x + z / 8, 3 + x / 4, z, dirt);
-                subchunk.setBlock(x + z / 8, 4 + x / 4, z, grass);
-            }
-        }
-        this->mesh = subchunk.createMesh();
+        // for (int x = 0; x < 16; x++) {
+        //     for (int z = 0; z < 16; z++) {
+        //         subchunk.setBlock(x + z / 8, 0 + x / 4, z, dirt);
+        //         subchunk.setBlock(x + z / 8, 1 + x / 4, z, dirt);
+        //         subchunk.setBlock(x + z / 8, 2 + x / 4, z, dirt);
+        //         subchunk.setBlock(x + z / 8, 3 + x / 4, z, dirt);
+        //         subchunk.setBlock(x + z / 8, 4 + x / 4, z, grass);
+        //     }
+        // }
+        // subchunk.createMesh();
     }
 
     void show();
@@ -59,8 +61,6 @@ class GameMain {
     OpenGLWindow *window{nullptr};
     TexturePool *texture_pool_{nullptr};
     // data
-    SubChunkMesh *mesh;
-    SubChunk subchunk;
     DrawableObject debugObj;
     Level *level;
 };

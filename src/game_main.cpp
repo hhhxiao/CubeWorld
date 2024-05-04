@@ -23,9 +23,6 @@ namespace {
 }  // namespace
 
 void GameMain::init() {
-    this->mesh->buildData();
-    this->mesh->sendData();
-
     debugObj = textureText();
     debugObj.init();
     this->window->setMouseCallBack(
@@ -82,10 +79,7 @@ void GameMain::renderTick() {
     // 传入相关矩阵
     shader->setMat4("projection", Config::getProjectionMatrix());
     shader->setMat4("view", this->camera_->getViewMatrix());
-    shader->setMat4("model", glm::mat4(1));
-    mesh->draw(this->texture_pool_);
-    // debugObj.draw();
-    // 绘制
+    this->level->draw(this->texture_pool_, shader);
 }
 
 void GameMain::gameTick() { tick_++; }
@@ -101,7 +95,9 @@ void GameMain::processKeyBoardInput(GLFWwindow *window) {
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) dir = GameCamera::right;
     if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) dir = GameCamera::up;
     if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS) dir = GameCamera::down;
-    camera_->Move(dir, (float)delta_time_ * 5.0f);
+    camera_->Move(dir, (float)delta_time_ * 10.0f);
+    auto cp = camera_->position_;
+    this->level->updatePlayerPos({(int)cp.x, (int)cp.y, (int)cp.z});
 }
 
 void GameMain::processMouseInput(GLFWwindow *window, double x, double y) {
