@@ -39,6 +39,7 @@ OpenGLWindow::OpenGLWindow(int width, int height, const std::string &name) {
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
         ERROR("Failed to initialize GLA");
     }
+    glEnable(GL_DEPTH_TEST);
 }
 
 void OpenGLWindow::setMouseCallBack(const std::function<void(GLFWwindow *, double, double)> &func) {

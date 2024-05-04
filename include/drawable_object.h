@@ -11,6 +11,10 @@ struct VertexAttribute {
     GLfloat x;
     GLfloat y;
     GLfloat z;
+    // 颜色
+    GLfloat r;
+    GLfloat g;
+    GLfloat b;
     // uv
     GLfloat u;
     GLfloat v;
@@ -19,7 +23,7 @@ struct VertexAttribute {
     GLfloat ny;
     GLfloat nz;
 };
-static_assert(sizeof(VertexAttribute) == sizeof(GLfloat) * 8, "Error in vertexAttribute strcuture");
+static_assert(sizeof(VertexAttribute) == sizeof(GLfloat) * 11, "Error in vertexAttribute strcuture");
 
 class DrawableObject {
    public:
@@ -29,6 +33,9 @@ class DrawableObject {
     void init();
 
     void draw();
+
+   public:
+    static DrawableObject createCube();
 
    private:
     void sendData() const;

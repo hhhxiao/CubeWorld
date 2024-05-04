@@ -12,11 +12,9 @@
 #include "imgui_impl_opengl3.h"
 namespace {
     void drawDebugObject() {
-        std::vector<VertexAttribute> attrs{{0.5, 0.5, 0.0}, {0.5, -0.5, 0.0}, {-0.5, -0.5, 0.0}, {-0.5, 0.5, 0.0}};
-        std::vector<GLuint> indices{0, 1, 2, 0, 2, 3};
-        DrawableObject object(attrs, indices);
-        object.init();
-        object.draw();
+        auto obj = DrawableObject::createCube();
+        obj.init();
+        obj.draw();
     }
 }  // namespace
 
@@ -54,13 +52,10 @@ void GameMain::init() {
             if (tick_ % 20 == 0) display_frame_time = delta_time_;
             ImGui::Text("Frame time: %.4lf (%.2f)", display_frame_time, 1 / display_frame_time);
             ImGui::Text("Camera");
-            // ImGui::SliderFloat("Fov", &Config::fov, 10, 100);
             ImGui::Text("Fov: %.3lf", Config::fov);
             ImGui::Text("XYZ: %.3lf %.3lf %.3lf", camera_->position_.x, camera_->position_.y, camera_->position_.z);
             ImGui::Text("Yaw: %.3lf", camera_->yaw_);
             ImGui::Text("Pitch %.3lf", camera_->pitch_);
-            // ImGui::SliderFloat("zNear", &Config::zNear, 0, Config::zFar);
-            // ImGui::SliderFloat("zFar", &Config::zFar, Config::zNear, 1000);
             ImGui::End();
         }
         renderTick();
