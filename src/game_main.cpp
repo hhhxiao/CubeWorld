@@ -1,27 +1,35 @@
 #include "game_main.h"
 #include <vector>
 #include "GLFW/glfw3.h"
+#include "block.h"
 #include "config.h"
 #include "drawable_object.h"
 #include "game_camera.h"
-#include "glm/detail/func_trigonometric.hpp"
 #include "glm/detail/type_vec.hpp"
 #include "imgui.h"
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
+#include "subchunk_mesh.h"
 namespace {
-    void drawDebugObject() {
-        auto obj = DrawableObject::createCube();
-        obj.init();
-        obj.draw();
+    DrawableObject textureText() {
+        std::vector<VertexAttribute> vas{{0.5f, 0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f},
+                                         {0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f},
+                                         {-0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f},
+                                         {-0.5f, 0.5f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f}};
+        std::vector<GLuint> indices{0, 1, 3, 1, 3, 2};
+        return DrawableObject(vas, indices);
     }
 }  // namespace
 
 void GameMain::init() {
+    this->mesh->buildData();
+    this->mesh->sendData();
+
+    debugObj = textureText();
+    debugObj.init();
     this->window->setMouseCallBack(
         [&](GLFWwindow *window, double x, double y) { this->processMouseInput(window, x, y); });
-    // // init render
 
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
@@ -72,15 +80,12 @@ void GameMain::renderTick() {
     // 绘制一个简单的正方形来调试相机
     this->shader->use();
     // 传入相关矩阵
-    glm::mat4 model = glm::mat4(1.0f);
-    model = glm::translate(model, glm::vec3(2.0, 0.0, 0.0));
-    auto projection = Config::getProjectionMatrix();
-    auto view = this->camera_->getViewMatrix();
-    model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-    shader->setMat4("projection", projection);
-    shader->setMat4("view", view);
-    shader->setMat4("model", model);
-    drawDebugObject();
+    shader->setMat4("projection", Config::getProjectionMatrix());
+    shader->setMat4("view", this->camera_->getViewMatrix());
+    shader->setMat4("model", glm::mat4(1));
+    mesh->draw(this->texture_pool_);
+    // debugObj.draw();
+    // 绘制
 }
 
 void GameMain::gameTick() { tick_++; }
@@ -96,7 +101,7 @@ void GameMain::processKeyBoardInput(GLFWwindow *window) {
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) dir = GameCamera::right;
     if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) dir = GameCamera::up;
     if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS) dir = GameCamera::down;
-    camera_->Move(dir, (float)delta_time_ * 3.0f);
+    camera_->Move(dir, (float)delta_time_ * 5.0f);
 }
 
 void GameMain::processMouseInput(GLFWwindow *window, double x, double y) {
@@ -122,4 +127,6 @@ GameMain::~GameMain() {
     delete this->resource_manager_;
     delete this->shader;
     delete this->camera_;
+    delete this->texture_pool_;
+    delete level;
 }

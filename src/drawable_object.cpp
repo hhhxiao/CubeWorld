@@ -41,20 +41,19 @@ void DrawableObject::sendData() const {
     glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(VertexAttribute), (void *)(6 * sizeof(float)));
     glEnableVertexAttribArray(2);
     // 顶点法线
-    glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(VertexAttribute), (void *)(8 * sizeof(float)));
+    glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(VertexAttribute), (void *)(8 * sizeof(float)));
     glEnableVertexAttribArray(3);
     // 取消绑定缓冲区和当前对象
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     //    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
 }
-
 DrawableObject DrawableObject::createCube() {
     std::vector<VertexAttribute> vas;
     for (int x = 0; x <= 1; x++) {
         for (int y = 0; y <= 1; y++) {
             for (int z = 0; z <= 1; z++) {
-                VertexAttribute attribute{x * 1.0f, y * 1.0f, z * 1.0f, x * 1.0f, y * 1.0f, z * 1.0f};
+                VertexAttribute attribute{x * 1.0f, y * 1.0f, z * 1.0f, x * 1.0f, y * 1.0f, z * 1.0f, 0.0, 1.0};
                 vas.push_back(attribute);
             }
         }

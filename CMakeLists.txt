@@ -21,15 +21,21 @@ target_link_libraries(base ${PROJECT_SOURCE_DIR}/3rd/glfw3.lib)
 add_executable(
 main 
 main.cpp
+# render
 src/opengl_window.cpp
 src/game_main.cpp
 src/config.cpp
-# src/texture.cpp
+src/texture.cpp
 src/simple_shader.cpp
 src/utils.cpp
 src/drawable_object.cpp
 src/resource_manager.cpp
 src/game_camera.cpp
 src/input_handler.cpp
+# data
+src/level.cpp
+src/chunk.cpp 
+src/terrain_generator.cpp
+src/subchunk_mesh.cpp 
 )
 target_link_libraries(main base)
