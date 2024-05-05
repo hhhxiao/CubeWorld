@@ -7,13 +7,13 @@ std::string Config::SOFTWARE_VERSION = "0.0.1";
 int Config::window_width = 1920;
 int Config::window_height = 1080;
 
-float Config::fov = 40.0f;
+float Config::fov = 30.0f;
 float Config::zNear = 0.1f;
 float Config::zFar = 200.0f;
 
 bool Config::enableImgui = true;
-int Config::load_radius = 8;
-int Config::chunk_cache_size = 300;
+int Config::load_radius = 6;
+int Config::chunk_cache_size = 400;
 
 glm::mat4 Config::getProjectionMatrix() {
     return glm::perspective(glm::radians(fov), (float)window_width / (float)window_height, zNear, zFar);

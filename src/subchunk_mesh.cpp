@@ -2,6 +2,7 @@
 #include <vector>
 #include "block.h"
 #include "drawable_object.h"
+#include "glm/detail/type_vec.hpp"
 #include "texture.h"
 
 std::vector<int> createFaceVertices(Face face) {
@@ -11,6 +12,16 @@ std::vector<int> createFaceVertices(Face face) {
     if (face == ny) return {0, 1, 2, 3};
     if (face == pz) return {2, 3, 6, 7};
     if (face == nz) return {0, 1, 4, 5};
+    throw std::exception("error in create Face indices");
+}
+
+BlockPos getFaceNormal(Face face) {
+    if (face == px) return {1, 0, 0};
+    if (face == nx) return {-1, 0, 0};
+    if (face == py) return {0, 1, 0};
+    if (face == ny) return {0, -1, 0};
+    if (face == pz) return {0, 0, 1};
+    if (face == nz) return {0, 0, -1};
     throw std::exception("error in create Face indices");
 }
 
@@ -31,6 +42,7 @@ void SubChunkMesh::buildData() {
             auto face = static_cast<Face>(block_face.first);
             auto face_info = block_face.second;
             auto vs = createFaceVertices(face);
+            auto normal = getFaceNormal(face);
             // 4个顶点
             for (int i = 0; i < vs.size(); i++) {
                 auto U = 0.0f, V = 0.0f;
@@ -46,14 +58,15 @@ void SubChunkMesh::buildData() {
                 VertexAttribute va{static_cast<GLfloat>(face_info.pos.x + dx),
                                    static_cast<GLfloat>(face_info.pos.y + dy),
                                    static_cast<GLfloat>(face_info.pos.z + dz),
-                                   dx,
-                                   dy,
-                                   dz,
+                                   1.0f,
+                                   0.35f,
+                                   0.21f,
+
                                    U,
                                    V,
-                                   0.0f,
-                                   0.0f,
-                                   0.0f};
+                                   (float)normal.x,
+                                   (float)normal.y,
+                                   (float)normal.z};
                 this->vertices_.push_back(va);
             }
             auto size = (GLuint)vertices_.size();

@@ -2,6 +2,8 @@
 
 Simple Minecraft in OpenGL
 
+![](./image/demo1.png)
+
 ## TODOs
 
 - [x] 框架搭建

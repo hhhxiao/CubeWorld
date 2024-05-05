@@ -10,9 +10,14 @@ uniform mat4 projection;
 
 out vec3 outColor;
 out vec2 outTexCoord;
+out vec3 outNormal;
+
+out vec3 FragPos;
 
 void main(){
      gl_Position = projection * view * model * vec4(position, 1.0);
-     outColor = color;
-     outTexCoord = texCoord;
+     outColor = color; //纹理自带颜色
+     outTexCoord = texCoord; //纹理uv
+     outNormal = normal; //法线
+     FragPos = vec3(model * vec4(position, 1.0)); //片段世界坐标
 }
