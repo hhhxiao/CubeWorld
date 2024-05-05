@@ -46,6 +46,10 @@ void OpenGLWindow::setMouseCallBack(const std::function<void(GLFWwindow *, doubl
     mouse_callback_function() = func;
 }
 
+void OpenGLWindow::setMouseEnable(bool able) {
+    glfwSetInputMode(this->window(), GLFW_CURSOR, able ? GLFW_CURSOR_NORMAL : GLFW_CURSOR_DISABLED);
+}
+
 void OpenGLWindow::onFrame(const std::function<void(GLFWwindow *)> &render) { this->onRender = render; }
 void OpenGLWindow::pool() {
     while (!glfwWindowShouldClose(this->window_)) {

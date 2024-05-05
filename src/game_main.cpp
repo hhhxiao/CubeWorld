@@ -58,12 +58,13 @@ void GameMain::init() {
             auto current_chunk_pos = level->getChunkPos();
             ImGui::Text("Frame time: %.4lf (%.2f)", display_frame_time, 1 / display_frame_time);
             ImGui::Text("Camera");
-            // ImGui::Text("Fov: %.3lf", Config::fov);
+            ImGui::SliderFloat("Fov", &Config::fov, 5.0, 100.0);
             ImGui::Text("XYZ: %.3lf %.3lf %.3lf", camera_->position_.x, camera_->position_.y, camera_->position_.z);
-            ImGui::Text("Chunk XZ: %d %d", current_chunk_pos.x, current_chunk_pos.z);
+
             ImGui::Text("Yaw: %.3lf", camera_->yaw_);
             ImGui::Text("Pitch %.3lf", camera_->pitch_);
             ImGui::Text("Chunks");
+            ImGui::Text("Chunk XZ: %d %d", current_chunk_pos.x, current_chunk_pos.z);
             auto stat = this->level->getChunkStats();
             for (auto kv : stat) {
                 ImGui::Text("%s: %zu", kv.first.c_str(), kv.second);
@@ -95,6 +96,14 @@ void GameMain::show() { this->window->pool(); }
 
 void GameMain::processKeyBoardInput(GLFWwindow *window) {
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) glfwSetWindowShouldClose(window, true);
+    if (glfwGetKey(window, GLFW_KEY_LEFT_ALT) == GLFW_PRESS) {
+        static auto temp_anti_shake_timer = 0;
+        temp_anti_shake_timer++;
+        if (temp_anti_shake_timer % 10 == 0) {  // 10帧检测一次按下
+            this->window->setMouseEnable(!this->enable_mouse_);
+            this->enable_mouse_ = !this->enable_mouse_;
+        }
+    }
     GameCamera::Dir dir{GameCamera::invalid};
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) dir = GameCamera::forward;
     if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) dir = GameCamera::back;
@@ -108,6 +117,7 @@ void GameMain::processKeyBoardInput(GLFWwindow *window) {
 }
 
 void GameMain::processMouseInput(GLFWwindow *window, double x, double y) {
+    if (enable_mouse_) return;
     static bool firstMouse = false;
     auto current = glm::vec2(x, y);
     static auto lastPos = glm::vec2(0.0, 0.0);

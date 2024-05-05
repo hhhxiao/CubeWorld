@@ -19,6 +19,7 @@ class GameMain {
    public:
     GameMain() {
         this->window = new OpenGLWindow(Config::window_width, Config::window_height, Config::SOFTWARE_NAME);
+        this->window->setMouseEnable(this->enable_mouse_);
         this->resource_manager_ = new ResourceManager(R"(C:\Users\xhy\dev\CubeWorld\res)");
         shader =
             new Shader(resource_manager_->shader_path() / "main.vert", resource_manager_->shader_path() / "main.frag");
@@ -50,4 +51,6 @@ class GameMain {
     // data
     DrawableObject debugObj;
     Level *level;
+    // control
+    bool enable_mouse_{false};
 };

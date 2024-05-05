@@ -17,6 +17,8 @@ class OpenGLWindow {
     void setMouseCallBack(const std::function<void(GLFWwindow *w, double, double)> &func);
     void onFrame(const std::function<void(GLFWwindow *)> &func);
 
+    void setMouseEnable(bool able);
+
     void pool();
 
     ~OpenGLWindow();
