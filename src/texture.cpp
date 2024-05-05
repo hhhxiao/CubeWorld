@@ -39,6 +39,10 @@ namespace {
     }
 }  // namespace
 
+TexturePool &TexturePool::instance() {
+    static TexturePool pool;
+    return pool;
+}
 GLuint TexturePool::getTextureID(BlockType type, Face face) {
     auto it = this->texture_ids_.find(type);
     if (it == this->texture_ids_.end()) {

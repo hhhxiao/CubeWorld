@@ -52,12 +52,12 @@ void SubChunk::setBlock(int sx, int sy, int sz, BlockType type) {
     if (this->mesh_) this->mesh_is_dirty_ = true;
     block_volume_[sx][sy][sz] = type;
 }
-void SubChunk::draw(TexturePool* pool, Shader* shader) {
+void SubChunk::draw(Shader* shader) {
     if (this->mesh_) {
         auto model = glm::translate(
             glm::mat4(1.0), glm::vec3(this->chunk_pos_.x * 16, this->sub_chunk_index_ * 16, this->chunk_pos_.z * 16));
         shader->setMat4("model", model);
-        this->mesh_->draw(pool);
+        this->mesh_->draw();
     }
 }
 
@@ -93,8 +93,8 @@ void Chunk::init(AbstractTerrainGenerator* generator) {
     }
 }
 
-void Chunk::draw(TexturePool* pool, Shader* shader) {
+void Chunk::draw(Shader* shader) {
     for (int i = 0; i < 16; i++) {
-        if (this->sub_chunks_[i]) this->sub_chunks_[i]->draw(pool, shader);
+        if (this->sub_chunks_[i]) this->sub_chunks_[i]->draw(shader);
     }
 }

@@ -1,8 +1,10 @@
 #include "subchunk_mesh.h"
+#include <cstddef>
 #include <vector>
 #include "block.h"
 #include "drawable_object.h"
 #include "texture.h"
+#include "utils.h"
 
 std::vector<int> createFaceVertices(Face face) {
     if (face == px) return {1, 3, 5, 7};
@@ -14,6 +16,10 @@ std::vector<int> createFaceVertices(Face face) {
     throw std::exception("error in create Face indices");
 }
 
+struct FacePointList {
+    GLuint p1, p2, p3, p4, p5, p6;
+};
+
 void SubChunkMesh::AddFace(const BlockFaceInfo &face) {
     auto pos = face.pos;
     auto idx = pos.y * 256 + pos.z * 16 + pos.x;
@@ -21,6 +27,7 @@ void SubChunkMesh::AddFace(const BlockFaceInfo &face) {
 }
 
 void SubChunkMesh::buildData() {
+    std::unordered_map<GLuint, std::vector<FacePointList>> temp_textures_ids_;
     for (auto &block : this->blocks_) {  // 遍历每一个面
         for (auto block_face : block.second) {
             auto face = static_cast<Face>(block_face.first);
@@ -52,20 +59,29 @@ void SubChunkMesh::buildData() {
                 this->vertices_.push_back(va);
             }
             auto size = (GLuint)vertices_.size();
-            this->indices_.push_back(size - 4);
-            this->indices_.push_back(size - 3);
-            this->indices_.push_back(size - 2);
-            this->indices_.push_back(size - 3);
-            this->indices_.push_back(size - 2);
-            this->indices_.push_back(size - 1);
-            this->texture_map_[block_face.second.type][block_face.second.face].push_back(this->indices_.size() - 6ull);
-            // this->texuture_ids_.push_back({block_face.second.type, block_face.second.face});
+            FacePointList list{size - 4u, size - 3u, size - 2u, size - 3u, size - 2u, size - 1u};
+            temp_textures_ids_[TexturePool::instance().getTextureID(block_face.second.type, block_face.second.face)]
+                .push_back(list);
         }
-        // 每个面构建4个VertexAttribute(wwl1)
+    }
+
+    // 生成Indices
+    for (auto &kv : temp_textures_ids_) {
+        // 顶点数量，偏移量
+        this->texture_mappings_[kv.first] = {6 * kv.second.size(), this->indices_.size()};
+        for (auto face : kv.second) {
+            indices_.push_back(face.p1);
+            indices_.push_back(face.p2);
+            indices_.push_back(face.p3);
+            indices_.push_back(face.p4);
+            indices_.push_back(face.p5);
+            indices_.push_back(face.p6);
+        }
     }
 };
 
 void SubChunkMesh::sendData() {
+    if (this->indices_.empty()) return;
     glGenVertexArrays(1, &this->VAO);
     // 绑定当前对象
     glBindVertexArray(this->VAO);
@@ -95,31 +111,16 @@ void SubChunkMesh::sendData() {
     glEnableVertexAttribArray(3);
     // 取消绑定缓冲区和当前对象
     glBindBuffer(GL_ARRAY_BUFFER, 0);
-    //    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
-    // LOGGER("VAO = %u", VAO);
 }
 
-void SubChunkMesh::draw(TexturePool *pool) {
+void SubChunkMesh::draw() {
+    if (this->VAO == 0) return;
     glBindVertexArray(this->VAO);
-    for (auto &kv : this->texture_map_) {
-        for (auto fi : kv.second) {
-            glBindTexture(GL_TEXTURE_2D, pool->getTextureID(kv.first, fi.first));
-            for (auto index : fi.second) {
-                glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, (void *)(index * sizeof(GLuint)));
-            }
-        }
+    for (auto &kv : this->texture_mappings_) {
+        glBindTexture(GL_TEXTURE_2D, kv.first);
+        glDrawElements(GL_TRIANGLES, kv.second.first, GL_UNSIGNED_INT, (void *)(kv.second.second * sizeof(GLuint)));
     }
-
-    // // glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, (void *)((i * 6) * sizeof(GLuint)));
-    // glDrawElements(GL_TRIANGLES, (GLint)this->indices_.size(), GL_UNSIGNED_INT, 0);
-    // // auto faces_number = this->indices_.size() / 6;
-    // // for (int i = 0; i < faces_number; i++) {
-    // //     glBindTexture(GL_TEXTURE_2D, pool->getTextureID(this->texuture_ids_[i].first,
-    // //     this->texuture_ids_[i].second)); glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, (void *)((i * 6)
-    // //     *sizeof(GLuint)));
-    // // glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, (void *)((i * 6 + 3) * sizeof(GLuint)));
-    // // }
 }
 
 SubChunkMesh::~SubChunkMesh() {

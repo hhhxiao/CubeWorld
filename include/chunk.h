@@ -26,7 +26,7 @@ class SubChunk {
 
     ~SubChunk() { delete this->mesh_; }
 
-    void draw(TexturePool* pool, Shader* shader);
+    void draw(Shader* shader);
 
    private:
     bool hasBlock(int sx, int sy, int sz);
@@ -45,7 +45,7 @@ class Chunk {
     void setBlock(int cx, int y, int cz, BlockType type);
     void init(AbstractTerrainGenerator* generator);
     ~Chunk();
-    void draw(TexturePool* pool, Shader* shader);
+    void draw(Shader* shader);
 
    private:
     ChunkPos pos{};

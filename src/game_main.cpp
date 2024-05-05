@@ -82,7 +82,7 @@ void GameMain::renderTick() {
     // 传入相关矩阵
     shader->setMat4("projection", Config::getProjectionMatrix());
     shader->setMat4("view", this->camera_->getViewMatrix());
-    this->level->draw(this->texture_pool_, shader);
+    this->level->draw(shader);
 }
 
 void GameMain::gameTick() { tick_++; }
@@ -126,6 +126,5 @@ GameMain::~GameMain() {
     delete this->resource_manager_;
     delete this->shader;
     delete this->camera_;
-    delete this->texture_pool_;
-    delete level;
+    delete this->level;
 }

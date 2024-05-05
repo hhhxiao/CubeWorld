@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cstddef>
 #include <unordered_map>
 #include "block.h"
 #include "chunk.h"
@@ -13,7 +14,7 @@ class Level {
    public:
     Level();
 
-    void draw(TexturePool *pool, Shader *shader);
+    void draw(Shader *shader);
     void updatePlayerPos(const BlockPos &pos);
 
     inline ChunkPos getChunkPos() { return this->playerPos.toChunkPos(); }

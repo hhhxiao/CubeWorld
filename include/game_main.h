@@ -23,20 +23,8 @@ class GameMain {
         shader =
             new Shader(resource_manager_->shader_path() / "main.vert", resource_manager_->shader_path() / "main.frag");
         this->camera_ = new GameCamera(glm::vec3(0.0f, 5.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f));
-        this->texture_pool_ = new TexturePool();
-        this->texture_pool_->init(resource_manager_->texture_path());
+        TexturePool::instance().init(resource_manager_->texture_path());
         this->level = new Level();
-
-        // for (int x = 0; x < 16; x++) {
-        //     for (int z = 0; z < 16; z++) {
-        //         subchunk.setBlock(x + z / 8, 0 + x / 4, z, dirt);
-        //         subchunk.setBlock(x + z / 8, 1 + x / 4, z, dirt);
-        //         subchunk.setBlock(x + z / 8, 2 + x / 4, z, dirt);
-        //         subchunk.setBlock(x + z / 8, 3 + x / 4, z, dirt);
-        //         subchunk.setBlock(x + z / 8, 4 + x / 4, z, grass);
-        //     }
-        // }
-        // subchunk.createMesh();
     }
 
     void show();
@@ -59,7 +47,6 @@ class GameMain {
     ResourceManager *resource_manager_;
     Shader *shader;
     OpenGLWindow *window{nullptr};
-    TexturePool *texture_pool_{nullptr};
     // data
     DrawableObject debugObj;
     Level *level;

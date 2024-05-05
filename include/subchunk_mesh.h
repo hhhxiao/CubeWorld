@@ -9,7 +9,6 @@
 enum Face { nx = 0, px = 1, ny = 2, py = 3, nz = 4, pz = 5 };
 
 class TexturePool;
-
 class SubChunkMesh {
     // 方块一个面的信息
     struct BlockFaceInfo {
@@ -26,12 +25,13 @@ class SubChunkMesh {
 
     void buildData();
     void sendData();
-    void draw(TexturePool *pool);
+    void draw();
 
     std::unordered_map<int, std::unordered_map<int, BlockFaceInfo>> blocks_;
     GLuint VAO{0};
     std::vector<VertexAttribute> vertices_;
     std::vector<GLuint> indices_;
+    std::unordered_map<GLuint, std::pair<int, int>> texture_mappings_;
+
     // 减少纹理重新绑定
-    std::unordered_map<BlockType, std::unordered_map<Face, std::vector<size_t>>> texture_map_;
 };

@@ -16,8 +16,13 @@
 // 简单的实现，没有缓存
 class TexturePool {
    public:
+    static TexturePool& instance();
+
+   public:
     GLuint getTextureID(BlockType type, Face face);
-    void init(const std::filesystem::path &path);
+    void init(const std::filesystem::path& path);
+
+   private:
     std::unordered_map<BlockType, std::unordered_map<Face, GLuint>> texture_ids_;
 };
 

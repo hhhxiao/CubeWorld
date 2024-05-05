@@ -12,8 +12,8 @@ float Config::zNear = 0.1f;
 float Config::zFar = 100.0f;
 
 bool Config::enableImgui = true;
-int Config::load_radius = 6;
-int Config::chunk_cache_size = 200;
+int Config::load_radius = 10;
+int Config::chunk_cache_size = 600;
 
 glm::mat4 Config::getProjectionMatrix() {
     return glm::perspective(glm::radians(fov), (float)window_width / (float)window_height, zNear, zFar);

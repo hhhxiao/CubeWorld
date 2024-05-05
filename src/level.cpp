@@ -45,17 +45,17 @@ Chunk *Level::generateNewChunk(const ChunkPos &pos) {
     return chunk;
 }
 
-void Level::draw(TexturePool *pool, Shader *shader) {
+void Level::draw(Shader *shader) {
     auto activeChunkList = getActiveChunkList(this->playerPos, Config::load_radius);
     for (auto &pos : activeChunkList) {
         auto hash = pos.hash();
         auto it = this->chunks_.find(hash);
         if (it == this->chunks_.end()) {
             auto *chunk = this->generateNewChunk(pos);
-            chunk->draw(pool, shader);
+            chunk->draw(shader);
         } else {
             this->lru_.promote(hash);
-            it->second->draw(pool, shader);
+            it->second->draw(shader);
         }
     }
 }
