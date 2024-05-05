@@ -1,5 +1,9 @@
 #include "level.h"
+#include <cstddef>
 #include <cstdint>
+#include <random>
+#include <string>
+#include <unordered_map>
 #include <vector>
 #include "block.h"
 #include "chunk.h"
@@ -26,38 +30,25 @@ namespace {
     }
 }  // namespace
 
-Level::Level() { this->generator = new FlatTerrainGenerator(); }
-
-Chunk *Level::generateNewChunk(const ChunkPos &pos) {
-    auto *chunk = new Chunk(pos);
-    chunk->init(this->generator);
-    while (this->lru_.size() > Config::chunk_cache_size) {
-        auto last = this->lru_.oldest();
-        auto it = this->chunks_.find(last);
-        if (it != this->chunks_.end()) {
-            delete it->second;
-            this->chunks_.erase(it);
-        }
-    }
-    auto hash = pos.hash();
-    lru_.insert(hash);
-    this->chunks_[hash] = chunk;
-    return chunk;
-}
+Level::Level() {}
 
 void Level::draw(Shader *shader) {
     auto activeChunkList = getActiveChunkList(this->playerPos, Config::load_radius);
     for (auto &pos : activeChunkList) {
-        auto hash = pos.hash();
-        auto it = this->chunks_.find(hash);
-        if (it == this->chunks_.end()) {
-            auto *chunk = this->generateNewChunk(pos);
-            chunk->draw(shader);
-        } else {
-            this->lru_.promote(hash);
-            it->second->draw(shader);
-        }
+        auto *chunk = this->chunk_cache_.getChunk(pos);
+        if (!chunk) continue;
+        chunk->trySendData();
+        chunk->draw(shader);
     }
 }
 
 void Level::updatePlayerPos(const BlockPos &pos) { this->playerPos = pos; }
+
+std::unordered_map<std::string, size_t> Level::getChunkStats() {
+    std::unordered_map<std::string, size_t> data;
+    data["Active chunks"] = this->chunk_cache_.ActiveChunkCount();
+    data["Chunks in queue"] = this->chunk_cache_.ChunkInTaskCount();
+    return data;
+}
+
+Level::~Level() {}

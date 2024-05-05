@@ -1,14 +1,18 @@
 #pragma once
 
 #include <cstddef>
+#include <queue>
+#include <string>
 #include <unordered_map>
+#include "async_chunk_cache.h"
 #include "block.h"
 #include "chunk.h"
 #include <cstdint>
+#include <unordered_set>
 #include "simple_shader.h"
 #include "terrain_generator.h"
 #include "lru.h"
-#include "texture.h"
+#include "thread_pool.h"
 
 class Level {
    public:
@@ -19,11 +23,11 @@ class Level {
 
     inline ChunkPos getChunkPos() { return this->playerPos.toChunkPos(); }
 
-   private:
-    Chunk *generateNewChunk(const ChunkPos &pos);
+    std::unordered_map<std::string, size_t> getChunkStats();
 
+    ~Level();
+
+   private:
     BlockPos playerPos;
-    AbstractTerrainGenerator *generator{nullptr};
-    std::unordered_map<uint64_t, Chunk *> chunks_;
-    LRUPolicy<uint64_t> lru_;
+    AsyncChunkCache chunk_cache_;
 };

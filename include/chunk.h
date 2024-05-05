@@ -28,26 +28,31 @@ class SubChunk {
 
     void draw(Shader* shader);
 
+    void trySendData();
+
    private:
     bool hasBlock(int sx, int sy, int sz);
-    void freeMesh();
     std::array<std::array<std::array<BlockType, 16>, 16>, 16> block_volume_;
     ChunkPos chunk_pos_;
     int sub_chunk_index_;
     SubChunkMesh* mesh_{nullptr};
-    bool mesh_is_dirty_{false};  // 用于更新方块，暂时不管
+    bool has_send_data_{false};
 };
 
 class Chunk {
    public:
-    Chunk(const ChunkPos& pos);
+    Chunk(const ChunkPos& pos, AbstractTerrainGenerator* generator);
 
     void setBlock(int cx, int y, int cz, BlockType type);
-    void init(AbstractTerrainGenerator* generator);
-    ~Chunk();
+
     void draw(Shader* shader);
+    void trySendData();
+
+    ~Chunk();
 
    private:
+    void init(AbstractTerrainGenerator* generator);
+
     ChunkPos pos{};
     std::array<SubChunk*, 16> sub_chunks_;
 };

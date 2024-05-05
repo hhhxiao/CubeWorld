@@ -55,15 +55,19 @@ void GameMain::init() {
             static auto display_frame_time = delta_time_;
             // 20帧更新一次显示，防止闪烁
             if (tick_ % 20 == 0) display_frame_time = delta_time_;
+            auto current_chunk_pos = level->getChunkPos();
             ImGui::Text("Frame time: %.4lf (%.2f)", display_frame_time, 1 / display_frame_time);
             ImGui::Text("Camera");
-            ImGui::Text("Fov: %.3lf", Config::fov);
+            // ImGui::Text("Fov: %.3lf", Config::fov);
             ImGui::Text("XYZ: %.3lf %.3lf %.3lf", camera_->position_.x, camera_->position_.y, camera_->position_.z);
+            ImGui::Text("Chunk XZ: %d %d", current_chunk_pos.x, current_chunk_pos.z);
             ImGui::Text("Yaw: %.3lf", camera_->yaw_);
             ImGui::Text("Pitch %.3lf", camera_->pitch_);
             ImGui::Text("Chunks");
-            auto current_chunk_pos = level->getChunkPos();
-            ImGui::Text("XZ: %d %d", current_chunk_pos.x, current_chunk_pos.z);
+            auto stat = this->level->getChunkStats();
+            for (auto kv : stat) {
+                ImGui::Text("%s: %zu", kv.first.c_str(), kv.second);
+            }
             ImGui::End();
         }
         renderTick();

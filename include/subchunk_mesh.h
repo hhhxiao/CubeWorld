@@ -31,7 +31,7 @@ class SubChunkMesh {
     GLuint VAO{0};
     std::vector<VertexAttribute> vertices_;
     std::vector<GLuint> indices_;
-    std::unordered_map<GLuint, std::pair<int, int>> texture_mappings_;
+    std::unordered_map<GLuint, std::pair<size_t, size_t>> texture_mappings_;
 
     // 减少纹理重新绑定
 };

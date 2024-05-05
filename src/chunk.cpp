@@ -39,7 +39,6 @@ void SubChunk::createMesh() {
         }
     }
     mesh_->buildData();
-    mesh_->sendData();
 }
 
 BlockType SubChunk::getBlock(int sx, int sy, int sz) {
@@ -49,9 +48,9 @@ BlockType SubChunk::getBlock(int sx, int sy, int sz) {
 
 void SubChunk::setBlock(int sx, int sy, int sz, BlockType type) {
     if (sx < 0 || sy < 0 || sz < 0 || sx >= 16 || sy >= 16 || sz >= 16) return;
-    if (this->mesh_) this->mesh_is_dirty_ = true;
     block_volume_[sx][sy][sz] = type;
 }
+
 void SubChunk::draw(Shader* shader) {
     if (this->mesh_) {
         auto model = glm::translate(
@@ -66,12 +65,18 @@ bool SubChunk::hasBlock(int sx, int sy, int sz) {
     return block_volume_[sx][sy][sz] != air;
 }
 
-void SubChunk::freeMesh() { delete this->mesh_; }
-Chunk::Chunk(const ChunkPos& pos) {
+void SubChunk::trySendData() {
+    if (has_send_data_) return;
+    has_send_data_ = true;
+    if (this->mesh_) this->mesh_->sendData();
+}
+
+Chunk::Chunk(const ChunkPos& pos, AbstractTerrainGenerator* generator) {
     this->pos = pos;
     for (int i = 0; i < 16; i++) {
         this->sub_chunks_[i] = new SubChunk(this->pos, i);
     }
+    this->init(generator);
 }
 
 Chunk::~Chunk() {
@@ -96,5 +101,11 @@ void Chunk::init(AbstractTerrainGenerator* generator) {
 void Chunk::draw(Shader* shader) {
     for (int i = 0; i < 16; i++) {
         if (this->sub_chunks_[i]) this->sub_chunks_[i]->draw(shader);
+    }
+}
+
+void Chunk::trySendData() {
+    for (int i = 0; i < 16; i++) {
+        if (this->sub_chunks_[i]) this->sub_chunks_[i]->trySendData();
     }
 }

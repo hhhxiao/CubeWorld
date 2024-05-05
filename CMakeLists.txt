@@ -15,6 +15,7 @@ add_library(base 3rd/glad.cpp
 )
 
 
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4819")
 set_target_properties(base PROPERTIES LINKER_LANGUAGE CXX)
 target_link_libraries(base ${PROJECT_SOURCE_DIR}/3rd/glfw3.lib)
 
@@ -38,5 +39,6 @@ src/chunk.cpp
 src/terrain_generator.cpp
 src/subchunk_mesh.cpp 
 src/block.cpp
+src/async_chunk_cache.cpp
 )
 target_link_libraries(main base)

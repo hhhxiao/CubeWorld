@@ -117,7 +117,8 @@ void SubChunkMesh::draw() {
     glBindVertexArray(this->VAO);
     for (auto &kv : this->texture_mappings_) {
         glBindTexture(GL_TEXTURE_2D, kv.first);
-        glDrawElements(GL_TRIANGLES, kv.second.first, GL_UNSIGNED_INT, (void *)(kv.second.second * sizeof(GLuint)));
+        glDrawElements(GL_TRIANGLES, (GLuint)kv.second.first, GL_UNSIGNED_INT,
+                       (void *)(kv.second.second * sizeof(GLuint)));
     }
 }
 
