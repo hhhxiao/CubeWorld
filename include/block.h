@@ -9,7 +9,7 @@ struct BlockPos {
     ChunkPos toChunkPos();
 };
 
-enum BlockType { air, grass, dirt, bedrock, invalid };
+enum BlockType { air, grass, dirt, water, bedrock, invalid };
 class Block {
    public:
    private:

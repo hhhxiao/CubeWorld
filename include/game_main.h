@@ -20,10 +20,10 @@ class GameMain {
     GameMain() {
         this->window = new OpenGLWindow(Config::window_width, Config::window_height, Config::SOFTWARE_NAME);
         this->window->setMouseEnable(this->enable_mouse_);
-        this->resource_manager_ = new ResourceManager(R"(C:\Users\xhy\dev\CubeWorld\res)");
+        this->resource_manager_ = new ResourceManager(R"(.\res)");
         shader =
             new Shader(resource_manager_->shader_path() / "main.vert", resource_manager_->shader_path() / "main.frag");
-        this->camera_ = new GameCamera(glm::vec3(0.0f, 5.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f));
+        this->camera_ = new GameCamera(glm::vec3(0.0f, 70.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f));
         TexturePool::instance().init(resource_manager_->texture_path());
         this->level = new Level();
     }

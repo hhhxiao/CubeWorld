@@ -72,9 +72,9 @@ void SubChunk::trySendData() {
 }
 
 Chunk::Chunk(const ChunkPos& pos, AbstractTerrainGenerator* generator) {
-    this->pos = pos;
+    this->pos_ = pos;
     for (int i = 0; i < 16; i++) {
-        this->sub_chunks_[i] = new SubChunk(this->pos, i);
+        this->sub_chunks_[i] = new SubChunk(this->pos_, i);
     }
     this->init(generator);
 }

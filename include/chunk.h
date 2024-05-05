@@ -47,12 +47,13 @@ class Chunk {
 
     void draw(Shader* shader);
     void trySendData();
+    inline ChunkPos pos() const { return this->pos_; }
 
     ~Chunk();
 
    private:
     void init(AbstractTerrainGenerator* generator);
 
-    ChunkPos pos{};
+    ChunkPos pos_{};
     std::array<SubChunk*, 16> sub_chunks_;
 };

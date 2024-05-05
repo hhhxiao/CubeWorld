@@ -5,7 +5,7 @@
 #include "thread_pool.h"
 
 AsyncChunkCache::AsyncChunkCache() {
-    this->generator_ = new FlatTerrainGenerator();
+    this->generator_ = new PerlinTerrainGeneratror(200);
     this->pool_ = new ThreadPool(2);
 }
 
