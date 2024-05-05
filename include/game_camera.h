@@ -54,7 +54,7 @@ class GameCamera {
         }
     }
     glm::vec3 position_;
-    float yaw_{0.0f};    // 左右角度(弧度)
-    float pitch_{0.0f};  // 上下仰角(弧度)
+    float yaw_{0.0f};    // 左右角度
+    float pitch_{0.0f};  // 上下仰角
     glm::vec3 front_;
 };

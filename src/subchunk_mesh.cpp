@@ -58,7 +58,8 @@ void SubChunkMesh::buildData() {
             this->indices_.push_back(size - 3);
             this->indices_.push_back(size - 2);
             this->indices_.push_back(size - 1);
-            this->texuture_ids_.push_back({block_face.second.type, block_face.second.face});
+            this->texture_map_[block_face.second.type][block_face.second.face].push_back(this->indices_.size() - 6ull);
+            // this->texuture_ids_.push_back({block_face.second.type, block_face.second.face});
         }
         // 每个面构建4个VertexAttribute(wwl1)
     }
@@ -101,12 +102,24 @@ void SubChunkMesh::sendData() {
 
 void SubChunkMesh::draw(TexturePool *pool) {
     glBindVertexArray(this->VAO);
-    auto faces_number = this->indices_.size() / 6;
-    for (int i = 0; i < faces_number; i++) {
-        glBindTexture(GL_TEXTURE_2D, pool->getTextureID(this->texuture_ids_[i].first, this->texuture_ids_[i].second));
-        glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, (void *)((i * 6) * sizeof(GLuint)));
-        glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, (void *)((i * 6 + 3) * sizeof(GLuint)));
+    for (auto &kv : this->texture_map_) {
+        for (auto fi : kv.second) {
+            glBindTexture(GL_TEXTURE_2D, pool->getTextureID(kv.first, fi.first));
+            for (auto index : fi.second) {
+                glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, (void *)(index * sizeof(GLuint)));
+            }
+        }
     }
+
+    // // glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, (void *)((i * 6) * sizeof(GLuint)));
+    // glDrawElements(GL_TRIANGLES, (GLint)this->indices_.size(), GL_UNSIGNED_INT, 0);
+    // // auto faces_number = this->indices_.size() / 6;
+    // // for (int i = 0; i < faces_number; i++) {
+    // //     glBindTexture(GL_TEXTURE_2D, pool->getTextureID(this->texuture_ids_[i].first,
+    // //     this->texuture_ids_[i].second)); glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, (void *)((i * 6)
+    // //     *sizeof(GLuint)));
+    // // glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, (void *)((i * 6 + 3) * sizeof(GLuint)));
+    // // }
 }
 
 SubChunkMesh::~SubChunkMesh() {

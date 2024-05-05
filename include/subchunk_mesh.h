@@ -1,5 +1,7 @@
 #pragma once
 
+#include <cstddef>
+#include <cstdint>
 #include <unordered_map>
 #include <utility>
 #include <vector>
@@ -30,5 +32,6 @@ class SubChunkMesh {
     GLuint VAO{0};
     std::vector<VertexAttribute> vertices_;
     std::vector<GLuint> indices_;
-    std::vector<std::pair<BlockType, Face>> texuture_ids_;
+    // 减少纹理重新绑定
+    std::unordered_map<BlockType, std::unordered_map<Face, std::vector<size_t>>> texture_map_;
 };

@@ -1,6 +1,8 @@
 #pragma once
 
 #include <array>
+#include <cstdint>
+#include <functional>
 #include "block.h"
 #include "subchunk_mesh.h"
 class Shader;
@@ -9,6 +11,9 @@ class AbstractTerrainGenerator;
 struct ChunkPos {
     int x{0};
     int z{0};
+    inline uint64_t hash() const {
+        return (static_cast<uint64_t>(x) & 0xFFFFFFFFULL) << 32 | (static_cast<uint64_t>(z) & 0xFFFFFFFFULL);
+    }
 };
 
 // 16 * 16 * 256

@@ -12,7 +12,7 @@ float Config::zNear = 0.1f;
 float Config::zFar = 100.0f;
 
 bool Config::enableImgui = true;
-int Config::load_radius = 4;
+int Config::load_radius = 6;
 int Config::chunk_cache_size = 200;
 
 glm::mat4 Config::getProjectionMatrix() {

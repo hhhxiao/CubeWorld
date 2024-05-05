@@ -37,5 +37,6 @@ src/level.cpp
 src/chunk.cpp 
 src/terrain_generator.cpp
 src/subchunk_mesh.cpp 
+src/block.cpp
 )
 target_link_libraries(main base)

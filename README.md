@@ -1,3 +1,3 @@
 # CubeWorld
 
-Minecraft in OpenGL
+Simple Minecraft in OpenGL

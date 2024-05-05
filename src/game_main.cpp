@@ -61,6 +61,9 @@ void GameMain::init() {
             ImGui::Text("XYZ: %.3lf %.3lf %.3lf", camera_->position_.x, camera_->position_.y, camera_->position_.z);
             ImGui::Text("Yaw: %.3lf", camera_->yaw_);
             ImGui::Text("Pitch %.3lf", camera_->pitch_);
+            ImGui::Text("Chunks");
+            auto current_chunk_pos = level->getChunkPos();
+            ImGui::Text("XZ: %d %d", current_chunk_pos.x, current_chunk_pos.z);
             ImGui::End();
         }
         renderTick();
@@ -95,7 +98,7 @@ void GameMain::processKeyBoardInput(GLFWwindow *window) {
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) dir = GameCamera::right;
     if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) dir = GameCamera::up;
     if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS) dir = GameCamera::down;
-    camera_->Move(dir, (float)delta_time_ * 10.0f);
+    camera_->Move(dir, (float)delta_time_ * 15.0f);
     auto cp = camera_->position_;
     this->level->updatePlayerPos({(int)cp.x, (int)cp.y, (int)cp.z});
 }

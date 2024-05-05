@@ -16,6 +16,8 @@ class Level {
     void draw(TexturePool *pool, Shader *shader);
     void updatePlayerPos(const BlockPos &pos);
 
+    inline ChunkPos getChunkPos() { return this->playerPos.toChunkPos(); }
+
    private:
     Chunk *generateNewChunk(const ChunkPos &pos);
 

@@ -5,6 +5,7 @@
 #include "chunk.h"
 #include "config.h"
 #include "subchunk_mesh.h"
+#include "utils.h"
 
 namespace {
 
@@ -38,7 +39,7 @@ Chunk *Level::generateNewChunk(const ChunkPos &pos) {
             this->chunks_.erase(it);
         }
     }
-    auto hash = (static_cast<uint64_t>(pos.x) << 32) | static_cast<uint64_t>(pos.z);
+    auto hash = pos.hash();
     lru_.insert(hash);
     this->chunks_[hash] = chunk;
     return chunk;
@@ -47,7 +48,7 @@ Chunk *Level::generateNewChunk(const ChunkPos &pos) {
 void Level::draw(TexturePool *pool, Shader *shader) {
     auto activeChunkList = getActiveChunkList(this->playerPos, Config::load_radius);
     for (auto &pos : activeChunkList) {
-        auto hash = (static_cast<uint64_t>(pos.x) << 32) | static_cast<uint64_t>(pos.z);
+        auto hash = pos.hash();
         auto it = this->chunks_.find(hash);
         if (it == this->chunks_.end()) {
             auto *chunk = this->generateNewChunk(pos);

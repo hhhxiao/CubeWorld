@@ -6,6 +6,7 @@
 #include "simple_shader.h"
 #include "subchunk_mesh.h"
 #include "terrain_generator.h"
+#include "utils.h"
 
 namespace {}  // namespace
 
