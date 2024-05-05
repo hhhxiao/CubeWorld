@@ -1,10 +1,8 @@
 #include "subchunk_mesh.h"
-#include <cstddef>
 #include <vector>
 #include "block.h"
 #include "drawable_object.h"
 #include "texture.h"
-#include "utils.h"
 
 std::vector<int> createFaceVertices(Face face) {
     if (face == px) return {1, 3, 5, 7};
