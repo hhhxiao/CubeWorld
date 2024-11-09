@@ -1,6 +1,7 @@
 #include "game_camera.h"
 #include "glm/detail/type_vec.hpp"
 #include "glm/gtc/matrix_transform.hpp"
+#include "imgui_debug_info.h"
 
 glm::mat4 GameCamera::getViewMatrix() {
     // 由于这里规定世界方向永远竖直向上，（人物不需要歪头，因此这里两个向量就能定位相机坐标，up可以直接计算）
@@ -10,4 +11,5 @@ glm::mat4 GameCamera::getViewMatrix() {
     return glm::lookAt(position_, position_ + front_, up);
 }
 
-GameCamera::GameCamera(glm::vec3 position, glm::vec3 front) : position_(position), front_(front) {}
+GameCamera::GameCamera(const glm::vec3& position, const glm::vec3& front)
+    : ImguiInfo("Camera"), position_(position), front_(front) {}

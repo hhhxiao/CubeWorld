@@ -5,18 +5,26 @@
 #include <glm/gtc/type_ptr.hpp>
 #include "glm/detail/func_trigonometric.hpp"
 #include "glm/detail/type_vec.hpp"
-#include "utils.h"
+#include "imgui.h"
+#include "imgui_debug_info.h"
 
-class GameCamera {
+class GameCamera : public ImguiInfo {
    public:
     enum Dir { left, right, forward, back, up, down, invalid };
 
    public:
     glm::mat4 getViewMatrix();
 
-    GameCamera(glm::vec3 position, glm::vec3 front);
-
+    GameCamera(const glm::vec3& position, const glm::vec3& front);
+    GameCamera() : GameCamera({0., 20., 0.}, {0., -1., 0.}) {}
+    virtual ~GameCamera() {}
     inline void updatePosition(const glm::vec3& newPosition) { position_ = newPosition; }
+
+    void showDebugInfo() override {
+        ImGui::Text("Pos: %.3f, %.3f %.3f", position_.x, position_.y, position_.z);
+        ImGui::Text("Yaw: %.3f", yaw_);
+        ImGui::Text("Pitch: %.3f", pitch_);
+    }
 
     inline void updateDir(float yawOffset, float pitchOffset) {
         yaw_ = yawOffset + yaw_;
@@ -29,7 +37,7 @@ class GameCamera {
         front_.z = sin(glm::radians(yaw_)) * cos(glm::radians(pitch_));
     }
 
-    inline void Move(Dir dir, float delta) {
+    inline void move(Dir dir, float delta) {
         switch (dir) {
             case left:
                 position_ += glm::normalize(glm::vec3(front_.z, 0, -front_.x)) * delta;

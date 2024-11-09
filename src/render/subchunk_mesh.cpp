@@ -2,7 +2,6 @@
 #include <vector>
 #include "block.h"
 #include "drawable_object.h"
-#include "texture.h"
 
 std::vector<int> createFaceVertices(Face face) {
     if (face == px) return {1, 3, 5, 7};
@@ -69,8 +68,8 @@ void SubChunkMesh::buildData() {
             }
             auto size = (GLuint)vertices_.size();
             FacePointList list{size - 4u, size - 3u, size - 2u, size - 3u, size - 2u, size - 1u};
-            temp_textures_ids_[TexturePool::instance().getTextureID(block_face.second.type, block_face.second.face)]
-                .push_back(list);
+            // temp_textures_ids_[TexturePool::instance().getTextureID(block_face.second.type, block_face.second.face)]
+            //     .push_back(list);
         }
     }
 

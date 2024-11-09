@@ -12,6 +12,7 @@ class Config {
     static constexpr auto FRAME_TIME = 1.f / MAX_FPS;
     static std::string SOFTWARE_NAME;
     static std::string SOFTWARE_VERSION;
+    static std::string RES_ROOT;
 
     static int window_width;
     static int window_height;

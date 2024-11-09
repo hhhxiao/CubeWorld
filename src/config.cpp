@@ -4,6 +4,7 @@
 std::string Config::SOFTWARE_NAME = "CubeWorld";
 std::string Config::SOFTWARE_VERSION = "0.0.1";
 
+std::string Config::RES_ROOT = R"(..\res)";
 int Config::window_width = 1920;
 int Config::window_height = 1080;
 

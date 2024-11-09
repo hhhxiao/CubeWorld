@@ -13,8 +13,6 @@ uniform sampler2D outTexture;
 void main()
 {
     // FragColor = texture(outTexture, outTexCoord);
-    
-
     // vec3 lightDir = normalize(vec3(0.1,0.8,0.1));
     // float diffuse = max(dot(outNormal, lightDir), 0.0);
     // //漫反射

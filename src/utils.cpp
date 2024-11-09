@@ -13,8 +13,8 @@
 #define KBLU "\x1B[34m"
 #define KMAG "\x1B[35m"
 #define KCYN "\x1B[36m"
-#define KWHT ""
-// #define KWHT "\x1B[37m"
+// #define KWHT ""
+#define KWHT "\x1B[37m"
 #include <cstdio>
 #include <cstdlib>
 
@@ -32,9 +32,9 @@ void log(const char *file_name, const char *function_name, size_t line, const ch
 void error_msg(const char *file_name, const char *function_name, size_t line, const char *fmt, ...) {
     va_list args;
     va_start(args, fmt);
-    fprintf(stdout, "[ERROR] [%s%zu @ %s]: ", file_name, line, function_name);
+    fprintf(stdout, KRED "[ERROR] [%s%zu @ %s]: ", file_name, line, function_name);
     vfprintf(stdout, fmt, args);
-    fprintf(stdout, "\n");
+    fprintf(stdout, KWHT "\n");
     fflush(stdout);
 }
 

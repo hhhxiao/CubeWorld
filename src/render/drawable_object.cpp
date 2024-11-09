@@ -4,19 +4,16 @@
 
 #include "drawable_object.h"
 #include <vector>
+#include "utils.h"
 
-void DrawableObject::draw() {
-    glBindVertexArray(this->VAO);
-    glDrawElements(GL_TRIANGLES, (GLint)this->indices_.size(), GL_UNSIGNED_INT, 0);
-}
-
-void DrawableObject::init() {
+void Renderable::init() {
     glGenVertexArrays(1, &this->VAO);
-    this->sendData();
+    sendData();
 }
 
-void DrawableObject::sendData() const {
+void Renderable::sendData() const {
     if (this->VAO == 0) return;
+    LOGGER("vecs: %zu, indices: %zu", vertices_.size(), indices_.size());
     // 绑定当前对象
     glBindVertexArray(this->VAO);
     // 创建缓冲区
@@ -47,25 +44,4 @@ void DrawableObject::sendData() const {
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     //    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
-}
-DrawableObject DrawableObject::createCube() {
-    std::vector<VertexAttribute> vas;
-    for (int x = 0; x <= 1; x++) {
-        for (int y = 0; y <= 1; y++) {
-            for (int z = 0; z <= 1; z++) {
-                VertexAttribute attribute{x * 1.0f, y * 1.0f, z * 1.0f, x * 1.0f, y * 1.0f, z * 1.0f, 0.0, 1.0};
-                vas.push_back(attribute);
-            }
-        }
-    }
-
-    std::vector<GLuint> indices{
-        0, 1, 2, 1, 2, 3,  // x0
-        4, 5, 6, 5, 6, 7,  // x1
-        2, 3, 6, 3, 6, 7,  // y0
-        0, 1, 4, 1, 4, 5,  // y1
-        0, 2, 4, 2, 4, 6,  // z0
-        1, 3, 5, 3, 5, 7   // z1
-    };
-    return DrawableObject(vas, indices);
 }

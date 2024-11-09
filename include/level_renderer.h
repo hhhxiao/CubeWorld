@@ -2,7 +2,6 @@
 #define LEVEL_RENDERER_H
 
 #include <cstddef>
-#include "drawable_object.h"
 #include "level_mesh.h"
 
 class RenderContext;
@@ -26,6 +25,5 @@ class LevelRenderer {
     size_t render_tick_;
     Level* level_{nullptr};
     // debug
-    DrawableObject obj_;
 };
 #endif

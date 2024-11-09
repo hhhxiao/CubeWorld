@@ -35,6 +35,8 @@ src/render/game_camera.cpp
 src/render/subchunk_mesh.cpp 
 src/render/level_mesh.cpp
 src/render/level_renderer.cpp
+src/render/render_context.cpp
+src/render/cube_map.cpp
 # data
 src/core/level.cpp
 src/core/chunk.cpp 

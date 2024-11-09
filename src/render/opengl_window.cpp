@@ -53,12 +53,12 @@ void OpenGLWindow::setMouseEnable(bool able) {
 }
 
 void OpenGLWindow::onRender(const std::function<void(GLFWwindow *)> &render) { this->on_render_ = render; }
-void OpenGLWindow::onLogic(const std::function<void()> &logic) { this->on_logic_ = logic; }
+void OpenGLWindow::onLogic(const std::function<void(double)> &logic) { this->on_logic_ = logic; }
 
 void OpenGLWindow::pool() {
     while (!glfwWindowShouldClose(this->window_)) {
         auto curTime = glfwGetTime();
-        this->on_logic_();
+        this->on_logic_(curTime - last_update_time_);
         glfwPollEvents();
         if (curTime - last_frame_time_ >= Config::FRAME_TIME) {
             this->on_render_(this->window_);

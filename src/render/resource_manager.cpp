@@ -1,3 +1,4 @@
 #include "resource_manager.h"
+#include <filesystem>
 
-ResourceManager::ResourceManager(const std::string& res_root) : res_root_(res_root) {}
+void ResourceManager::init(const fs::path& res_root) { this->res_root_ = res_root; }
