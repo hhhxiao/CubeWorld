@@ -4,7 +4,7 @@
 #include "block.h"
 #include <unordered_map>
 #include "chunk_builder.h"
-#include "drawable_object.h"
+#include "renderable.h"
 class TexturePool;
 class AsyncChunkCache;
 class LevelMesh {

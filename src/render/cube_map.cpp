@@ -1,6 +1,6 @@
 #include "cube_map.h"
-#include "drawable_object.h"
 #include "texture.h"
+#include "renderable.h"
 
 CubeMap::CubeMap() : Renderable("cubemap") {
     std::vector<float> v{// positions

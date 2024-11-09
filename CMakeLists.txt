@@ -29,7 +29,7 @@ main.cpp
 src/render/opengl_window.cpp
 src/render/texture.cpp
 src/render/simple_shader.cpp
-src/render/drawable_object.cpp
+src/render/renderable.cpp
 src/render/resource_manager.cpp
 src/render/game_camera.cpp
 src/render/subchunk_mesh.cpp 

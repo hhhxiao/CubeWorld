@@ -2,7 +2,7 @@
 // Created by xhy on 2024/5/3.
 //
 
-#include "drawable_object.h"
+#include "renderable.h"
 #include <vector>
 #include "utils.h"
 

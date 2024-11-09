@@ -2,7 +2,7 @@
 #include <unordered_map>
 #include "block.h"
 #include "glad/glad.h"
-#include "drawable_object.h"
+#include "renderable.h"
 
 class TexturePool;
 class SubChunkMesh {

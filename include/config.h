@@ -8,12 +8,13 @@
 
 class Config {
    public:
-    static constexpr auto MAX_FPS = 120.f;
+    static constexpr auto MAX_FPS = 60.f;
     static constexpr auto FRAME_TIME = 1.f / MAX_FPS;
     static std::string SOFTWARE_NAME;
     static std::string SOFTWARE_VERSION;
     static std::string RES_ROOT;
 
+    static constexpr auto MAX_MSPT = 1000;
     static int window_width;
     static int window_height;
     static float fov;

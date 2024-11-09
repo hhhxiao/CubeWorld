@@ -1,7 +1,7 @@
 #include "game_main.h"
 #include "GLFW/glfw3.h"
 #include "cube_map.h"
-#include "drawable_object.h"
+#include "renderable.h"
 #include "game_camera.h"
 #include "glm/detail/type_vec.hpp"
 #include "texture.h"
@@ -12,7 +12,6 @@ void GameMain::init() {
     TexturePool::instance().init(render_ctx_.resourceMgr().texture_path());
     imgui_diplayer_.init(window_->window());
     imgui_diplayer_.addInfo(&render_ctx_.camera());
-
     skybox = new CubeMap();
     skybox->init();
     // setup update function
