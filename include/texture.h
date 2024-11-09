@@ -23,6 +23,7 @@ class TexturePool {
     void init(const std::filesystem::path& path);
 
    private:
+    // block faceid textureID
     std::unordered_map<BlockType, std::unordered_map<Face, GLuint>> texture_ids_;
 };
 

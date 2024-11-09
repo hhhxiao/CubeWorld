@@ -25,7 +25,10 @@ void PerlinTerrainGeneratror::fill(Chunk *chunk) {
         for (int z = 0; z < 16; z++) {
             auto xx = chunk->pos().x * 16 + x;
             auto zz = chunk->pos().z * 16 + z;
+            generartor_lock_.lock();
             auto height = (int)(this->perlin_->octave2D_11(xx * 0.03, zz * 0.03, 4) * 16) + 64;
+            // auto height = 65;
+            generartor_lock_.unlock();
             chunk->setBlock(x, height, z, grass);
             for (int i = 64; i >= height; i--) {
                 chunk->setBlock(x, i, z, water);

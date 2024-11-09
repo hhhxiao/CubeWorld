@@ -80,5 +80,4 @@ inline ThreadPool::~ThreadPool() {
     condition.notify_all();
     for (std::thread& worker : workers) worker.join();
 }
-
 #endif

@@ -2,6 +2,7 @@
 
 #include <cstddef>
 #include <unordered_map>
+#include "block.h"
 #include "chunk.h"
 #include "lru.h"
 #include "terrain_generator.h"
@@ -10,6 +11,7 @@
 #include <cstdint>
 #include <mutex>
 #include <unordered_set>
+#include <vector>
 
 template <typename T>
 class TaskBuffer {
@@ -84,6 +86,8 @@ class SimpleCoucurrentMap {
         return res;
     }
 
+    const std::unordered_map<K, V> &data() { return map_; };
+
    private:
     std::unordered_map<K, V> map_;
     std::mutex mu_;
@@ -92,16 +96,34 @@ class SimpleCoucurrentMap {
 class AsyncChunkCache {
    public:
     AsyncChunkCache();
-
+    Chunk *postGetChunk(const ChunkPos &pos);
     Chunk *getChunk(const ChunkPos &pos);
+    Block getBlock(const BlockPos &pos);
 
     inline size_t ActiveChunkCount() { return chunk_cache_.size(); }
     inline size_t ChunkInTaskCount() const { return task_queue_.buffer_.size(); }
+
+   public:
+    // for render
+    void genBlockFaces(std::vector<BlockFaceInfo> &info);
 
    private:
     SimpleCoucurrentMap<uint64_t, Chunk *> chunk_cache_;
     LRUPolicy<uint64_t> lru_;
     AbstractTerrainGenerator *generator_{nullptr};
     TaskBuffer<uint64_t> task_queue_;
+    ThreadPool *pool_;
+};
+
+#include <moodycamel/concurrentqueue.h>
+#include <parallel_hashmap/phmap.h>
+class ChunkBuilder {
+    ChunkBuilder();
+    ~ChunkBuilder();
+
+   private:
+    LRUPolicy<uint64_t> lru_;
+    phmap::parallel_flat_hash_map<uint64_t, LevelChunk *> chunks;
+    moodycamel::ConcurrentQueue<uint64_t> task_queue_;
     ThreadPool *pool_;
 };

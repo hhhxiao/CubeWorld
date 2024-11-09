@@ -1,7 +1,6 @@
 #include "game_camera.h"
 #include "glm/detail/type_vec.hpp"
 #include "glm/gtc/matrix_transform.hpp"
-#include "glm/gtc/quaternion.hpp"
 
 glm::mat4 GameCamera::getViewMatrix() {
     // 由于这里规定世界方向永远竖直向上，（人物不需要歪头，因此这里两个向量就能定位相机坐标，up可以直接计算）

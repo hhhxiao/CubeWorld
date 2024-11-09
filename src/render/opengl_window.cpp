@@ -4,6 +4,7 @@
 #include "opengl_window.h"
 
 #include "GLFW/glfw3.h"
+#include "config.h"
 #include "glad/glad.h"
 #include "utils.h"
 
@@ -39,6 +40,7 @@ OpenGLWindow::OpenGLWindow(int width, int height, const std::string &name) {
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
         ERROR("Failed to initialize GLA");
     }
+    glfwSwapInterval(0);  // 关闭垂直同步
     glEnable(GL_DEPTH_TEST);
 }
 
@@ -50,13 +52,20 @@ void OpenGLWindow::setMouseEnable(bool able) {
     glfwSetInputMode(this->window(), GLFW_CURSOR, able ? GLFW_CURSOR_NORMAL : GLFW_CURSOR_DISABLED);
 }
 
-void OpenGLWindow::onFrame(const std::function<void(GLFWwindow *)> &render) { this->onRender = render; }
+void OpenGLWindow::onRender(const std::function<void(GLFWwindow *)> &render) { this->on_render_ = render; }
+void OpenGLWindow::onLogic(const std::function<void()> &logic) { this->on_logic_ = logic; }
+
 void OpenGLWindow::pool() {
     while (!glfwWindowShouldClose(this->window_)) {
-        this->onRender(this->window_);
+        auto curTime = glfwGetTime();
+        this->on_logic_();
         glfwPollEvents();
-        glfwSwapBuffers(window_);
+        if (curTime - last_frame_time_ >= Config::FRAME_TIME) {
+            this->on_render_(this->window_);
+            glfwSwapBuffers(window_);
+            last_frame_time_ = curTime;
+        }
+        last_update_time_ = curTime;
     }
 }
-
 OpenGLWindow::~OpenGLWindow() { glfwTerminate(); }

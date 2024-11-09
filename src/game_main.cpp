@@ -1,31 +1,25 @@
 #include "game_main.h"
-#include <vector>
 #include "GLFW/glfw3.h"
-#include "block.h"
 #include "config.h"
-#include "drawable_object.h"
 #include "game_camera.h"
 #include "glm/detail/type_vec.hpp"
 #include "imgui.h"
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
-#include "subchunk_mesh.h"
 namespace {
-    DrawableObject textureText() {
-        std::vector<VertexAttribute> vas{{0.5f, 0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f},
-                                         {0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f},
-                                         {-0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f},
-                                         {-0.5f, 0.5f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f}};
-        std::vector<GLuint> indices{0, 1, 3, 1, 3, 2};
-        return DrawableObject(vas, indices);
-    }
+    // DrawableObject textureText() {
+    //     std::vector<VertexAttribute> vas{{0.5f, 0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f},
+    //                                      {0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f},
+    //                                      {-0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f},
+    //                                      {-0.5f, 0.5f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f}};
+    //     std::vector<GLuint> indices{0, 1, 3, 1, 3, 2};
+    //     return DrawableObject(vas, indices);
+    // }
 }  // namespace
 
 void GameMain::init() {
-    debugObj = textureText();
-    debugObj.init();
-    this->window->setMouseCallBack(
+    this->window_->setMouseCallBack(
         [&](GLFWwindow *window, double x, double y) { this->processMouseInput(window, x, y); });
 
     IMGUI_CHECKVERSION();
@@ -34,40 +28,23 @@ void GameMain::init() {
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
     io.FontGlobalScale = 2.0;
-    ImGui_ImplGlfw_InitForOpenGL(this->window->window(), true);
+    ImGui_ImplGlfw_InitForOpenGL(this->window_->window(), true);
     ImGui_ImplOpenGL3_Init();
-    this->window->onFrame([this](GLFWwindow *) {
-        // 计算帧时间
-        auto current_time = glfwGetTime();
-        delta_time_ = current_time - last_frame_time_;
-        last_frame_time_ = current_time;
-        // 输入
-        processKeyBoardInput(this->window->window());
-        // 下面是渲染
-        gameTick();
+
+    this->window_->onLogic([this]() {
+        processKeyBoardInput(this->window_->window());
+        this->gameTick();
+    });
+
+    this->window_->onRender([this](GLFWwindow *) {
         if (Config::enableImgui) {
             ImGui_ImplOpenGL3_NewFrame();
             ImGui_ImplGlfw_NewFrame();
             ImGui::NewFrame();
             ImGui::Begin("Debug");
-            ImGui::Text("Base");
-            ImGui::Text("Tick: %zu", tick_);
-            static auto display_frame_time = delta_time_;
-            // 20帧更新一次显示，防止闪烁
-            if (tick_ % 20 == 0) display_frame_time = delta_time_;
-            auto current_chunk_pos = level->getChunkPos();
-            ImGui::Text("Frame time: %.4lf (%.2f)", display_frame_time, 1 / display_frame_time);
-            ImGui::Text("Camera");
-            ImGui::SliderFloat("Fov", &Config::fov, 5.0, 100.0);
-            ImGui::Text("XYZ: %.3lf %.3lf %.3lf", camera_->position_.x, camera_->position_.y, camera_->position_.z);
-
-            ImGui::Text("Yaw: %.3lf", camera_->yaw_);
-            ImGui::Text("Pitch %.3lf", camera_->pitch_);
-            ImGui::Text("Chunks");
-            ImGui::Text("Chunk XZ: %d %d", current_chunk_pos.x, current_chunk_pos.z);
-            auto stat = this->level->getChunkStats();
+            auto stat = this->level_->getStats();
             for (auto kv : stat) {
-                ImGui::Text("%s: %zu", kv.first.c_str(), kv.second);
+                ImGui::Text("%s: %s", kv.first.c_str(), kv.second.c_str());
             }
             ImGui::End();
         }
@@ -87,12 +64,15 @@ void GameMain::renderTick() {
     // 传入相关矩阵
     shader->setMat4("projection", Config::getProjectionMatrix());
     shader->setMat4("view", this->camera_->getViewMatrix());
-    this->level->draw(shader);
+    auto model = glm::translate(glm::mat4(1.0), glm::vec3(0, 0, 0));
+    shader->setMat4("model", model);
+    //  this->level_->draw(shader);  // temp
+    this->level_render_->rednerOneFrame(render_ctx_);
 }
 
-void GameMain::gameTick() { tick_++; }
+void GameMain::gameTick() { this->level_->tick(); }
 
-void GameMain::show() { this->window->pool(); }
+void GameMain::show() { this->window_->pool(); }
 
 void GameMain::processKeyBoardInput(GLFWwindow *window) {
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) glfwSetWindowShouldClose(window, true);
@@ -100,7 +80,7 @@ void GameMain::processKeyBoardInput(GLFWwindow *window) {
         static auto temp_anti_shake_timer = 0;
         temp_anti_shake_timer++;
         if (temp_anti_shake_timer % 10 == 0) {  // 10帧检测一次按下
-            this->window->setMouseEnable(!this->enable_mouse_);
+            this->window_->setMouseEnable(!this->enable_mouse_);
             this->enable_mouse_ = !this->enable_mouse_;
         }
     }
@@ -112,8 +92,6 @@ void GameMain::processKeyBoardInput(GLFWwindow *window) {
     if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) dir = GameCamera::up;
     if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS) dir = GameCamera::down;
     camera_->Move(dir, (float)delta_time_ * 15.0f);
-    auto cp = camera_->position_;
-    this->level->updatePlayerPos({(int)cp.x, (int)cp.y, (int)cp.z});
 }
 
 void GameMain::processMouseInput(GLFWwindow *window, double x, double y) {
@@ -133,12 +111,13 @@ void GameMain::processMouseInput(GLFWwindow *window, double x, double y) {
 }
 
 GameMain::~GameMain() {
-    delete window;
+    delete window_;
+    delete level_render_;
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();
     ImGui::DestroyContext();
     delete this->resource_manager_;
     delete this->shader;
     delete this->camera_;
-    delete this->level;
+    delete this->level_;
 }

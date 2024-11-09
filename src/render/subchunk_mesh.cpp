@@ -2,7 +2,6 @@
 #include <vector>
 #include "block.h"
 #include "drawable_object.h"
-#include "glm/detail/type_vec.hpp"
 #include "texture.h"
 
 std::vector<int> createFaceVertices(Face face) {
@@ -61,7 +60,6 @@ void SubChunkMesh::buildData() {
                                    1.0f,
                                    0.35f,
                                    0.21f,
-
                                    U,
                                    V,
                                    (float)normal.x,

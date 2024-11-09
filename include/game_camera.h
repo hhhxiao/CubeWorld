@@ -5,7 +5,7 @@
 #include <glm/gtc/type_ptr.hpp>
 #include "glm/detail/func_trigonometric.hpp"
 #include "glm/detail/type_vec.hpp"
-#include "glm/gtc/quaternion.hpp"
+#include "utils.h"
 
 class GameCamera {
    public:

@@ -1,20 +1,12 @@
 #pragma once
 
 #include <array>
-#include <cstdint>
-#include <functional>
+#include "position.h"
 #include "block.h"
 #include "subchunk_mesh.h"
 class Shader;
 
 class AbstractTerrainGenerator;
-struct ChunkPos {
-    int x{0};
-    int z{0};
-    inline uint64_t hash() const {
-        return (static_cast<uint64_t>(x) & 0xFFFFFFFFULL) << 32 | (static_cast<uint64_t>(z) & 0xFFFFFFFFULL);
-    }
-};
 
 // 16 * 16 * 256
 class SubChunk {
@@ -56,4 +48,16 @@ class Chunk {
 
     ChunkPos pos_{};
     std::array<SubChunk*, 16> sub_chunks_;
+};
+
+class LevelChunk {
+    static constexpr auto CHUNK_HEIGHT = 256;
+    LevelChunk(const ChunkPos& pos);
+    void setBlock(int cx, int y, int cz, BlockType type);
+    BlockType getBlock(int cx, int y, int cz);
+
+   private:
+    bool posValid(int cx, int y, int cz);
+    ChunkPos pos_{};
+    std::array<std::array<std::array<BlockType, 16>, 16>, CHUNK_HEIGHT> data_;
 };

@@ -15,7 +15,8 @@ class OpenGLWindow {
     inline GLFWwindow *window() { return this->window_; }
 
     void setMouseCallBack(const std::function<void(GLFWwindow *w, double, double)> &func);
-    void onFrame(const std::function<void(GLFWwindow *)> &func);
+    void onRender(const std::function<void(GLFWwindow *)> &func);
+    void onLogic(const std::function<void()> &func);
 
     void setMouseEnable(bool able);
 
@@ -25,5 +26,9 @@ class OpenGLWindow {
 
    private:
     GLFWwindow *window_{nullptr};
-    std::function<void(GLFWwindow *)> onRender;
+    std::function<void(GLFWwindow *)> on_render_;
+    std::function<void()> on_logic_;
+    // timer
+    double last_frame_time_{0.0};   // redner timer
+    double last_update_time_{0.0};  // logic timer
 };

@@ -1,14 +1,10 @@
 #include "chunk.h"
-#include <array>
 #include "block.h"
 #include "glm/detail/type_vec.hpp"
 #include "glm/gtc/matrix_transform.hpp"
 #include "simple_shader.h"
 #include "subchunk_mesh.h"
 #include "terrain_generator.h"
-#include "utils.h"
-
-namespace {}  // namespace
 
 // subchunk
 SubChunk::SubChunk(const ChunkPos& pos, int sub_chunk_index) : chunk_pos_(pos), sub_chunk_index_(sub_chunk_index) {
@@ -108,4 +104,17 @@ void Chunk::trySendData() {
     for (int i = 0; i < 16; i++) {
         if (this->sub_chunks_[i]) this->sub_chunks_[i]->trySendData();
     }
+}
+
+LevelChunk::LevelChunk(const ChunkPos& pos) {}
+void LevelChunk::setBlock(int cx, int y, int cz, BlockType type) {
+    if (!posValid(cx, y, cz)) return;
+    this->data_[y][cx][cz] = type;
+}
+BlockType LevelChunk::getBlock(int cx, int y, int cz) {
+    if (!posValid(cx, y, cz)) return BlockType::air;
+    return this->data_[y][cx][cz];
+}
+bool LevelChunk::posValid(int cx, int y, int cz) {
+    return cx >= 0 && cx < 16 && cz >= 0 && cz < 16 && y >= 0 && y < CHUNK_HEIGHT;
 }

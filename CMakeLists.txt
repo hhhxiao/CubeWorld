@@ -2,7 +2,10 @@ cmake_minimum_required(VERSION 3.10)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set (CMAKE_CXX_STANDARD 17)
 project(LearnOpenGL VERSION 0.1.0 LANGUAGES CXX)
-include_directories(${PROJECT_SOURCE_DIR}/include  ${PROJECT_SOURCE_DIR}/include/imgui)
+include_directories(
+${PROJECT_SOURCE_DIR}/include  
+${PROJECT_SOURCE_DIR}/include/imgui
+)
 
 add_library(base 3rd/glad.cpp
         3rd/imgui/imgui_demo.cpp
@@ -23,22 +26,26 @@ add_executable(
 main 
 main.cpp
 # render
-src/opengl_window.cpp
+src/render/opengl_window.cpp
+src/render/texture.cpp
+src/render/simple_shader.cpp
+src/render/drawable_object.cpp
+src/render/resource_manager.cpp
+src/render/game_camera.cpp
+src/render/subchunk_mesh.cpp 
+src/render/level_mesh.cpp
+src/render/level_renderer.cpp
+# data
+src/core/level.cpp
+src/core/chunk.cpp 
+src/core/terrain_generator.cpp
+src/core/block.cpp
+src/core/chunk_builder.cpp
+src/core/player.cpp
+src/core/data/position.cpp 
 src/game_main.cpp
 src/config.cpp
-src/texture.cpp
-src/simple_shader.cpp
 src/utils.cpp
-src/drawable_object.cpp
-src/resource_manager.cpp
-src/game_camera.cpp
 src/input_handler.cpp
-# data
-src/level.cpp
-src/chunk.cpp 
-src/terrain_generator.cpp
-src/subchunk_mesh.cpp 
-src/block.cpp
-src/async_chunk_cache.cpp
 )
 target_link_libraries(main base)

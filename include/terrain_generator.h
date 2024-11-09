@@ -1,4 +1,5 @@
 #pragma once
+#include <mutex>
 #include "PerlinNoise.hpp"
 
 class Chunk;
@@ -24,4 +25,5 @@ class PerlinTerrainGeneratror : public AbstractTerrainGenerator {
 
    private:
     siv::PerlinNoise *perlin_;
+    std::mutex generartor_lock_;
 };

@@ -1,26 +1,26 @@
-#pragma once
-#include <unordered_map>
+#ifndef LEVEL_MESH_H
+#define LEVEL_MESH_H
+
 #include "block.h"
-#include "glad/glad.h"
+#include <unordered_map>
+#include "chunk_builder.h"
 #include "drawable_object.h"
-
 class TexturePool;
-class SubChunkMesh {
+class AsyncChunkCache;
+class LevelMesh {
    public:
-    ~SubChunkMesh();
-
-   public:
-    void AddFace(const BlockFaceInfo &face);
-
-    void buildData();
+    void rebuild(ChunkBuilder* builder);
     void sendData();
-    void draw();
+    void render();
+
+   private:
+    bool valid_{true};
 
     std::unordered_map<int, std::unordered_map<int, BlockFaceInfo>> blocks_;
     GLuint VAO{0};
     std::vector<VertexAttribute> vertices_;
     std::vector<GLuint> indices_;
     std::unordered_map<GLuint, std::pair<size_t, size_t>> texture_mappings_;
-
-    // 减少纹理重新绑定
 };
+
+#endif
