@@ -43,19 +43,23 @@ namespace {
 
     bool load_cumbe_map(const fs::path &path, GLuint *textureId) {
         std::vector<fs::path> paths;
+        paths.resize(6);
         for (const auto &entry : fs::directory_iterator(path)) {
             if (!entry.is_regular_file()) continue;
             auto ext = entry.path().extension();
             if (ext != ".jpg" && ext != ".png") continue;
-            paths.emplace_back(entry.path());
+            auto name = entry.path().stem().string();
+            if (name.find("right") != std::string::npos) paths[0] = entry.path();
+            if (name.find("left") != std::string::npos) paths[1] = entry.path();
+            if (name.find("top") != std::string::npos) paths[2] = entry.path();
+            if (name.find("bottom") != std::string::npos) paths[3] = entry.path();
+            if (name.find("front") != std::string::npos) paths[4] = entry.path();
+            if (name.find("back") != std::string::npos) paths[5] = entry.path();
         }
-        if (paths.size() < 6) {
+        if (std::count_if(paths.begin(), paths.end(), [](const fs::path &p) { return p.string().empty(); }) > 0) {
             ERROR("The cube map texture in dir %s is less than 6.", path.string().c_str());
             return false;
         }
-        std::sort(paths.begin(), paths.end());
-        paths.resize(6);
-
         // load
         glGenTextures(1, textureId);
         glBindTexture(GL_TEXTURE_CUBE_MAP, *textureId);
@@ -68,8 +72,8 @@ namespace {
                 return false;
             }
             LOGGER(" - Load image %s", paths[i].string().c_str());
-            glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE,
-                         data);
+            glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGBA, width, height, 0,
+                         nrChannels == 3 ? GL_RGB : GL_RGBA, GL_UNSIGNED_BYTE, data);
             stbi_image_free(data);
         }
         glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);

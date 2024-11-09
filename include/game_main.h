@@ -1,6 +1,5 @@
 #pragma once
 #include "cube_map.h"
-#include "drawable_object.h"
 #include "imgui_debug_info.h"
 #include "level_renderer.h"
 #include "opengl_window.h"
