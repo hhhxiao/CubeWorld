@@ -1,7 +1,6 @@
 #pragma once
 #include <mutex>
-#include "PerlinNoise.hpp"
-
+#include "single/PerlinNoise.hpp"
 class Chunk;
 class AbstractTerrainGenerator {
    public:

@@ -28,7 +28,7 @@ OpenGLWindow::OpenGLWindow(int width, int height, const std::string &name) {
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     window_ = glfwCreateWindow(width, height, name.c_str(), nullptr, nullptr);
     if (window_ == nullptr) {
-        ERROR("Can not create window");
+        LE("Can not create window");
         glfwTerminate();
     }
 
@@ -38,7 +38,7 @@ OpenGLWindow::OpenGLWindow(int width, int height, const std::string &name) {
     glfwSetInputMode(this->window(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     glfwMakeContextCurrent(window_);
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
-        ERROR("Failed to initialize GLA");
+        LE("Failed to initialize GLA");
     }
     glfwSwapInterval(0);  // 关闭垂直同步
     glEnable(GL_DEPTH_TEST);

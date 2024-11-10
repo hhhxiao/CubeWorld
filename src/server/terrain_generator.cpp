@@ -1,5 +1,5 @@
 #include "terrain_generator.h"
-#include "PerlinNoise.hpp"
+#include "single/PerlinNoise.hpp"
 #include "block.h"
 #include "chunk.h"
 void FlatTerrainGenerator::fill(Chunk *chunk) {

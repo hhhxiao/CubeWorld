@@ -4,7 +4,6 @@
 
 #include "renderable.h"
 #include <vector>
-#include "utils.h"
 
 void Renderable::init() {
     glGenVertexArrays(1, &this->VAO);
@@ -13,7 +12,6 @@ void Renderable::init() {
 
 void Renderable::sendData() const {
     if (this->VAO == 0) return;
-    LOGGER("vecs: %zu, indices: %zu", vertices_.size(), indices_.size());
     // 绑定当前对象
     glBindVertexArray(this->VAO);
     // 创建缓冲区

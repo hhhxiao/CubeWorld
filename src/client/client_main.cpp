@@ -35,7 +35,7 @@ void ClientMain::renderTick() {
     // this->level_render_->rednerOneFrame(render_ctx_);
 }
 
-void ClientMain::gameTick() { this->level_->handleClientRequest(render_ctx_.camera().position_); }
+void ClientMain::gameTick() {}
 
 void ClientMain::show() { this->window_->pool(); }
 
@@ -81,5 +81,4 @@ ClientMain::~ClientMain() {
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();
     ImGui::DestroyContext();
-    delete this->level_;
 }

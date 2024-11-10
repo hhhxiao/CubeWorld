@@ -5,20 +5,24 @@
 #include <string>
 #include <unordered_map>
 #include <thread>
+#include "bridge.h"
 #include "glm/detail/type_vec.hpp"
 
 class LevelServer {
    public:
-    LevelServer();
+    LevelServer(DataBridge* bridge);
 
-    void handleClientRequest(const glm::vec3 &cameraPos);
+    void handleClientRequest(const glm::vec3& cameraPos);
 
     void tick();
 
-    std::unordered_map<std::string, std::string> getStats();
+    void start();
+
+    void stop();
 
     ~LevelServer();
 
+   private:
     // world blocks
 
     //    public:
@@ -30,7 +34,7 @@ class LevelServer {
     //     BlockPos playerPos;
     //     Player *player_;
     // server thread async
-    volatile std::atomic_bool stop_{false};
+    std::atomic_bool stop_{false};
     size_t tick_{0};
-    std::thread *main_thread_{nullptr};
+    DataBridge* bridge_{nullptr};
 };
