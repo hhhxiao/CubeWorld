@@ -19,10 +19,14 @@ class ClientMain {
 
    private:
     void renderTick();
-    void gameTick();
+
+    void syncRead();
+    void syncWrite();
+
     void processKeyBoardInput(GLFWwindow *window, double delta);
     void processMouseInput(GLFWwindow *window, double x, double y);
 
+   private:
     OpenGLWindow *window_{nullptr};
     RenderContext render_ctx_;
     ImguiInfoDisplayer imgui_diplayer_;

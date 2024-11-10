@@ -3,9 +3,10 @@
 #include <thread>
 #include "bridge.h"
 #include "config.h"
+#include "player.h"
 #include "utils.h"
 
-LevelServer::LevelServer(DataBridge* bridge) : bridge_(bridge) {}
+LevelServer::LevelServer(DataBridge* bridge) : bridge_(bridge) { this->player_ = new Player(); }
 
 void LevelServer::start() {
     LI("Server started");
@@ -24,7 +25,22 @@ void LevelServer::start() {
 
 void LevelServer::tick() {
     tick_++;
-    LD("tick = %zu", tick_);
+    syncRead();
+    syncWrite();
+}
+
+void LevelServer::syncRead() {
+    auto& buffer = bridge_->clientBuffer();
+    if (!buffer.dirty()) return;
+    player_->setPos(buffer.camera_position);
+    buffer.cleanDirty();
+}
+
+void LevelServer::syncWrite() {
+    auto& buffer = bridge_->serverBuffer();
+    buffer.beginWrite();
+    LD("Write buffer(version: %zu)", buffer.version());
+    buffer.endWrite();
 }
 
 void LevelServer::stop() {

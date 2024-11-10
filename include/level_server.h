@@ -2,11 +2,9 @@
 
 #include <atomic>
 #include <cstddef>
-#include <string>
-#include <unordered_map>
-#include <thread>
 #include "bridge.h"
 #include "glm/detail/type_vec.hpp"
+#include "player.h"
 
 class LevelServer {
    public:
@@ -17,14 +15,16 @@ class LevelServer {
     void tick();
 
     void start();
-
     void stop();
 
     ~LevelServer();
 
    private:
-    // world blocks
+    void syncRead();
+    void syncWrite();
 
+   private:
+    // world blocks
     //    public:
     //     inline void updatePlaeryPos(const glm::vec3 &pos) { this->player_->setPos(pos); }
     //     inline AsyncChunkCache &chunkBuilder() { return chunk_builder_; }
@@ -32,8 +32,9 @@ class LevelServer {
 
     //    private:
     //     BlockPos playerPos;
-    //     Player *player_;
-    // server thread async
+
+    Player* player_;
+
     std::atomic_bool stop_{false};
     size_t tick_{0};
     DataBridge* bridge_{nullptr};

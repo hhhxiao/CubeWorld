@@ -5,6 +5,7 @@
 #include "game_camera.h"
 #include "glm/detail/type_vec.hpp"
 #include "texture.h"
+#include "utils.h"
 
 void ClientMain::init() {
     window_->setMouseCallBack([&](GLFWwindow *window, double x, double y) { this->processMouseInput(window, x, y); });
@@ -17,7 +18,8 @@ void ClientMain::init() {
     // setup update function
     this->window_->onLogic([this](double delta) {
         processKeyBoardInput(this->window_->window(), delta);
-        this->gameTick();
+        syncRead();
+        syncWrite();
     });
 
     this->window_->onRender([this](GLFWwindow *) {
@@ -30,23 +32,33 @@ void ClientMain::renderTick() {
     glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     skybox->render(render_ctx_);
-    // 绘制一个简单的正方形来调试相机
-    //  this->level_->draw(shader);  // temp
-    // this->level_render_->rednerOneFrame(render_ctx_);
 }
 
-void ClientMain::gameTick() {}
+void ClientMain::syncRead() {
+    auto &buffer = bridge_->serverBuffer();
+    if (!buffer.dirty()) return;
+    LD("Read buffer(version: %zu)", buffer.version());
+    buffer.cleanDirty();
+}
+
+void ClientMain::syncWrite() {
+    auto &buffer = bridge_->clientBuffer();
+    buffer.beginWrite();
+    buffer.camera_position = render_ctx_.camera().position_;
+    buffer.endWrite();
+}
 
 void ClientMain::show() { this->window_->pool(); }
 
 void ClientMain::processKeyBoardInput(GLFWwindow *window, double delta) {
-    if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) glfwSetWindowShouldClose(window, true);
+    // if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) glfwSetWindowShouldClose(window, true);
     if (glfwGetKey(window, GLFW_KEY_LEFT_ALT) == GLFW_PRESS) {
         static auto temp_anti_shake_timer = 0;
         temp_anti_shake_timer++;
-        if (temp_anti_shake_timer % 10 == 0) {  // 10帧检测一次按下
+        if (temp_anti_shake_timer % 10 == 0) {  // 这里修改了逻辑，要重新做检查，暂时懒得改了
             this->window_->setMouseEnable(!this->enable_mouse_);
             this->enable_mouse_ = !this->enable_mouse_;
+            temp_anti_shake_timer = 0;
         }
     }
     GameCamera::Dir dir{GameCamera::invalid};

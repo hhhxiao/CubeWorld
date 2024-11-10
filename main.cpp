@@ -15,8 +15,8 @@
 void initLogger(int argc, char **argv) {
     loguru::g_preamble_date = false;
     loguru::g_preamble_uptime = false;
-    loguru::g_internal_verbosity = 1;
-    loguru::g_stderr_verbosity = 1;
+    loguru::g_internal_verbosity = 0;
+    loguru::g_stderr_verbosity = 0;
     loguru::init(argc, argv);
 }
 
