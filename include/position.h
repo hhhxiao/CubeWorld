@@ -3,7 +3,9 @@
 
 #include <cstdint>
 
+#include <functional>
 #include <glm/vec3.hpp>
+#include "parallel_hashmap/phmap_utils.h"
 
 class ChunkPos;
 class BlockPos {
@@ -17,13 +19,23 @@ class BlockPos {
 
 class ChunkPos {
    public:
+    ChunkPos() = default;
+    ChunkPos(int vx, int vz) : x(vx), z(vz) {}
     int x{0};
     int z{0};
-    inline uint64_t hash() const {
-        return (static_cast<uint64_t>(x) & 0xFFFFFFFFULL) << 32 | (static_cast<uint64_t>(z) & 0xFFFFFFFFULL);
-    }
+
+    friend size_t hash_value(const ChunkPos& p) { return phmap::HashState().combine(0, p.x, p.z); }
+
+    bool operator==(const ChunkPos& p) const { return x == p.x && z == p.z; }
 
     static ChunkPos fromVec3(const glm::vec3& vec3);
 };
+
+namespace std {
+    template <>
+    struct hash<ChunkPos> {
+        auto operator()(const ChunkPos& p) const -> size_t { return hash_value(p); }
+    };
+}  // namespace std
 
 #endif

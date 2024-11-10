@@ -2,8 +2,12 @@
 #define BRIDGE_H
 #include <cstddef>
 #include <mutex>
+#include "chunk.h"
 #include "glm/detail/type_vec.hpp"
+#include "position.h"
 #include <glm/glm.hpp>
+#include <map>
+#include <unordered_map>
 
 class Buffer {
    public:
@@ -33,6 +37,7 @@ class ClientBuffer : public Buffer {
 };
 class ServerBuffer : public Buffer {
    public:
+    std::unordered_map<ChunkPos, LevelChunk> chunks;
 };
 
 class DataBridge {

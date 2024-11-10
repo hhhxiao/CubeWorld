@@ -2,9 +2,12 @@
 
 #include <atomic>
 #include <cstddef>
+#include <cstdint>
 #include "bridge.h"
+#include "chunk_builder.h"
 #include "glm/detail/type_vec.hpp"
 #include "player.h"
+#include "utils.h"
 
 class LevelServer {
    public:
@@ -23,6 +26,9 @@ class LevelServer {
     void syncRead();
     void syncWrite();
 
+    // ticking
+    void tickChunks();
+
    private:
     // world blocks
     //    public:
@@ -36,6 +42,7 @@ class LevelServer {
     Player* player_;
 
     std::atomic_bool stop_{false};
-    size_t tick_{0};
+    tick_t tick_{0};
+    ChunkBuilder* chunk_builder_{nullptr};
     DataBridge* bridge_{nullptr};
 };

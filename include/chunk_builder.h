@@ -1,129 +1,32 @@
 #pragma once
 
 #include <cstddef>
-#include <unordered_map>
-#include "block.h"
 #include "chunk.h"
 #include "lru.h"
+#include "position.h"
 #include "terrain_generator.h"
-
 #include "thread_pool.h"
+#include "utils.h"
 #include <cstdint>
-#include <mutex>
-#include <unordered_set>
-#include <vector>
-
-template <typename T>
-class TaskBuffer {
-   public:
-    bool contains(const T &t) {
-        bool exist{false};
-        {
-            std::lock_guard<std::mutex> lk(this->mu_);
-            exist = this->buffer_.count(t) > 0;
-        }
-        return exist;
-    }
-
-    size_t size() {
-        size_t sz = 0;
-        {
-            std::lock_guard<std::mutex> kl(this->mu_);
-            sz = this->buffer_.size();
-        }
-        return sz;
-    }
-
-    void clear() {
-        std::lock_guard<std::mutex> kl(this->mu_);
-        this->buffer_.clear();
-    }
-
-    void add(const T &t) {
-        std::lock_guard<std::mutex> kl(this->mu_);
-        this->buffer_.insert(t);
-    }
-
-    void remove(const T &t) {
-        std::lock_guard<std::mutex> kl(this->mu_);
-        this->buffer_.erase(t);
-    }
-
-    std::mutex mu_;
-    std::unordered_set<T> buffer_;
-};
-
-template <typename K, typename V>
-class SimpleCoucurrentMap {
-   public:
-    void add(const K &k, const V &v) {
-        std::lock_guard<std::mutex> lk(mu_);
-        map_[k] = v;
-    }
-
-    bool get(const K &k, V &v) {
-        bool res = false;
-        std::lock_guard<std::mutex> lk(mu_);
-        {
-            auto it = this->map_.find(k);
-            if (it != this->map_.end()) {
-                res = true;
-                v = it->second;
-            }
-        }
-        return res;
-    }
-
-    void erase(const K &v) {
-        std::lock_guard<std::mutex> lk(mu_);
-        this->map_.erase(v);
-    }
-
-    size_t size() {
-        size_t res;
-        std::lock_guard<std::mutex> lk(mu_);
-        { res = this->map_.size(); }
-        return res;
-    }
-
-    const std::unordered_map<K, V> &data() { return map_; };
-
-   private:
-    std::unordered_map<K, V> map_;
-    std::mutex mu_;
-};
-
-class AsyncChunkCache {
-   public:
-    AsyncChunkCache();
-    Chunk *postGetChunk(const ChunkPos &pos);
-    Chunk *getChunk(const ChunkPos &pos);
-    Block getBlock(const BlockPos &pos);
-
-    inline size_t ActiveChunkCount() { return chunk_cache_.size(); }
-    inline size_t ChunkInTaskCount() const { return task_queue_.buffer_.size(); }
-
-   public:
-    // for render
-    void genBlockFaces(std::vector<BlockFaceInfo> &info);
-
-   private:
-    SimpleCoucurrentMap<uint64_t, Chunk *> chunk_cache_;
-    LRUPolicy<uint64_t> lru_;
-    AbstractTerrainGenerator *generator_{nullptr};
-    TaskBuffer<uint64_t> task_queue_;
-    ThreadPool *pool_;
-};
 
 #include <moodycamel/concurrentqueue.h>
 #include <parallel_hashmap/phmap.h>
+
 class ChunkBuilder {
+   public:
     ChunkBuilder();
     ~ChunkBuilder();
 
+   public:
+    LevelChunk *requestChunk(const ChunkPos &pos);
+
+    AbstractTerrainGenerator *terrain_generator_{nullptr};
+    void tick(tick_t ts);
+
    private:
-    LRUPolicy<uint64_t> lru_;
-    phmap::parallel_flat_hash_map<uint64_t, LevelChunk *> chunks;
-    moodycamel::ConcurrentQueue<uint64_t> task_queue_;
+    LRUPolicy<uint64_t> lru_;  // For clean chunks
+    phmap::parallel_flat_hash_map<ChunkPos, LevelChunk *> chunks_;
+    // task buffer
+    phmap::parallel_flat_hash_set<ChunkPos> task_queue_;
     ThreadPool *pool_;
 };

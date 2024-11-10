@@ -37,7 +37,7 @@ void ClientMain::renderTick() {
 void ClientMain::syncRead() {
     auto &buffer = bridge_->serverBuffer();
     if (!buffer.dirty()) return;
-    LD("Read buffer(version: %zu)", buffer.version());
+    // LD("Read buffer(version: %zu)", buffer.version());
     buffer.cleanDirty();
 }
 
