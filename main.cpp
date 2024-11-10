@@ -4,10 +4,10 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
-#include "game_main.h"
+#include "client_main.h"
 
 int main() {
-    GameMain main;
+    ClientMain main;
     main.init();
     main.show();
 

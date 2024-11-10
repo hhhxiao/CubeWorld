@@ -3,23 +3,23 @@
 #include "imgui_debug_info.h"
 #include "level_renderer.h"
 #include "opengl_window.h"
-#include "level.h"
 #include "render_context.h"
+#include "level_server.h"
 
-class GameMain {
+class ClientMain {
    public:
-    GameMain() {
+    ClientMain() {
         this->window_ = new OpenGLWindow(Config::window_width, Config::window_height, Config::SOFTWARE_NAME);
         this->window_->setMouseEnable(this->enable_mouse_);
-        this->level_ = new Level();
-        this->level_render_ = new LevelRenderer(level_);
+        this->level_ = new LevelServer();
+        this->level_render_ = new LevelRenderer();
     }
 
     void show();
 
     void init();
 
-    ~GameMain();
+    ~ClientMain();
 
    private:
     void renderTick();
@@ -38,7 +38,7 @@ class GameMain {
     // not uese currently
     LevelRenderer *level_render_{nullptr};
     // data
-    Level *level_{nullptr};
+    LevelServer *level_{nullptr};
     // control
     bool enable_mouse_{false};
 };

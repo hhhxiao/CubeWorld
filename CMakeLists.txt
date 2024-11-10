@@ -25,29 +25,28 @@ target_link_libraries(base ${PROJECT_SOURCE_DIR}/3rd/glfw3.lib)
 add_executable(
 main 
 main.cpp
-# render
-src/render/opengl_window.cpp
-src/render/texture.cpp
-src/render/simple_shader.cpp
-src/render/renderable.cpp
-src/render/resource_manager.cpp
-src/render/game_camera.cpp
-src/render/subchunk_mesh.cpp 
-src/render/level_mesh.cpp
-src/render/level_renderer.cpp
-src/render/render_context.cpp
-src/render/cube_map.cpp
-# data
-src/core/level.cpp
-src/core/chunk.cpp 
-src/core/terrain_generator.cpp
-src/core/block.cpp
-src/core/chunk_builder.cpp
-src/core/player.cpp
-src/core/data/position.cpp 
-src/game_main.cpp
+# render(client)
+src/client/opengl_window.cpp
+src/client/client_main.cpp
+src/client/texture.cpp
+src/client/simple_shader.cpp
+src/client/renderable.cpp
+src/client/resource_manager.cpp
+src/client/game_camera.cpp
+src/client/subchunk_mesh.cpp 
+src/client/level_mesh.cpp
+src/client/level_renderer.cpp
+src/client/render_context.cpp
+src/client/cube_map.cpp
+# cor (sever)
+src/server/level_server.cpp
+src/server/chunk.cpp 
+src/server/terrain_generator.cpp
+src/server/block.cpp
+src/server/chunk_builder.cpp
+src/server/player.cpp
+src/server/data/position.cpp 
 src/config.cpp
 src/utils.cpp
-src/input_handler.cpp
 )
 target_link_libraries(main base)

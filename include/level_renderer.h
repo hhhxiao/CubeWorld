@@ -10,7 +10,7 @@ class LevelRenderer {
     static constexpr size_t VIEW_DISTANCE = 5;
 
    public:
-    LevelRenderer(Level*);
+    LevelRenderer();
     ~LevelRenderer();
 
     void rednerOneFrame(RenderContext& ctx);
@@ -23,7 +23,6 @@ class LevelRenderer {
    private:
     LevelMesh* level_mesh_{nullptr};
     size_t render_tick_;
-    Level* level_{nullptr};
     // debug
 };
 #endif

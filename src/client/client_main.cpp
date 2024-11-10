@@ -1,4 +1,4 @@
-#include "game_main.h"
+#include "client_main.h"
 #include "GLFW/glfw3.h"
 #include "cube_map.h"
 #include "renderable.h"
@@ -6,7 +6,7 @@
 #include "glm/detail/type_vec.hpp"
 #include "texture.h"
 
-void GameMain::init() {
+void ClientMain::init() {
     window_->setMouseCallBack([&](GLFWwindow *window, double x, double y) { this->processMouseInput(window, x, y); });
     render_ctx_.init();
     TexturePool::instance().init(render_ctx_.resourceMgr().texture_path());
@@ -26,7 +26,7 @@ void GameMain::init() {
     });
 }
 
-void GameMain::renderTick() {
+void ClientMain::renderTick() {
     glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     skybox->render(render_ctx_);
@@ -35,11 +35,11 @@ void GameMain::renderTick() {
     // this->level_render_->rednerOneFrame(render_ctx_);
 }
 
-void GameMain::gameTick() { this->level_->tick(); }
+void ClientMain::gameTick() { this->level_->handleClientRequest(render_ctx_.camera().position_); }
 
-void GameMain::show() { this->window_->pool(); }
+void ClientMain::show() { this->window_->pool(); }
 
-void GameMain::processKeyBoardInput(GLFWwindow *window, double delta) {
+void ClientMain::processKeyBoardInput(GLFWwindow *window, double delta) {
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) glfwSetWindowShouldClose(window, true);
     if (glfwGetKey(window, GLFW_KEY_LEFT_ALT) == GLFW_PRESS) {
         static auto temp_anti_shake_timer = 0;
@@ -58,7 +58,7 @@ void GameMain::processKeyBoardInput(GLFWwindow *window, double delta) {
     if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS) dir = GameCamera::down;
     render_ctx_.camera().move(dir, (float)delta * 15.0f);
 }
-void GameMain::processMouseInput(GLFWwindow *window, double x, double y) {
+void ClientMain::processMouseInput(GLFWwindow *window, double x, double y) {
     if (enable_mouse_) return;
     static bool firstMouse = false;
     auto current = glm::vec2(x, y);
@@ -74,7 +74,7 @@ void GameMain::processMouseInput(GLFWwindow *window, double x, double y) {
     render_ctx_.camera().updateDir(offset.x, -offset.y);
 }
 
-GameMain::~GameMain() {
+ClientMain::~ClientMain() {
     delete window_;
     delete skybox;
     delete level_render_;

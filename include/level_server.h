@@ -5,17 +5,19 @@
 #include <string>
 #include <unordered_map>
 #include <thread>
-class Level {
+#include "glm/detail/type_vec.hpp"
+
+class LevelServer {
    public:
-    Level();
+    LevelServer();
+
+    void handleClientRequest(const glm::vec3 &cameraPos);
 
     void tick();
 
-    void serverTick();
-
     std::unordered_map<std::string, std::string> getStats();
 
-    ~Level();
+    ~LevelServer();
 
     // world blocks
 
@@ -27,7 +29,6 @@ class Level {
     //    private:
     //     BlockPos playerPos;
     //     Player *player_;
-
     // server thread async
     volatile std::atomic_bool stop_{false};
     size_t tick_{0};
