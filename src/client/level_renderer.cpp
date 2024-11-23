@@ -1,13 +1,29 @@
 #include "level_renderer.h"
 #include <cassert>
-#include "level_mesh.h"
-LevelRenderer::LevelRenderer() { this->level_mesh_ = new LevelMesh(); }
+#include "chunk_mesh.h"
+#include "render_context.h"
+#include "client_level.h"
 
-void LevelRenderer::rednerOneFrame(RenderContext &ctx) {
+LevelRenderer::LevelRenderer(ClientLevel* clientLevel) : render_tick_(0), client_level_(clientLevel) {}
+
+void LevelRenderer::renderOneFrame(RenderContext& ctx) {
     this->renderBlockWorld(ctx);
-    // todo: render fog, env and UI
+    // todo: render fog, env
 }
 
-void LevelRenderer::renderBlockWorld(RenderContext &ctx) {}
+void LevelRenderer::init() {}
 
-LevelRenderer::~LevelRenderer() { delete this->level_mesh_; }
+void LevelRenderer::updateMesh(RenderContext& ctx) { chuink_mesh_manager_.update(ctx, this->client_level_); }
+
+void LevelRenderer::renderBlockWorld(RenderContext& ctx) {
+    auto& shader = ctx.shader();
+    shader.use("chunk");
+    shader.setMat4("projection", Config::getProjectionMatrix());
+    shader.setMat4("view", ctx.camera().getViewMatrix());
+    glm::mat4 model;
+    model = glm::translate(model, glm::vec3(0, 0, 0));
+    shader.setMat4("model", model);
+    this->chuink_mesh_manager_.render(ctx);
+}
+
+LevelRenderer::~LevelRenderer() = default;

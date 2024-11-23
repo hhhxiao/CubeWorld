@@ -10,8 +10,12 @@ class Config {
    public:
     // client
 
-    static constexpr auto MAX_FPS = 60.f;
+    static constexpr auto MAX_FPS = 120.f;
     static constexpr auto FRAME_TIME = 1.f / MAX_FPS;
+
+    static constexpr auto MAX_UPS = 240.f;
+    static constexpr auto UPDATE_TIME = 1.f / MAX_UPS;
+
     static std::string SOFTWARE_NAME;
     static std::string SOFTWARE_VERSION;
     static std::string RES_ROOT;
@@ -32,6 +36,7 @@ class Config {
     static bool enableImgui;
     static int load_radius;
     static int chunk_cache_size;
+    static int view_distance;
 
     static glm::mat4 getProjectionMatrix();
 

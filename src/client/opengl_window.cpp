@@ -37,11 +37,14 @@ OpenGLWindow::OpenGLWindow(int width, int height, const std::string &name) {
     glfwSetCursorPosCallback(window_, mouse_callback);
     glfwSetInputMode(this->window(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     glfwMakeContextCurrent(window_);
-    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
+    if (!gladLoadGLLoader(reinterpret_cast<GLADloadproc>(glfwGetProcAddress))) {
         LE("Failed to initialize GLA");
     }
     glfwSwapInterval(0);  // 关闭垂直同步
+    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     glEnable(GL_DEPTH_TEST);
+    glGenVertexArrays(1, &this->VAO);
+    glBindVertexArray(VAO);
 }
 
 void OpenGLWindow::setMouseCallBack(const std::function<void(GLFWwindow *, double, double)> &func) {
@@ -58,14 +61,21 @@ void OpenGLWindow::onLogic(const std::function<void(double)> &logic) { this->on_
 void OpenGLWindow::pool() {
     while (!glfwWindowShouldClose(this->window_)) {
         auto curTime = glfwGetTime();
-        this->on_logic_(curTime - last_update_time_);
-        glfwPollEvents();
+
+        if (curTime - last_update_time_ >= Config::UPDATE_TIME) {
+            glfwPollEvents();
+            this->on_logic_(curTime - last_update_time_);
+            last_update_time_ = curTime;
+        }
+
         if (curTime - last_frame_time_ >= Config::FRAME_TIME) {
             this->on_render_(this->window_);
             glfwSwapBuffers(window_);
             last_frame_time_ = curTime;
         }
-        last_update_time_ = curTime;
     }
 }
-OpenGLWindow::~OpenGLWindow() { glfwTerminate(); }
+OpenGLWindow::~OpenGLWindow() {
+    glDeleteVertexArrays(1, &VAO);
+    glfwTerminate();
+}

@@ -8,41 +8,47 @@
 #include "utils.h"
 
 void ClientMain::init() {
-    window_->setMouseCallBack([&](GLFWwindow *window, double x, double y) { this->processMouseInput(window, x, y); });
+    window_->setMouseCallBack([&](GLFWwindow* window, double x, double y) { this->processMouseInput(window, x, y); });
     render_ctx_.init();
     TexturePool::instance().init(render_ctx_.resourceMgr().texture_path());
-    imgui_diplayer_.init(window_->window());
-    imgui_diplayer_.addInfo(&render_ctx_.camera());
+    this->level_render_->init();
+    imgui_displayer_.init(window_->window());
+    imgui_displayer_.addInfo(&render_ctx_.camera());
+    imgui_displayer_.addInfo(&bridge_->serverBuffer());
     skybox = new CubeMap();
-    skybox->init();
+    //   skybox->init();
     // setup update function
     this->window_->onLogic([this](double delta) {
         processKeyBoardInput(this->window_->window(), delta);
         syncRead();
         syncWrite();
+        this->level_render_->updateMesh(render_ctx_);
     });
-
-    this->window_->onRender([this](GLFWwindow *) {
+    this->window_->onRender([this](GLFWwindow*) {
         renderTick();
-        imgui_diplayer_.render();
+        imgui_displayer_.render();
     });
 }
 
 void ClientMain::renderTick() {
     glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    skybox->render(render_ctx_);
+    // skybox->render(render_ctx_);
+    level_render_->renderOneFrame(render_ctx_);
 }
 
 void ClientMain::syncRead() {
-    auto &buffer = bridge_->serverBuffer();
-    if (!buffer.dirty()) return;
-    // LD("Read buffer(version: %zu)", buffer.version());
-    buffer.cleanDirty();
+    auto& buffer = bridge_->serverBuffer();
+    if (!buffer.beginRead()) return;
+    if (buffer.dirty()) {
+        this->client_level_->syncChunks(buffer.chunks);
+        buffer.cleanDirty();
+    }
+    buffer.endRead();
 }
 
 void ClientMain::syncWrite() {
-    auto &buffer = bridge_->clientBuffer();
+    auto& buffer = bridge_->clientBuffer();
     buffer.beginWrite();
     buffer.camera_position = render_ctx_.camera().position_;
     buffer.endWrite();
@@ -50,12 +56,13 @@ void ClientMain::syncWrite() {
 
 void ClientMain::show() { this->window_->pool(); }
 
-void ClientMain::processKeyBoardInput(GLFWwindow *window, double delta) {
+void ClientMain::processKeyBoardInput(GLFWwindow* window, double delta) {
     // if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) glfwSetWindowShouldClose(window, true);
     if (glfwGetKey(window, GLFW_KEY_LEFT_ALT) == GLFW_PRESS) {
         static auto temp_anti_shake_timer = 0;
         temp_anti_shake_timer++;
-        if (temp_anti_shake_timer % 10 == 0) {  // 这里修改了逻辑，要重新做检查，暂时懒得改了
+        if (temp_anti_shake_timer % 10 == 0) {
+            // 这里修改了逻辑，要重新做检查，暂时懒得改了
             this->window_->setMouseEnable(!this->enable_mouse_);
             this->enable_mouse_ = !this->enable_mouse_;
             temp_anti_shake_timer = 0;
@@ -70,7 +77,8 @@ void ClientMain::processKeyBoardInput(GLFWwindow *window, double delta) {
     if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS) dir = GameCamera::down;
     render_ctx_.camera().move(dir, (float)delta * 15.0f);
 }
-void ClientMain::processMouseInput(GLFWwindow *window, double x, double y) {
+
+void ClientMain::processMouseInput(GLFWwindow* window, double x, double y) {
     if (enable_mouse_) return;
     static bool firstMouse = false;
     auto current = glm::vec2(x, y);
@@ -90,6 +98,7 @@ ClientMain::~ClientMain() {
     delete window_;
     delete skybox;
     delete level_render_;
+    delete client_level_;
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();
     ImGui::DestroyContext();

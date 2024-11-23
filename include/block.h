@@ -9,6 +9,8 @@ struct BlockFaceInfo {
     Face face;
     BlockType type;
     BlockPos pos;
+    BlockFaceInfo() = default;
+    BlockFaceInfo(Face f, BlockType t, BlockPos p) : face(f), type(t), pos(p) {}
 };
 
 class Block {

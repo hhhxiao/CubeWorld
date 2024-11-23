@@ -38,8 +38,6 @@ void CubeMap::render(RenderContext& ctx) {
     ctx.shader().setMat4("projection", Config::getProjectionMatrix());
     ctx.shader().setMat4("view", glm::mat4(glm::mat3(ctx.camera().getViewMatrix())));
     // ctx.shader().setMat4("view", ctx.camera().getViewMatrix());
-
-    glBindVertexArray(this->VAO);
     glBindTexture(GL_TEXTURE_CUBE_MAP, texture_);
     glDrawElements(GL_TRIANGLES, (GLint)this->indices_.size(), GL_UNSIGNED_INT, 0);
     glDepthMask(GL_TRUE);

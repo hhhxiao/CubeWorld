@@ -7,26 +7,30 @@
 #include <thread>
 #include "client_main.h"
 #include "bridge.h"
-#include "include/position.h"
 #include "level_server.h"
 #include "utils.h"
 
 #define _CRT_SECURE_NO_WARNINGS
 
 void initLogger(int argc, char **argv) {
+    const auto VB = 1;
     loguru::g_preamble_date = false;
     loguru::g_preamble_uptime = false;
-    loguru::g_internal_verbosity = 1;
-    loguru::g_stderr_verbosity = 1;
+    loguru::g_internal_verbosity = VB;
+    loguru::g_stderr_verbosity = VB;
+    loguru::g_colorlogtostderr = true;
     loguru::init(argc, argv);
 }
-
+void runServerOnly() {
+    auto *server = new LevelServer(new DataBridge());
+    server->start();
+}
 int main(int argc, char **argv) {
     initLogger(argc, argv);
     loguru::set_thread_name("Client");
-    DataBridge *bridge = new DataBridge();
-    ClientMain *client = new ClientMain(bridge);
-    LevelServer *server = new LevelServer(bridge);
+    auto bridge = new DataBridge();
+    auto client = new ClientMain(bridge);
+    auto server = new LevelServer(bridge);
     client->init();
     std::thread serverThread([server]() {
         loguru::set_thread_name("Server");

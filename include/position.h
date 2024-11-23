@@ -1,10 +1,9 @@
 #ifndef VEC3_H
 #define VEC3_H
 
-#include <cstdint>
-
 #include <functional>
 #include <glm/vec3.hpp>
+#include <string>
 #include "parallel_hashmap/phmap_utils.h"
 
 class ChunkPos;
@@ -15,6 +14,10 @@ class BlockPos {
     int z{0};
     ChunkPos toChunkPos();
     static BlockPos fromVec3(const glm::vec3& vec3);
+    friend size_t hash_value(const BlockPos& p) { return phmap::HashState().combine(0, p.x, p.y, p.z); }
+    std::string toString() const {
+        return "[" + std::to_string(x) + ", " + std::to_string(y) + ", " + std::to_string(z) + "]";
+    }
 };
 
 class ChunkPos {
@@ -26,7 +29,13 @@ class ChunkPos {
 
     friend size_t hash_value(const ChunkPos& p) { return phmap::HashState().combine(0, p.x, p.z); }
 
+    std::string toString() const { return "[" + std::to_string(x) + ", " + std::to_string(z) + "]"; }
+
+    BlockPos toBlockPos() const;
+
     bool operator==(const ChunkPos& p) const { return x == p.x && z == p.z; }
+
+    bool operator!=(const ChunkPos& p) const { return !(x == p.x && z == p.z); }
 
     static ChunkPos fromVec3(const glm::vec3& vec3);
 };
@@ -35,6 +44,10 @@ namespace std {
     template <>
     struct hash<ChunkPos> {
         auto operator()(const ChunkPos& p) const -> size_t { return hash_value(p); }
+    };
+    template <>
+    struct hash<BlockPos> {
+        auto operator()(const BlockPos& p) const -> size_t { return hash_value(p); }
     };
 }  // namespace std
 

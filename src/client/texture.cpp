@@ -10,7 +10,6 @@
 #include <unordered_map>
 #include <vector>
 #include "block.h"
-#include "subchunk_mesh.h"
 #include "utils.h"
 #include "magic_enum/magic_enum.hpp"
 #include <algorithm>

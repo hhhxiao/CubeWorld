@@ -41,13 +41,14 @@ class Renderable {
     Renderable(const std::string &name) : Renderable({}, {}, name) {}
     // empty with base shader
     Renderable() : Renderable("base") {}
+    ~Renderable();
     void init();
     virtual void render(RenderContext &ctx) = 0;
     inline bool empty() { return indices_.empty(); }
 
    protected:
     virtual void sendData() const;
-    GLuint VAO{0};
+    GLuint VBO, EBO{0};
     std::vector<VertexAttribute> vertices_;
     std::vector<GLuint> indices_;
     std::string shader_name_;

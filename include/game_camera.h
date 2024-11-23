@@ -7,6 +7,7 @@
 #include "glm/detail/type_vec.hpp"
 #include "imgui.h"
 #include "imgui_debug_info.h"
+#include "position.h"
 
 class GameCamera : public ImguiInfo {
    public:
@@ -16,14 +17,15 @@ class GameCamera : public ImguiInfo {
     glm::mat4 getViewMatrix();
 
     GameCamera(const glm::vec3& position, const glm::vec3& front);
-    GameCamera() : GameCamera({0., 20., 0.}, {0., -1., 0.}) {}
+    GameCamera() : GameCamera({0., 70., 0.}, {0., -1., 0.}) {}
     virtual ~GameCamera() {}
     inline void updatePosition(const glm::vec3& newPosition) { position_ = newPosition; }
 
     void showDebugInfo() override {
-        ImGui::Text("Pos: %.3f, %.3f %.3f", position_.x, position_.y, position_.z);
-        ImGui::Text("Yaw: %.3f", yaw_);
-        ImGui::Text("Pitch: %.3f", pitch_);
+        auto cp = ChunkPos::fromVec3(position_);
+        ImGui::Text("Pos: %.3f / %.3f / %.3f", position_.x, position_.y, position_.z);
+        ImGui::Text("Chunk pos: %d / %d", cp.x, cp.z);
+        ImGui::Text("Yaw / Pitch: %.3f / %.3f", yaw_, pitch_);
     }
 
     inline void updateDir(float yawOffset, float pitchOffset) {

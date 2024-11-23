@@ -31,4 +31,5 @@ class OpenGLWindow {
     // timer
     double last_frame_time_{0.0};   // redner timer
     double last_update_time_{0.0};  // logic timer
+    GLuint VAO{0};
 };

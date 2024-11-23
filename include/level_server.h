@@ -1,8 +1,6 @@
 #pragma once
 
 #include <atomic>
-#include <cstddef>
-#include <cstdint>
 #include "bridge.h"
 #include "chunk_builder.h"
 #include "glm/detail/type_vec.hpp"
@@ -11,7 +9,7 @@
 
 class LevelServer {
    public:
-    LevelServer(DataBridge* bridge);
+    explicit LevelServer(DataBridge* bridge);
 
     void handleClientRequest(const glm::vec3& cameraPos);
 
@@ -30,15 +28,6 @@ class LevelServer {
     void tickChunks();
 
    private:
-    // world blocks
-    //    public:
-    //     inline void updatePlaeryPos(const glm::vec3 &pos) { this->player_->setPos(pos); }
-    //     inline AsyncChunkCache &chunkBuilder() { return chunk_builder_; }
-    //     inline Player *getPlayer() { return this->player_; }
-
-    //    private:
-    //     BlockPos playerPos;
-
     Player* player_;
 
     std::atomic_bool stop_{false};

@@ -6,6 +6,8 @@
 #define UTILS_H
 
 #include <cstdint>
+#include <parallel_hashmap/phmap.h>
+
 #include "loguru.hpp"
 
 #define LE(...) LOG_F(ERROR, __VA_ARGS__)
@@ -14,5 +16,6 @@
 #define LD(...) LOG_F(1, __VA_ARGS__)
 
 using tick_t = int64_t;
-
+template <typename K, typename V>
+using pfhmap = phmap::parallel_flat_hash_map<K, V>;
 #endif

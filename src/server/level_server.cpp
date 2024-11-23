@@ -1,10 +1,12 @@
 #include "level_server.h"
 #include <chrono>
+#include <cstddef>
 #include <thread>
 #include "bridge.h"
+#include "chunk.h"
 #include "chunk_builder.h"
 #include "config.h"
-#include "glm/detail/type_vec.hpp"
+#include "parallel_hashmap/phmap.h"
 #include "player.h"
 #include "position.h"
 #include "utils.h"
@@ -38,39 +40,40 @@ void LevelServer::tick() {
 
 void LevelServer::syncRead() {
     auto& buffer = bridge_->clientBuffer();
-    if (!buffer.dirty()) return;
-    player_->setPos(buffer.camera_position);
-    buffer.cleanDirty();
+    if (!buffer.beginRead()) return;
+    if (buffer.dirty()) {
+        player_->setPos(buffer.camera_position);
+        buffer.cleanDirty();
+    }
+    buffer.endRead();
 }
 
 void LevelServer::syncWrite() {
     auto& buffer = bridge_->serverBuffer();
     buffer.beginWrite();
-    // send chunks
-    // delete old chunks
-    // add new chunks
-    // for (auto& chunk : buffer.chunks) {
-    // }
-    //  LD("Write buffer(version: %zu)", buffer.version());
+    buffer.chunks.clear();
+    auto& liveChunks = chunk_builder_->allLiveChunks();
+    for (auto& [pos, c] : liveChunks) {
+        buffer.chunks.push_back(*c);
+    }
+    buffer.player_position = player_->getPos();
     buffer.endWrite();
 }
 
 void LevelServer::tickChunks() {
-    auto R = Config::load_radius;
-    auto cp = BlockPos::fromVec3(player_->getPos()).toChunkPos();
+    const auto R = Config::load_radius;
+    const auto cp = BlockPos::fromVec3(player_->getPos()).toChunkPos();
     for (auto i = -R; i <= R; i++) {
         for (auto j = -R; j <= R; j++) {
-            glm::vec3(1, 1, 1);
             auto pos = ChunkPos(cp.x + i, cp.z + j);
-            auto* chunk = chunk_builder_->requestChunk(pos);
-            if (chunk) chunk->tick(tick_);
+            if (auto* chunk = chunk_builder_->requestChunk(pos)) chunk->tick(tick_);
         }
     }
     chunk_builder_->tick(tick_);
 }
 
 void LevelServer::stop() {
-    LI("Stoping server ...");
+    LI("Stopping server ...");
     stop_ = true;
 }
 

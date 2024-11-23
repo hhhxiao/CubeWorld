@@ -39,11 +39,11 @@ src/client/simple_shader.cpp
 src/client/renderable.cpp
 src/client/resource_manager.cpp
 src/client/game_camera.cpp
-src/client/subchunk_mesh.cpp 
-src/client/level_mesh.cpp
+src/client/chunk_mesh.cpp
 src/client/level_renderer.cpp
 src/client/render_context.cpp
 src/client/cube_map.cpp
+src/client/client_level.cpp
 #server
 src/server/level_server.cpp
 src/server/chunk.cpp 
@@ -52,10 +52,10 @@ src/server/block.cpp
 src/server/chunk_builder.cpp
 src/server/player.cpp
 src/server/data/position.cpp 
-src/config.cpp
-src/utils.cpp
 
-#io
-src/io/bridge.cpp
+#common
+src/common/config.cpp
+src/common/utils.cpp
+src/common/bridge.cpp
 )
 target_link_libraries(main base)

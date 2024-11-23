@@ -17,3 +17,5 @@ BlockPos BlockPos::fromVec3(const glm::vec3& vec3) {
 }
 
 ChunkPos ChunkPos::fromVec3(const glm::vec3& vec3) { return BlockPos::fromVec3(vec3).toChunkPos(); }
+
+BlockPos ChunkPos::toBlockPos() const { return {x * 16, 0, z * 16}; }
