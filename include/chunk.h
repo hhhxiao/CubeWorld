@@ -18,13 +18,13 @@ class LevelChunk {
     void setBlock(int cx, int y, int cz, BlockType type);
     BlockType getBlock(int cx, int y, int cz);
 
-    inline ChunkPos pos() const { return pos_; }
+    [[nodiscard]] ChunkPos pos() const { return pos_; }
 
     void tick(tick_t ts);
-    bool isDead(tick_t now) { return tick_ != -1 && now - tick_ > Config::CHUNK_LIFE_TICK; }
-    inline bool isDirty() { return dirty_; }
-    inline void clearDirty() { this->dirty_ = false; }
-    inline void setDirty() { this->dirty_ = true; }
+    [[nodiscard]] bool isDead(const tick_t now) const { return tick_ != -1 && now - tick_ > Config::CHUNK_LIFE_TICK; }
+    [[nodiscard]] bool isDirty() const { return dirty_; }
+    void clearDirty() { this->dirty_ = false; }
+    void setDirty() { this->dirty_ = true; }
 
    private:
     bool posValid(int cx, int y, int cz);

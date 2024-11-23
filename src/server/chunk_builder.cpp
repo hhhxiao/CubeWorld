@@ -23,20 +23,13 @@ ChunkBuilder::ChunkBuilder() {
     }
 }
 
-void ChunkBuilder::tick(tick_t ts) {
-    // clean old chunks
-    std::vector<ChunkPos> deads;
-    for (auto& chunk : this->chunks_) {
-        if (chunk.second->isDead(ts)) {
-            deads.emplace_back(chunk.first);
+void ChunkBuilder::tick(const tick_t ts) {
+    for (auto it = chunks_.begin(); it != chunks_.end();) {
+        if (it->second->isDead(ts)) {
+            it = chunks_.erase(it);
+        } else {
+            ++it;
         }
-    }
-    for (auto& d : deads) {
-        auto it = chunks_.find(d);
-        CHECK_F(it != chunks_.end(), "Chunk data error");
-        delete it->second;
-        LD("Remove dead chunk (%d %d)", d.x, d.z);
-        chunks_.erase(it);
     }
 }
 

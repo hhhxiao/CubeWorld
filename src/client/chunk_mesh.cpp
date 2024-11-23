@@ -87,28 +87,34 @@ void ChunkMesh::buildMesh(ClientLevel* level) {
         vertices_.insert(vertices_.end(), kv.second.begin(), kv.second.end());
         this->texture_mappings_[kv.first] = std::make_pair(begin, cnt);
     }
-
-    // 发送顶点数据
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, static_cast<GLuint>(vertices_.size() * sizeof(ChunkMesh::V)), vertices_.data(),
-                 GL_STATIC_DRAW);
-    // 顶点位置
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(ChunkMesh::V), static_cast<void*>(0 * sizeof(float)));
-    glEnableVertexAttribArray(0);
-    // 顶点颜色
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(ChunkMesh::V), reinterpret_cast<void*>(3 * sizeof(float)));
-    glEnableVertexAttribArray(1);
-    // 顶点纹理
-    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(ChunkMesh::V), reinterpret_cast<void*>(6 * sizeof(float)));
-    glEnableVertexAttribArray(2);
-    // 顶点法线
-    glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(ChunkMesh::V), reinterpret_cast<void*>(8 * sizeof(float)));
-    glEnableVertexAttribArray(3);
+    has_build_ = true;
+    has_buffer_data_ = false;
 }
 
 void ChunkMesh::render(RenderContext& ctx) {
     tick_ = 0;
+    if (!has_build_) return;
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    if (!has_buffer_data_) {
+        glBufferData(GL_ARRAY_BUFFER, static_cast<GLuint>(vertices_.size() * sizeof(ChunkMesh::V)), vertices_.data(),
+                     GL_STATIC_DRAW);
+        // 顶点位置
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(ChunkMesh::V), static_cast<void*>(0 * sizeof(float)));
+        glEnableVertexAttribArray(0);
+        // 顶点颜色
+        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(ChunkMesh::V),
+                              reinterpret_cast<void*>(3 * sizeof(float)));
+        glEnableVertexAttribArray(1);
+        // 顶点纹理
+        glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(ChunkMesh::V),
+                              reinterpret_cast<void*>(6 * sizeof(float)));
+        glEnableVertexAttribArray(2);
+        // 顶点法线
+        glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(ChunkMesh::V),
+                              reinterpret_cast<void*>(8 * sizeof(float)));
+        glEnableVertexAttribArray(3);
+        has_build_ = true;
+    }
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(ChunkMesh::V), static_cast<void*>(0 * sizeof(float)));
     for (auto& [textureID, vbo] : this->texture_mappings_) {
         // glBindTexture(GL_TEXTURE_2D, textureID);
@@ -119,22 +125,25 @@ void ChunkMesh::render(RenderContext& ctx) {
 ChunkMesh::~ChunkMesh() { glDeleteBuffers(1, &VBO); }
 
 void ChunkMeshMgr::update(RenderContext& ctx, ClientLevel* level) {
+    if (!task_queue_.empty()) return;
+
     const auto R = Config::view_distance;
     const auto cp = BlockPos::fromVec3(ctx.camera().position_).toChunkPos();
+
+    std::unordered_map<ChunkPos, ChunkMesh*> meshes_to_refresh;
     // remove old meshes
     for (auto it = meshes_.cbegin(); it != meshes_.cend();) {
-        if (it->second->isDead()) {
+        if (it->second->isDead() && it->second->has_buffer_data()) {
             LI("Remove mesh: %s", it->first.toString().c_str());
             delete it->second;
             it = meshes_.erase(it);
         } else {
-            // refresh side mesh
-            if (it->second->neighbor_mask() != level->neighborMask(it->first)) {
-                // refresh one
-                it->second->buildMesh(level);
-                return;
-            }
             ++it;
+        }
+    }
+    for (auto& [p, mesh] : meshes_) {
+        if (mesh->has_build() && mesh->neighbor_mask() != level->neighborMask(p)) {
+            meshes_to_refresh[p] = mesh;
         }
     }
     // update chunks
@@ -145,12 +154,22 @@ void ChunkMeshMgr::update(RenderContext& ctx, ClientLevel* level) {
             actives.insert(pos);  //
             if (!this->meshes_.count(pos) && level->hasChunk(pos)) {
                 auto* mesh = new ChunkMesh(pos);
-                LI("Build Mesh: %s", pos.toString().c_str());
                 mesh->init();
-                mesh->buildMesh(level);
                 this->meshes_[pos] = mesh;
-                return;  // 每帧就构建一个区块，防止low帧太低（后面换成线程池）
+                meshes_to_refresh[pos] = mesh;
             }
+        }
+    }
+
+    for (auto& kv : meshes_to_refresh) {
+        auto p = kv.first;
+        auto* mesh = kv.second;
+        if (!task_queue_.contains(p)) {
+            task_queue_.insert(p);
+            this->pool_->enqueue([this, mesh, level, p]() {
+                mesh->buildMesh(level);
+                task_queue_.erase(p);
+            });
         }
     }
 }
@@ -165,13 +184,14 @@ void ChunkMeshMgr::foreachRenderChunk(RenderContext& ctx, const std::function<vo
         }
     }
 }
+
 void ChunkMeshMgr::render(RenderContext& ctx) {
     for (auto& [pos, mesh] : meshes_) {
         mesh->tick_++;
     }
     this->foreachRenderChunk(ctx, [this, &ctx](const ChunkPos& pos) {
         auto it = meshes_.find(pos);
-        if (it != meshes_.end()) {
+        if (it != meshes_.end() && !task_queue_.contains(pos)) {
             it->second->render(ctx);
             it->second->tick_ = 0;
         }

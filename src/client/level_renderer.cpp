@@ -13,7 +13,15 @@ void LevelRenderer::renderOneFrame(RenderContext& ctx) {
 
 void LevelRenderer::init() {}
 
-void LevelRenderer::updateMesh(RenderContext& ctx) { chuink_mesh_manager_.update(ctx, this->client_level_); }
+void LevelRenderer::updateMesh(RenderContext& ctx) {
+    auto size = client_level_->getAllChunks().size();
+    auto va = Config::view_distance * 2 + 1;
+    if (size < va * va) {
+        // require that load_radius > view radius?
+        return;
+    }
+    chuink_mesh_manager_.update(ctx, this->client_level_);
+}
 
 void LevelRenderer::renderBlockWorld(RenderContext& ctx) {
     auto& shader = ctx.shader();

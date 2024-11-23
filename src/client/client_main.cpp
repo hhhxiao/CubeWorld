@@ -20,6 +20,7 @@ void ClientMain::init() {
     // setup update function
     this->window_->onLogic([this](double delta) {
         processKeyBoardInput(this->window_->window(), delta);
+        // this->render_ctx_.camera().move(GameCamera::Dir::forward, delta * 15.0f);
         syncRead();
         syncWrite();
         this->level_render_->updateMesh(render_ctx_);

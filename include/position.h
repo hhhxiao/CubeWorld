@@ -15,7 +15,7 @@ class BlockPos {
     ChunkPos toChunkPos();
     static BlockPos fromVec3(const glm::vec3& vec3);
     friend size_t hash_value(const BlockPos& p) { return phmap::HashState().combine(0, p.x, p.y, p.z); }
-    std::string toString() const {
+    [[nodiscard]] std::string toString() const {
         return "[" + std::to_string(x) + ", " + std::to_string(y) + ", " + std::to_string(z) + "]";
     }
 };
@@ -29,9 +29,9 @@ class ChunkPos {
 
     friend size_t hash_value(const ChunkPos& p) { return phmap::HashState().combine(0, p.x, p.z); }
 
-    std::string toString() const { return "[" + std::to_string(x) + ", " + std::to_string(z) + "]"; }
+    [[nodiscard]] std::string toString() const { return "[" + std::to_string(x) + ", " + std::to_string(z) + "]"; }
 
-    BlockPos toBlockPos() const;
+    [[nodiscard]] BlockPos toBlockPos() const;
 
     bool operator==(const ChunkPos& p) const { return x == p.x && z == p.z; }
 

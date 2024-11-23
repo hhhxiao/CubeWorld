@@ -9,23 +9,31 @@
 #include "position.h"
 
 class AbstractTerrainGenerator;
+
 class ClientLevel {
    public:
     ClientLevel();
 
-    BlockType getBlock(int x, int y, int z, const ChunkPos &src);
+    BlockType getBlock(int x, int y, int z, const ChunkPos& src);
 
-    void syncChunks(const std::vector<LevelChunk> &data);
+    void syncChunks(const std::vector<LevelChunk>& data);
 
-    const auto getAllChunks() const { return chunks_; }
+    auto getAllChunks() const { return chunks_; }
 
-    bool hasChunk(const ChunkPos &pos) const { return idxes_.find(pos) != idxes_.end(); }
+    [[nodiscard]] bool hasChunk(const ChunkPos& pos) {
+        block_lock_.lock();
+        auto res = idxes_.find(pos) != idxes_.end();
+        block_lock_.unlock();
+        return res;
+    }
 
-    int8_t neighborMask(const ChunkPos &pos) const {
-        auto n1 = (int8_t)hasChunk(ChunkPos{pos.x + 1, pos.z});
-        auto n2 = (int8_t)hasChunk(ChunkPos{pos.x - 1, pos.z});
-        auto n3 = (int8_t)hasChunk(ChunkPos{pos.x, pos.z + 1});
-        auto n4 = (int8_t)hasChunk(ChunkPos{pos.x, pos.z - 1});
+    [[nodiscard]] int8_t neighborMask(const ChunkPos& pos) {
+        block_lock_.lock();
+        auto n1 = static_cast<int8_t>(idxes_.find({pos.x + 1, pos.z}) != idxes_.end());
+        auto n2 = static_cast<int8_t>(idxes_.find({pos.x - 1, pos.z}) != idxes_.end());
+        auto n3 = static_cast<int8_t>(idxes_.find({pos.x, pos.z + 1}) != idxes_.end());
+        auto n4 = static_cast<int8_t>(idxes_.find({pos.x, pos.z - 1}) != idxes_.end());
+        block_lock_.unlock();
         return n1 * 8 + n2 * 4 + n3 * 2 + n4;
     };
 
@@ -33,6 +41,6 @@ class ClientLevel {
     std::unordered_map<ChunkPos, int> idxes_;
     std::vector<LevelChunk> chunks_;
     std::mutex block_lock_;
-    AbstractTerrainGenerator *debug_generator_;
+    AbstractTerrainGenerator* debug_generator_;
 };
 #endif

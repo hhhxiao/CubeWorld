@@ -10,6 +10,7 @@
 #include <vector>
 #include "block.h"
 #include "utils.h"
+#include "thread_pool.h"
 
 class ClientLevel;
 class RenderContext;
@@ -37,7 +38,8 @@ class ChunkMesh {
     };
 
    public:
-    explicit ChunkMesh(const ChunkPos& pos) : pos_(pos) {}
+    explicit ChunkMesh(const ChunkPos& pos) : VBO(0), pos_(pos) {}
+
     ~ChunkMesh();
 
    public:
@@ -48,7 +50,8 @@ class ChunkMesh {
 
    public:                                  // lifecycle
     bool isDead() { return tick_ > 2400; }  // 2400帧率后析构
-    bool renderTick() { tick_++; }
+    bool has_build() { return has_build_; }
+    bool has_buffer_data() { return has_buffer_data_; }
 
    public:
     int8_t neighbor_mask() const { return neighbor_mask_; }
@@ -58,11 +61,13 @@ class ChunkMesh {
 
    private:
     GLuint VBO;  // EBO is not needed here
+    bool has_build_{false};
+    bool has_buffer_data_{false};
     std::vector<ChunkMesh::V> vertices_;
     // textureID -> vert begin vert count
     std::unordered_map<GLuint, std::pair<size_t, size_t>> texture_mappings_;
     ChunkPos pos_;
-    // for lifestype
+    // for lifecycle
     tick_t tick_{-1};
     // neighbor
     int8_t neighbor_mask_{0};
@@ -71,12 +76,24 @@ class ChunkMesh {
 // Mesh Manager
 class ChunkMeshMgr {
    public:
+    ChunkMeshMgr() { this->pool_ = new ThreadPool(2); }
+    ~ChunkMeshMgr() {
+        delete pool_;
+        for (auto& [p, m] : meshes_) {
+            delete m;
+        }
+    }
+
+   public:
     void update(RenderContext& ctx, ClientLevel* level);
     void render(RenderContext& ctx);
     void foreachRenderChunk(RenderContext& ctx, const std::function<void(const ChunkPos&)>& f);
 
    private:
-    std::unordered_map<ChunkPos, ChunkMesh*> meshes_;
+    pfhmap<ChunkPos, ChunkMesh*> meshes_;
+    phmap::parallel_flat_hash_set<ChunkPos> task_queue_;
+
+    ThreadPool* pool_{nullptr};
 };
 
 #endif

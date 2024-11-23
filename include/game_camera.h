@@ -63,7 +63,7 @@ class GameCamera : public ImguiInfo {
                 break;
         }
     }
-    glm::vec3 position_;
+    glm::vec3 position_{0.0, 70.0, 0.0};
     float yaw_{0.0f};    // 左右角度
     float pitch_{0.0f};  // 上下仰角
     glm::vec3 front_;
