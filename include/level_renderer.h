@@ -13,6 +13,11 @@ class ChunkMesh;
 class RenderContext;
 class ClientLevel;
 
+struct LevelChunkRenderOrder {
+    bool operator()(const LevelChunk& c1, const LevelChunk& c2);
+    static ChunkPos camera;
+};
+
 class LevelRenderer {
     static constexpr size_t VIEW_DISTANCE = 5;
 
@@ -36,7 +41,7 @@ class LevelRenderer {
     std::unordered_map<ChunkPos, ChunkMesh*> meshes_;
     std::unordered_map<ChunkPos, LevelChunk> data_;
     std::unordered_map<ChunkPos, std::tuple<uint8_t, uint8_t>> masks_;
-    std::queue<LevelChunk> render_chunk_queue_;
+    std::priority_queue<LevelChunk, std::vector<LevelChunk>, LevelChunkRenderOrder> render_chunk_queue_;
     ChunkMesh* current_mesh_{nullptr};
     // data
     // debug

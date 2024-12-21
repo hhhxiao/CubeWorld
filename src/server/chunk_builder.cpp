@@ -1,9 +1,6 @@
 #include "chunk_builder.h"
 #include <chrono>
-#include <cstddef>
 #include <thread>
-#include <vector>
-#include "block.h"
 #include "chunk.h"
 #include "config.h"
 #include "position.h"

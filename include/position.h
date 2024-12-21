@@ -33,6 +33,9 @@ class ChunkPos {
 
     [[nodiscard]] BlockPos toBlockPos() const;
 
+    int dis2(const ChunkPos& pos) const;
+    double dis(const ChunkPos& pos) const;
+
     bool operator==(const ChunkPos& p) const { return x == p.x && z == p.z; }
 
     bool operator!=(const ChunkPos& p) const { return !(x == p.x && z == p.z); }

@@ -1,6 +1,6 @@
 #include "level_renderer.h"
+#include <algorithm>
 #include <cassert>
-#include <cstddef>
 #include <cstdint>
 #include <tuple>
 #include <unordered_map>
@@ -25,7 +25,7 @@ void LevelRenderer::init() {}
 void LevelRenderer::updateMesh(RenderContext& ctx) {
     if (!render_chunk_queue_.empty()) {
         if (!current_mesh_) {
-            auto top = this->render_chunk_queue_.front();
+            auto top = this->render_chunk_queue_.top();
             render_chunk_queue_.pop();
             // build mesh
             current_mesh_ = new ChunkMesh(top.pos());
@@ -45,8 +45,8 @@ void LevelRenderer::updateMesh(RenderContext& ctx) {
         }
     } else if (client_level_->newDataReceived()) {
         auto cp = ChunkPos::fromVec3(ctx.camera().position_);
+        LevelChunkRenderOrder::camera = cp;
         // current basic data
-
         auto data = client_level_->fetchChunkData();
         std::unordered_map<ChunkPos, std::tuple<uint8_t, uint8_t>> newMasks;
         for (auto& [pos, chunk] : this->data_) {
@@ -99,3 +99,9 @@ BlockType LevelRenderer::getBlock(int x, int y, int z) {
     return it == this->data_.end() ? BlockType::bedrock : it->second.getBlock(x - ox, y, z - oz);
 }
 LevelRenderer::~LevelRenderer() = default;
+
+bool LevelChunkRenderOrder::operator()(const LevelChunk& r1, const LevelChunk& r2) {
+    return r1.pos().dis2(camera) < r2.pos().dis2(camera);
+}
+
+ChunkPos LevelChunkRenderOrder::camera = {0, 0};
