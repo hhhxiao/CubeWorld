@@ -73,25 +73,36 @@ void ClientMain::processKeyBoardInput(GLFWwindow* window, double delta) {
 }
 
 void ClientMain::processMouseCallback(GLFWwindow* window, double x, double y) {
-    if (this->mouse_enabled_) return;
-    static bool firstMouse = false;
-    auto current = glm::vec2(x, y);
+    if (this->mouse_enabled_) return;  // noting todo, has curser
+
+    static bool firstMouse = true;
     static auto lastPos = glm::vec2(0.0, 0.0);
-    if (firstMouse) {
-        lastPos = current;
-        firstMouse = true;
+    auto currentPos = glm::vec2(x, y);
+
+    // reset status
+    if (mouse_status_changed_) {
+        mouse_status_changed_ = false;
+        lastPos = currentPos;
     }
-    auto offset = current - lastPos;
-    lastPos = current;
+
+    if (firstMouse) {
+        lastPos = currentPos;
+        firstMouse = false;
+    }
+    // position recording
+    auto offset = currentPos - lastPos;
+    lastPos = currentPos;
     offset *= 0.1;  // 灵敏度
     render_ctx_.camera().updateDir(offset.x, -offset.y);
 }
 
 void ClientMain::processKeyBoardCallback(GLFWwindow* window, int32_t key, int32_t scancode, int32_t action,
                                          int32_t mode) {
-    if (key == GLFW_KEY_LEFT_ALT && action == GLFW_PRESS) {
+    if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) {
         this->window_->setMouseEnable(!mouse_enabled_);
         mouse_enabled_ = !mouse_enabled_;
+        mouse_status_changed_ = true;
+        LD("Mouse changed");
     }
 }
 

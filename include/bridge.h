@@ -45,10 +45,12 @@ class ServerBuffer : public Buffer, public ImguiInfo {
         ImGui::Text("Position: %.3f / %.3f / %.3f", player_position.x, player_position.y, player_position.z);
         ImGui::Text("Chunk: %d / %d", cp.x, cp.z);
         ImGui::Text("Chunk Size: %zu", chunks.size());
+        ImGui::Text("Mspt: %.3lf", mspt);
     }
     std::vector<LevelChunk> chunks;
     // statics
     glm::vec3 player_position;
+    double mspt;
 };
 
 class DataBridge {

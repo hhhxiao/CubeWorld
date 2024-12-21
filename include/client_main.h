@@ -2,6 +2,7 @@
 #include "bridge.h"
 #include "client_level.h"
 #include "cube_map.h"
+#include "glm/detail/type_vec.hpp"
 #include "imgui_debug_info.h"
 #include "level_renderer.h"
 #include "opengl_window.h"
@@ -38,6 +39,9 @@ class ClientMain {
     LevelRenderer* level_render_{nullptr};
     // control
     bool mouse_enabled_{false};
+    bool mouse_status_changed_{false};
+    glm::vec2 last_mouse_position_{0.0f, 0.0f};
+
     // data
     ClientLevel* client_level_{nullptr};
     // bridge

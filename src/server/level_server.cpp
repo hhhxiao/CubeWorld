@@ -1,12 +1,10 @@
 #include "level_server.h"
 #include <chrono>
-#include <cstddef>
 #include <thread>
 #include "bridge.h"
 #include "chunk.h"
 #include "chunk_builder.h"
 #include "config.h"
-#include "parallel_hashmap/phmap.h"
 #include "player.h"
 #include "position.h"
 #include "utils.h"
@@ -32,10 +30,12 @@ void LevelServer::start() {
 }
 
 void LevelServer::tick() {
+    mspt_timer_.start();
     tick_++;
     syncRead();
     syncWrite();
     tickChunks();
+    mspt_timer_.end();
 }
 
 void LevelServer::syncRead() {
@@ -57,6 +57,7 @@ void LevelServer::syncWrite() {
         buffer.chunks.push_back(*c);
     }
     buffer.player_position = player_->getPos();
+    buffer.mspt = mspt_timer_.mean();
     buffer.endWrite();
 }
 

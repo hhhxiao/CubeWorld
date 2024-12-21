@@ -6,6 +6,7 @@
 #include "glm/detail/type_vec.hpp"
 #include "player.h"
 #include "utils.h"
+#include "time_counter.h"
 
 class LevelServer {
    public:
@@ -34,4 +35,7 @@ class LevelServer {
     tick_t tick_{0};
     ChunkBuilder* chunk_builder_{nullptr};
     DataBridge* bridge_{nullptr};
+
+    // statics
+    PeriodTimer mspt_timer_;
 };

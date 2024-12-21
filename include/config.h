@@ -24,7 +24,7 @@ class Config {
     static constexpr auto MAX_MSPT = 1000;
     static constexpr auto CHUNK_HEIGHT = 256;
     static constexpr auto CHUNK_GEN_THREAD_NUM = 4;
-    static constexpr auto CHUNK_LIFE_TIME = 10;  // chunl存活动时间，如果超过30s没有被加载就析构
+    static constexpr auto CHUNK_LIFE_TIME = 10;  // chunk存活动时间，如果超过30s没有被加载就析构
     static constexpr auto CHUNK_LIFE_TICK = CHUNK_LIFE_TIME * 1000 / MAX_MSPT;  // chuk存活时间(游戏刻单位)
 
     static int window_width;

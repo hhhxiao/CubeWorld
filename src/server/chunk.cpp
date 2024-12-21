@@ -5,7 +5,6 @@
 #include "position.h"
 #include "terrain_generator.h"
 #include <bitset>
-#include <cstddef>
 
 LevelChunk::LevelChunk(const ChunkPos& pos) : pos_(pos.x, pos.z) {
     for (int x = 0; x < 16; x++) {
@@ -27,7 +26,7 @@ LevelChunk::LevelChunk(const LevelChunk& chunk) {
     this->pos_ = chunk.pos_;
     this->data_ = chunk.data_;
     this->tick_ = chunk.tick_;
-    this->dirty_ = chunk.dirty_;
+    // this->dirty_ = chunk.dirty_;
 }
 
 void LevelChunk::tick(const tick_t ts) {
@@ -55,9 +54,9 @@ std::tuple<uint8_t, uint8_t> LevelChunk::adjacentMask(const ChunkPos& pos,
     e.set(1, i2 == ie);
     e.set(2, i3 == ie);
     e.set(3, i4 == ie);
-    if (i1 != ie) d.set(0, i1->second.isDirty());
-    if (i2 != ie) d.set(1, i2->second.isDirty());
-    if (i3 != ie) d.set(2, i3->second.isDirty());
-    if (i4 != ie) d.set(3, i4->second.isDirty());
+    // if (i1 != ie) d.set(0, i1->second.isDirty());
+    // if (i2 != ie) d.set(1, i2->second.isDirty());
+    // if (i3 != ie) d.set(2, i3->second.isDirty());
+    // if (i4 != ie) d.set(3, i4->second.isDirty());
     return {static_cast<uint8_t>(e.to_ulong()), static_cast<uint8_t>(d.to_ulong())};
 }
