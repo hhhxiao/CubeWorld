@@ -10,15 +10,20 @@
 
 class OpenGLWindow {
    public:
+    using KeyboardFuncType = void(GLFWwindow *, int32_t, int32_t, int32_t, int32_t);
+    using MouseFuncType = void(GLFWwindow *w, double, double);
+
+   public:
     OpenGLWindow(int width, int height, const std::string &name);
 
     inline GLFWwindow *window() { return this->window_; }
 
-    void setMouseCallBack(const std::function<void(GLFWwindow *w, double, double)> &func);
+    void setMouseCallback(const std::function<MouseFuncType> &func);
+    void setKeyboardCallback(const std::function<KeyboardFuncType> &func);
+    void setMouseEnable(bool able);
+
     void onRender(const std::function<void(GLFWwindow *)> &func);
     void onLogic(const std::function<void(double)> &func);
-
-    void setMouseEnable(bool able);
 
     void pool();
 

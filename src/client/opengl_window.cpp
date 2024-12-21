@@ -10,15 +10,23 @@
 
 namespace {
 
-    std::function<void(GLFWwindow *, double, double)> &mouse_callback_function() {
-        static std::function<void(GLFWwindow *, double, double)> callback = [](GLFWwindow *window, double xpos,
-                                                                               double ypos) {};
+    // mouse
+    std::function<OpenGLWindow::MouseFuncType> &mouse_callback_function() {
+        static std::function<OpenGLWindow::MouseFuncType> callback{};
+        return callback;
+    }
+    void mouse_callback(GLFWwindow *window, double xpos, double ypos) { mouse_callback_function()(window, xpos, ypos); }
+
+    // keyboard
+    std::function<OpenGLWindow::KeyboardFuncType> &keyboard_callback_function() {
+        static std::function<OpenGLWindow::KeyboardFuncType> callback{};
         return callback;
     }
 
+    void keyboard_callback(GLFWwindow *window, int32_t key, int32_t scancode, int32_t action, int32_t mode) {
+        keyboard_callback_function()(window, key, scancode, action, mode);
+    }
     void framebuffer_size_callback(GLFWwindow *window, int width, int height) { glViewport(0, 0, width, height); }
-
-    void mouse_callback(GLFWwindow *window, double xpos, double ypos) { mouse_callback_function()(window, xpos, ypos); }
 }  // namespace
 
 OpenGLWindow::OpenGLWindow(int width, int height, const std::string &name) {
@@ -33,7 +41,7 @@ OpenGLWindow::OpenGLWindow(int width, int height, const std::string &name) {
     }
 
     glfwSetFramebufferSizeCallback(window_, framebuffer_size_callback);
-    // 捕捉鼠标
+    glfwSetKeyCallback(window_, keyboard_callback);
     glfwSetCursorPosCallback(window_, mouse_callback);
     glfwSetInputMode(this->window(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     glfwMakeContextCurrent(window_);
@@ -41,14 +49,16 @@ OpenGLWindow::OpenGLWindow(int width, int height, const std::string &name) {
         LE("Failed to initialize GLA");
     }
     glfwSwapInterval(0);  // 关闭垂直同步
-    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+                          // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
     glEnable(GL_DEPTH_TEST);
     glGenVertexArrays(1, &this->VAO);
     glBindVertexArray(VAO);
 }
 
-void OpenGLWindow::setMouseCallBack(const std::function<void(GLFWwindow *, double, double)> &func) {
-    mouse_callback_function() = func;
+void OpenGLWindow::setMouseCallback(const std::function<MouseFuncType> &func) { mouse_callback_function() = func; }
+void OpenGLWindow::setKeyboardCallback(const std::function<KeyboardFuncType> &func) {
+    keyboard_callback_function() = func;
 }
 
 void OpenGLWindow::setMouseEnable(bool able) {

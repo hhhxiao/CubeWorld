@@ -4,6 +4,7 @@
 #include <utility>
 #include <vector>
 #include "block.h"
+#include "chunk.h"
 #include "config.h"
 #include "glm/detail/type_vec.hpp"
 #include "level_renderer.h"
@@ -31,6 +32,13 @@ namespace {
         if (face == nz) return {0, 0, -1};
         throw std::exception("error in create Face indices");
     }
+
+    // optimize getblock (currently unused)
+    BlockType getBlock(const BlockPos& bp, int cx, int y, int cz, LevelChunk* chunk, LevelRenderer* levelRender) {
+        if (!chunk) return air;
+        if (chunk->posValid(cx, y, cz)) return chunk->getBlock(cx, y, cz);
+        return levelRender->getBlock(bp.x + cz, bp.y + y, bp.z + cz);
+    }
 }  // namespace
 void ChunkMesh::genBuffer() {
     vertices_.clear();
@@ -40,6 +48,11 @@ void ChunkMesh::genBuffer() {
 }
 
 void ChunkMesh::buildMesh(LevelRenderer* level) {
+    auto* chunk = level->getChunkData(this->pos());
+    if (!chunk) {
+        status_ = HasBufferData;
+        return;
+    }
     auto bp = this->pos_.toBlockPos();
     if (status_ == HashGenBuffer) {
         int by = current_build_height_;

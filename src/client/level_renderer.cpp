@@ -1,6 +1,7 @@
 #include "level_renderer.h"
 #include <algorithm>
 #include <cassert>
+#include <cstddef>
 #include <cstdint>
 #include <tuple>
 #include <unordered_map>
@@ -98,6 +99,12 @@ BlockType LevelRenderer::getBlock(int x, int y, int z) {
     const auto it = this->data_.find(cp);
     return it == this->data_.end() ? BlockType::bedrock : it->second.getBlock(x - ox, y, z - oz);
 }
+
+LevelChunk* LevelRenderer::getChunkData(const ChunkPos& pos) {
+    auto it = this->data_.find(pos);
+    return it == this->data_.end() ? nullptr : &it->second;
+}
+
 LevelRenderer::~LevelRenderer() = default;
 
 bool LevelChunkRenderOrder::operator()(const LevelChunk& r1, const LevelChunk& r2) {

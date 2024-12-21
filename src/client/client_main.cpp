@@ -7,19 +7,24 @@
 #include "texture.h"
 
 void ClientMain::init() {
-    window_->setMouseCallBack([&](GLFWwindow* window, double x, double y) { this->processMouseInput(window, x, y); });
+    window_->setMouseCallback(
+        [&](GLFWwindow* window, double x, double y) { this->processMouseCallback(window, x, y); });
+
+    window_->setKeyboardCallback([&](GLFWwindow* window, int32_t key, int32_t scancode, int32_t action, int32_t mode) {
+        this->processKeyBoardCallback(window, key, scancode, action, mode);
+    });
     render_ctx_.init();
     TexturePool::instance().init(render_ctx_.resourceMgr().texture_path());
     this->level_render_->init();
     imgui_displayer_.init(window_->window());
     imgui_displayer_.addInfo(&render_ctx_.camera());
     imgui_displayer_.addInfo(&bridge_->serverBuffer());
+
     skybox = new CubeMap();
     //   skybox->init();
     // setup update function
     this->window_->onLogic([this](double delta) {
         processKeyBoardInput(this->window_->window(), delta);
-        // this->render_ctx_.camera().move(GameCamera::Dir::forward, delta * 15.0f);
         syncRead();
         syncWrite();
         this->level_render_->updateMesh(render_ctx_);
@@ -57,17 +62,6 @@ void ClientMain::syncWrite() {
 void ClientMain::show() { this->window_->pool(); }
 
 void ClientMain::processKeyBoardInput(GLFWwindow* window, double delta) {
-    // if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) glfwSetWindowShouldClose(window, true);
-    if (glfwGetKey(window, GLFW_KEY_LEFT_ALT) == GLFW_PRESS) {
-        static auto temp_anti_shake_timer = 0;
-        temp_anti_shake_timer++;
-        if (temp_anti_shake_timer % 10 == 0) {
-            // 这里修改了逻辑，要重新做检查，暂时懒得改了
-            this->window_->setMouseEnable(!this->enable_mouse_);
-            this->enable_mouse_ = !this->enable_mouse_;
-            temp_anti_shake_timer = 0;
-        }
-    }
     GameCamera::Dir dir{GameCamera::invalid};
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) dir = GameCamera::forward;
     if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) dir = GameCamera::back;
@@ -78,8 +72,8 @@ void ClientMain::processKeyBoardInput(GLFWwindow* window, double delta) {
     render_ctx_.camera().move(dir, (float)delta * 15.0f);
 }
 
-void ClientMain::processMouseInput(GLFWwindow* window, double x, double y) {
-    if (enable_mouse_) return;
+void ClientMain::processMouseCallback(GLFWwindow* window, double x, double y) {
+    if (this->mouse_enabled_) return;
     static bool firstMouse = false;
     auto current = glm::vec2(x, y);
     static auto lastPos = glm::vec2(0.0, 0.0);
@@ -87,11 +81,18 @@ void ClientMain::processMouseInput(GLFWwindow* window, double x, double y) {
         lastPos = current;
         firstMouse = true;
     }
-
     auto offset = current - lastPos;
     lastPos = current;
     offset *= 0.1;  // 灵敏度
     render_ctx_.camera().updateDir(offset.x, -offset.y);
+}
+
+void ClientMain::processKeyBoardCallback(GLFWwindow* window, int32_t key, int32_t scancode, int32_t action,
+                                         int32_t mode) {
+    if (key == GLFW_KEY_LEFT_ALT && action == GLFW_PRESS) {
+        this->window_->setMouseEnable(!mouse_enabled_);
+        mouse_enabled_ = !mouse_enabled_;
+    }
 }
 
 ClientMain::~ClientMain() {

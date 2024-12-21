@@ -10,10 +10,10 @@
 class ClientMain {
    public:
     explicit ClientMain(DataBridge* bridge) : bridge_(bridge) {
-        this->window_ = new OpenGLWindow(Config::window_width, Config::window_height, Config::SOFTWARE_NAME);
-        this->window_->setMouseEnable(this->enable_mouse_);
-        this->client_level_ = new ClientLevel();
-        this->level_render_ = new LevelRenderer(this->client_level_);
+        window_ = new OpenGLWindow(Config::window_width, Config::window_height, Config::SOFTWARE_NAME);
+        window_->setMouseEnable(mouse_enabled_);
+        client_level_ = new ClientLevel();
+        level_render_ = new LevelRenderer(this->client_level_);
     }
 
     void show();
@@ -25,8 +25,9 @@ class ClientMain {
     void syncRead();
     void syncWrite();
 
-    void processKeyBoardInput(GLFWwindow* window, double delta);
-    void processMouseInput(GLFWwindow* window, double x, double y);
+    void processKeyBoardInput(GLFWwindow* window, double delta);  // old
+    void processMouseCallback(GLFWwindow* window, double x, double y);
+    void processKeyBoardCallback(GLFWwindow* window, int32_t key, int32_t scancode, int32_t action, int32_t mode);
 
    private:
     // render
@@ -35,10 +36,10 @@ class ClientMain {
     ImguiInfoDisplayer imgui_displayer_;
     CubeMap* skybox{nullptr};
     LevelRenderer* level_render_{nullptr};
+    // control
+    bool mouse_enabled_{false};
     // data
     ClientLevel* client_level_{nullptr};
-    // control
-    bool enable_mouse_{false};
     // bridge
     DataBridge* bridge_{};
 };

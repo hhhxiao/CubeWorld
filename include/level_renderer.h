@@ -33,6 +33,7 @@ class LevelRenderer {
     void renderBlockWorld(RenderContext& ctx);
 
     BlockType getBlock(int x, int y, int z);
+    LevelChunk* getChunkData(const ChunkPos& pos);
 
    private:
     ClientLevel* client_level_{nullptr};

@@ -33,7 +33,6 @@ class LevelChunk {
     static std::tuple<uint8_t, uint8_t> adjacentMask(const ChunkPos& pos,
                                                      const std::unordered_map<ChunkPos, LevelChunk>& chunks);
 
-   private:
     bool posValid(int cx, int y, int cz);
 
    private:
