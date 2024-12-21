@@ -22,5 +22,4 @@ class RenderContext {
     ResourceManager resource_manager_;
     Shader shader_;
 };
-
 #endif

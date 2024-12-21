@@ -1,6 +1,9 @@
 #pragma once
 
 #include <array>
+#include <cstdint>
+#include <tuple>
+#include <unordered_map>
 #include "config.h"
 #include "position.h"
 #include "block.h"
@@ -25,6 +28,10 @@ class LevelChunk {
     [[nodiscard]] bool isDirty() const { return dirty_; }
     void clearDirty() { this->dirty_ = false; }
     void setDirty() { this->dirty_ = true; }
+
+   public:
+    static std::tuple<uint8_t, uint8_t> adjacentMask(const ChunkPos& pos,
+                                                     const std::unordered_map<ChunkPos, LevelChunk>& chunks);
 
    private:
     bool posValid(int cx, int y, int cz);

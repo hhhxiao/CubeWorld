@@ -1,8 +1,11 @@
 #include "chunk.h"
+#include <cstdint>
 #include "block.h"
 #include "config.h"
 #include "position.h"
 #include "terrain_generator.h"
+#include <bitset>
+#include <cstddef>
 
 LevelChunk::LevelChunk(const ChunkPos& pos) : pos_(pos.x, pos.z) {
     for (int x = 0; x < 16; x++) {
@@ -39,4 +42,22 @@ BlockType LevelChunk::getBlock(int cx, int y, int cz) {
 
 bool LevelChunk::posValid(int cx, int y, int cz) {
     return cx >= 0 && cx < 16 && cz >= 0 && cz < 16 && y >= 0 && y < Config::CHUNK_HEIGHT;
+}
+std::tuple<uint8_t, uint8_t> LevelChunk::adjacentMask(const ChunkPos& pos,
+                                                      const std::unordered_map<ChunkPos, LevelChunk>& chunks) {
+    std::bitset<4> e{0}, d{0};
+    auto i1 = chunks.find(ChunkPos{pos.x - 1, pos.z});
+    auto i2 = chunks.find(ChunkPos{pos.x + 1, pos.z});
+    auto i3 = chunks.find(ChunkPos{pos.x, pos.z - 1});
+    auto i4 = chunks.find(ChunkPos{pos.x, pos.z + 1});
+    auto ie = chunks.end();
+    e.set(0, i1 == ie);
+    e.set(1, i2 == ie);
+    e.set(2, i3 == ie);
+    e.set(3, i4 == ie);
+    if (i1 != ie) d.set(0, i1->second.isDirty());
+    if (i2 != ie) d.set(1, i2->second.isDirty());
+    if (i3 != ie) d.set(2, i3->second.isDirty());
+    if (i4 != ie) d.set(3, i4->second.isDirty());
+    return {static_cast<uint8_t>(e.to_ulong()), static_cast<uint8_t>(d.to_ulong())};
 }

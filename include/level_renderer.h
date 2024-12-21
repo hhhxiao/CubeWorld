@@ -2,8 +2,14 @@
 #define LEVEL_RENDERER_H
 
 #include <cstddef>
-#include "chunk_mesh.h"
+#include <cstdint>
+#include <queue>
+#include <tuple>
+#include <unordered_map>
+#include "chunk.h"
+#include "position.h"
 
+class ChunkMesh;
 class RenderContext;
 class ClientLevel;
 
@@ -19,15 +25,19 @@ class LevelRenderer {
     void updateMesh(RenderContext& ctx);
 
     void renderOneFrame(RenderContext& ctx);
-
     void renderBlockWorld(RenderContext& ctx);
 
-    [[nodiscard]] size_t render_tick() const { return render_tick_; }
+    BlockType getBlock(int x, int y, int z);
 
    private:
-    size_t render_tick_;
     ClientLevel* client_level_{nullptr};
-    ChunkMeshMgr chuink_mesh_manager_;
+
+    //
+    std::unordered_map<ChunkPos, ChunkMesh*> meshes_;
+    std::unordered_map<ChunkPos, LevelChunk> data_;
+    std::unordered_map<ChunkPos, std::tuple<uint8_t, uint8_t>> masks_;
+    std::queue<LevelChunk> render_chunk_queue_;
+    ChunkMesh* current_mesh_{nullptr};
     // data
     // debug
 };

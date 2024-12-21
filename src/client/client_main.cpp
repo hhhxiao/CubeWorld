@@ -5,7 +5,6 @@
 #include "game_camera.h"
 #include "glm/detail/type_vec.hpp"
 #include "texture.h"
-#include "utils.h"
 
 void ClientMain::init() {
     window_->setMouseCallBack([&](GLFWwindow* window, double x, double y) { this->processMouseInput(window, x, y); });
