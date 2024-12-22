@@ -26,7 +26,10 @@ namespace {
     void keyboard_callback(GLFWwindow *window, int32_t key, int32_t scancode, int32_t action, int32_t mode) {
         keyboard_callback_function()(window, key, scancode, action, mode);
     }
-    void framebuffer_size_callback(GLFWwindow *window, int width, int height) { glViewport(0, 0, width, height); }
+    void framebuffer_size_callback(GLFWwindow *window, int width, int height) {
+        glViewport(0, 0, width, height);
+        Config::updateWindowSize(width, height);
+    }
 }  // namespace
 
 OpenGLWindow::OpenGLWindow(int width, int height, const std::string &name) {
@@ -49,9 +52,10 @@ OpenGLWindow::OpenGLWindow(int width, int height, const std::string &name) {
         LE("Failed to initialize GLA");
     }
     glfwSwapInterval(0);  // 关闭垂直同步
-                          // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
     glEnable(GL_DEPTH_TEST);
+    // glEnable(GL_CULL_FACE);
     glGenVertexArrays(1, &this->VAO);
     glBindVertexArray(VAO);
 }

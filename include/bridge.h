@@ -44,12 +44,13 @@ class ServerBuffer : public Buffer, public ImguiInfo {
         auto cp = ChunkPos::fromVec3(player_position);
         ImGui::Text("Position: %.3f / %.3f / %.3f", player_position.x, player_position.y, player_position.z);
         ImGui::Text("Chunk: %d / %d", cp.x, cp.z);
-        ImGui::Text("Chunk Size: %zu", chunks.size());
+        ImGui::Text("Cache size: %zu / %zu", chunks.size(), chunk_cache_size);
         ImGui::Text("Mspt: %.3lf", mspt);
     }
     std::vector<LevelChunk> chunks;
     // statics
     glm::vec3 player_position;
+    size_t chunk_cache_size;
     double mspt;
 };
 

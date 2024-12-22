@@ -80,21 +80,31 @@ void ChunkMesh::bufferData() {
     std::unordered_map<GLuint, std::vector<ChunkMesh::V>> tmp_mappings;
     for (auto f : fis_) {
         auto vs = createFaceVertices(f.face);
+        auto normal = getFaceNormal(f.face);
         auto pos = f.pos;
-        std::vector<glm::vec3> poss;
-        for (auto v : vs) {
+        std::vector<V> vertices;
+        vertices.reserve(4);
+        for (int i = 0; i < vs.size(); i++) {
+            auto v = vs[i];
+            auto U = 0.0f, V = 0.0f;
+            if (i == 1) V = 1.0f;
+            if (i == 2) U = 1.0f;
+            if (i == 3) U = 1.0f, V = 1.0f;
             auto dx = static_cast<GLfloat>(v % 2);
             auto dy = static_cast<GLfloat>(v >= 4 ? 1 : 0);
             auto dz = static_cast<GLfloat>((v % 4) >= 2 ? 1 : 0);
-            poss.emplace_back(dx + pos.x, dy + pos.y, dz + pos.z);
+            auto vert = V::fromPos(glm::vec3(dx + pos.x, dy + pos.y, dz + pos.z));
+            vert.setNormal((GLfloat)normal.x, (GLfloat)normal.y, (GLfloat)normal.z);
+            vert.setUV(U, V);
+            vertices.push_back(vert);
         }
         auto& array = tmp_mappings[TexturePool::instance().getTextureID(f.type, f.face)];
-        array.push_back(V::fromPos(poss[0]));
-        array.push_back(V::fromPos(poss[1]));
-        array.push_back(V::fromPos(poss[2]));
-        array.push_back(V::fromPos(poss[1]));
-        array.push_back(V::fromPos(poss[2]));
-        array.push_back(V::fromPos(poss[3]));
+        array.push_back(vertices[0]);
+        array.push_back(vertices[1]);
+        array.push_back(vertices[2]);
+        array.push_back(vertices[1]);
+        array.push_back(vertices[2]);
+        array.push_back(vertices[3]);
     }
 
     // build verticles
@@ -141,7 +151,19 @@ bool ChunkMesh::stepInit(LevelRenderer* level) {
 void ChunkMesh::render(RenderContext& ctx) {
     if (status_ < HasBufferData) return;
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    // glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(ChunkMesh::V), static_cast<void*>(0 * sizeof(float)));
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(ChunkMesh::V), static_cast<void*>(0 * sizeof(float)));
+    glEnableVertexAttribArray(0);
+    // 顶点颜色
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(ChunkMesh::V), reinterpret_cast<void*>(3 * sizeof(float)));
+    glEnableVertexAttribArray(1);
+    // 顶点纹理
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(ChunkMesh::V), reinterpret_cast<void*>(6 * sizeof(float)));
+    glEnableVertexAttribArray(2);
+    // 顶点法线
+    glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(ChunkMesh::V), reinterpret_cast<void*>(8 * sizeof(float)));
+    glEnableVertexAttribArray(3);
+
     for (auto& [textureID, vbo] : this->texture_mappings_) {
         glBindTexture(GL_TEXTURE_2D, textureID);
         glDrawArrays(GL_TRIANGLES, static_cast<GLuint>(vbo.first), static_cast<GLsizei>(vbo.second));

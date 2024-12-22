@@ -53,16 +53,19 @@ void LevelServer::syncWrite() {
     buffer.beginWrite();
     buffer.chunks.clear();
     auto& liveChunks = chunk_builder_->allLiveChunks();
+    auto cp = player_->getChunkPos();
     for (auto& [pos, c] : liveChunks) {
+        if (cp.dis2(pos) > Config::LOAD_RADIUS * Config::LOAD_RADIUS) continue;
         buffer.chunks.push_back(*c);
     }
     buffer.player_position = player_->getPos();
     buffer.mspt = mspt_timer_.mean();
+    buffer.chunk_cache_size = liveChunks.size();
     buffer.endWrite();
 }
 
 void LevelServer::tickChunks() {
-    const auto R = Config::load_radius;
+    const auto R = Config::LOAD_RADIUS;
     const auto cp = BlockPos::fromVec3(player_->getPos()).toChunkPos();
     for (auto i = -R; i <= R; i++) {
         for (auto j = -R; j <= R; j++) {

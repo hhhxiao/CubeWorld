@@ -1,6 +1,8 @@
 #pragma once
+#include <string>
 #include "bridge.h"
 #include "client_level.h"
+#include "config.h"
 #include "cube_map.h"
 #include "glm/detail/type_vec.hpp"
 #include "imgui_debug_info.h"
@@ -11,7 +13,7 @@
 class ClientMain {
    public:
     explicit ClientMain(DataBridge* bridge) : bridge_(bridge) {
-        window_ = new OpenGLWindow(Config::window_width, Config::window_height, Config::SOFTWARE_NAME);
+        window_ = new OpenGLWindow(Config::window_width, Config::window_height, std::string(Config::SOFTWARE_NAME));
         window_->setMouseEnable(mouse_enabled_);
         client_level_ = new ClientLevel();
         level_render_ = new LevelRenderer(this->client_level_);

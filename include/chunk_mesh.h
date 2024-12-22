@@ -26,10 +26,18 @@ class ChunkMesh {
         GLfloat u;
         GLfloat v;
         // 法线
-        GLfloat nx;
-        GLfloat ny;
-        GLfloat nz;
-
+        GLfloat nx{0.0};
+        GLfloat ny{0.0};
+        GLfloat nz{0.0};
+        void setUV(GLfloat u, GLfloat v) {
+            this->u = u;
+            this->v = v;
+        }
+        void setNormal(GLfloat nx, GLfloat ny, GLfloat nz) {
+            this->nx = nx;
+            this->ny = ny;
+            this->nz = nz;
+        }
         static V fromPos(const glm::vec3& pos) { return {pos.x, pos.y, pos.z}; }
     };
 

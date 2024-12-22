@@ -19,8 +19,6 @@ struct LevelChunkRenderOrder {
 };
 
 class LevelRenderer {
-    static constexpr size_t VIEW_DISTANCE = 5;
-
    public:
     explicit LevelRenderer(ClientLevel* clientLevel);
     ~LevelRenderer();
@@ -28,7 +26,6 @@ class LevelRenderer {
     void init();
 
     void updateMesh(RenderContext& ctx);
-
     void renderOneFrame(RenderContext& ctx);
     void renderBlockWorld(RenderContext& ctx);
 

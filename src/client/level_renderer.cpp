@@ -56,16 +56,13 @@ void LevelRenderer::updateMesh(RenderContext& ctx) {
         for (auto& [pos, chunk] : data) {
             auto dx = abs(pos.x - cp.x);
             auto dz = abs(pos.z - cp.z);
-            if (dx * dx + dz * dz > Config::view_distance * Config::view_distance) continue;
+            if (dx * dx + dz * dz > Config::VIEW_DISTANCE * Config::VIEW_DISTANCE) continue;
 
             if (!this->data_.count(pos)) {
                 render_chunk_queue_.push(chunk);
                 continue;
             }
-            // if (chunk.isDirty() || !this->data_.count(pos)) {
-            //     render_chunk_queue_.push(chunk);
-            //     continue;
-            // }
+
             auto curMask = newMasks[pos];
             auto lastMask = this->masks_[pos];
             // // edge chunk changed
@@ -76,6 +73,14 @@ void LevelRenderer::updateMesh(RenderContext& ctx) {
         }
         this->data_ = std::move(data);
         this->masks_ = std::move(newMasks);
+        for (auto it = meshes_.begin(); it != meshes_.end();) {
+            if (!this->data_.count(it->first)) {
+                delete it->second;
+                it = meshes_.erase(it);
+            } else {
+                it++;
+            }
+        }
     }
 }
 

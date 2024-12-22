@@ -28,7 +28,7 @@ class ImguiInfoDisplayer {
         ImGui_ImplOpenGL3_Init();
     }
     void render() {
-        if (Config::enableImgui) {
+        if (Config::ENABLE_IMGUI) {
             ImGui_ImplOpenGL3_NewFrame();
             ImGui_ImplGlfw_NewFrame();
             ImGui::NewFrame();
@@ -38,7 +38,7 @@ class ImguiInfoDisplayer {
                 ImGui::End();
             }
         }
-        if (Config::enableImgui) {
+        if (Config::ENABLE_IMGUI) {
             ImGui::Render();
             ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
         }
