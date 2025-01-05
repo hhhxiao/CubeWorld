@@ -19,9 +19,10 @@ class ChunkMesh {
         GLfloat y;
         GLfloat z;
         // 颜色
-        GLfloat r;
-        GLfloat g;
-        GLfloat b;
+        GLfloat r{1.0};
+        GLfloat g{1.0};
+        GLfloat b{1.0};
+        GLfloat a{1.0};
         // uv
         GLfloat u;
         GLfloat v;

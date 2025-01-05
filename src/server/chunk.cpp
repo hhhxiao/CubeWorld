@@ -38,6 +38,14 @@ BlockType LevelChunk::getBlock(int cx, int y, int cz) {
     if (!posValid(cx, y, cz)) return air;
     return this->data_[y][cx][cz];
 }
+int LevelChunk::topY(int cx, int cz) const {
+    for (int y = Config::CHUNK_HEIGHT - 1; y >= 0; y--) {
+        if (this->data_[y][cx][cz] != air) {
+            return y;
+        }
+    }
+    return -1;
+}
 
 bool LevelChunk::posValid(int cx, int y, int cz) {
     return cx >= 0 && cx < 16 && cz >= 0 && cz < 16 && y >= 0 && y < Config::CHUNK_HEIGHT;

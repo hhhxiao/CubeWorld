@@ -1,6 +1,6 @@
 #version 330 core
 out vec4 FragColor;
-in vec3 outColor;
+in vec4 outColor;
 in vec2 outTexCoord;
 in vec3 outNormal;
 
@@ -12,8 +12,9 @@ uniform sampler2D outTexture;
 
 void main()
 {
-    // FragColor = texture(outTexture, outTexCoord);
-    
+    vec4 texColor = texture(outTexture, outTexCoord) * outColor;
+    // if(texColor.a < 0.5)
+    //     discard;
 
     vec3 lightDir = normalize(vec3(0.1,0.8,0.1));
     float diffuse = max(dot(outNormal, lightDir), 0.0);
@@ -24,5 +25,5 @@ void main()
 
     vec3 result = (ambient + diffuse);
 
-    FragColor = texture(outTexture, outTexCoord) * vec4(result,1.0);
+    FragColor =  texColor  * vec4(result,1.0);
 }

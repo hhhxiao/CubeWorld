@@ -52,10 +52,10 @@ OpenGLWindow::OpenGLWindow(int width, int height, const std::string &name) {
         LE("Failed to initialize GLA");
     }
     glfwSwapInterval(0);  // 关闭垂直同步
-    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-
+                          //    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     glEnable(GL_DEPTH_TEST);
-    // glEnable(GL_CULL_FACE);
+    glEnable(GL_BLEND);
+    glEnable(GL_CULL_FACE);
     glGenVertexArrays(1, &this->VAO);
     glBindVertexArray(VAO);
 }

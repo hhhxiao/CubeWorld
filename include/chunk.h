@@ -28,6 +28,8 @@ class LevelChunk {
     // [[nodiscard]] bool isDirty() const { return dirty_; }
     // void clearDirty() { this->dirty_ = false; }
     // void setDirty() { this->dirty_ = true; }
+    int topY(int cx, int cz) const;
+
    public:
     static std::tuple<uint8_t, uint8_t> adjacentMask(const ChunkPos& pos,
                                                      const std::unordered_map<ChunkPos, LevelChunk>& chunks);

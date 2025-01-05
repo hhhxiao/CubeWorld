@@ -14,12 +14,12 @@
 
 namespace {
     std::vector<int> createFaceVertices(Face face) {
-        if (face == px) return {1, 3, 5, 7};
-        if (face == nx) return {0, 2, 4, 6};
-        if (face == py) return {4, 5, 6, 7};
-        if (face == ny) return {0, 1, 2, 3};
-        if (face == pz) return {2, 3, 6, 7};
-        if (face == nz) return {0, 1, 4, 5};
+        if (face == px) return {1, 3, 7, 5};
+        if (face == nx) return {2, 0, 4, 6};
+        if (face == py) return {4, 5, 7, 6};
+        if (face == ny) return {2, 3, 1, 0};
+        if (face == pz) return {3, 2, 6, 7};
+        if (face == nz) return {0, 1, 5, 4};
         throw std::exception("error in create Face indices");
     }
 
@@ -87,23 +87,34 @@ void ChunkMesh::bufferData() {
         for (int i = 0; i < vs.size(); i++) {
             auto v = vs[i];
             auto U = 0.0f, V = 0.0f;
-            if (i == 1) V = 1.0f;
             if (i == 2) U = 1.0f;
-            if (i == 3) U = 1.0f, V = 1.0f;
+            if (i == 0) V = 1.0f;
+            if (i == 1) U = 1.0f, V = 1.0f;
             auto dx = static_cast<GLfloat>(v % 2);
             auto dy = static_cast<GLfloat>(v >= 4 ? 1 : 0);
             auto dz = static_cast<GLfloat>((v % 4) >= 2 ? 1 : 0);
             auto vert = V::fromPos(glm::vec3(dx + pos.x, dy + pos.y, dz + pos.z));
             vert.setNormal((GLfloat)normal.x, (GLfloat)normal.y, (GLfloat)normal.z);
             vert.setUV(U, V);
+            if (f.type == oakLeaves) {
+                vert.r = 0.13f;
+                vert.g = 0.74f;
+                vert.b = 0.0f;
+                // #
+            } else if (f.type == water) {
+                vert.r = 0.6f;
+                vert.g = 0.6f;
+                vert.b = 1.0f;
+                vert.a = 0.6f;
+            }
             vertices.push_back(vert);
         }
         auto& array = tmp_mappings[TexturePool::instance().getTextureID(f.type, f.face)];
         array.push_back(vertices[0]);
-        array.push_back(vertices[1]);
         array.push_back(vertices[2]);
         array.push_back(vertices[1]);
         array.push_back(vertices[2]);
+        array.push_back(vertices[0]);
         array.push_back(vertices[3]);
     }
 
@@ -118,18 +129,6 @@ void ChunkMesh::bufferData() {
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
     glBufferData(GL_ARRAY_BUFFER, static_cast<GLuint>(vertices_.size() * sizeof(ChunkMesh::V)), vertices_.data(),
                  GL_STATIC_DRAW);
-    // 顶点位置
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(ChunkMesh::V), static_cast<void*>(0 * sizeof(float)));
-    glEnableVertexAttribArray(0);
-    // 顶点颜色
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(ChunkMesh::V), reinterpret_cast<void*>(3 * sizeof(float)));
-    glEnableVertexAttribArray(1);
-    // 顶点纹理
-    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(ChunkMesh::V), reinterpret_cast<void*>(6 * sizeof(float)));
-    glEnableVertexAttribArray(2);
-    // 顶点法线
-    glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(ChunkMesh::V), reinterpret_cast<void*>(8 * sizeof(float)));
-    glEnableVertexAttribArray(3);
     status_ = HasBufferData;
 }
 
@@ -155,13 +154,13 @@ void ChunkMesh::render(RenderContext& ctx) {
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(ChunkMesh::V), static_cast<void*>(0 * sizeof(float)));
     glEnableVertexAttribArray(0);
     // 顶点颜色
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(ChunkMesh::V), reinterpret_cast<void*>(3 * sizeof(float)));
+    glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(ChunkMesh::V), reinterpret_cast<void*>(3 * sizeof(float)));
     glEnableVertexAttribArray(1);
     // 顶点纹理
-    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(ChunkMesh::V), reinterpret_cast<void*>(6 * sizeof(float)));
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(ChunkMesh::V), reinterpret_cast<void*>(7 * sizeof(float)));
     glEnableVertexAttribArray(2);
     // 顶点法线
-    glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(ChunkMesh::V), reinterpret_cast<void*>(8 * sizeof(float)));
+    glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(ChunkMesh::V), reinterpret_cast<void*>(9 * sizeof(float)));
     glEnableVertexAttribArray(3);
 
     for (auto& [textureID, vbo] : this->texture_mappings_) {

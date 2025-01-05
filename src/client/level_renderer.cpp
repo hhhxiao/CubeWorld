@@ -18,10 +18,11 @@ LevelRenderer::LevelRenderer(ClientLevel* clientLevel) : client_level_(clientLev
 
 void LevelRenderer::renderOneFrame(RenderContext& ctx) {
     this->renderBlockWorld(ctx);
+    light.render(ctx);
     // todo: render fog, env
 }
 
-void LevelRenderer::init() {}
+void LevelRenderer::init() { light.init(); }
 
 void LevelRenderer::updateMesh(RenderContext& ctx) {
     if (!render_chunk_queue_.empty()) {
@@ -89,6 +90,11 @@ void LevelRenderer::renderBlockWorld(RenderContext& ctx) {
     shader.use("chunk");
     shader.setMat4("projection", Config::getProjectionMatrix());
     shader.setMat4("view", ctx.camera().getViewMatrix());
+    shader.setVec3("objectColor", 1.0f, 0.5f, 0.31f);
+    shader.setVec3("lightColor", 1.0f, 1.0f, 1.0f);
+    shader.setVec3("lightPos", light.position());
+    shader.setVec3("viewPos", ctx.camera().position_);
+
     glm::mat4 model;
     model = glm::translate(model, glm::vec3(0, 0, 0));
     shader.setMat4("model", model);

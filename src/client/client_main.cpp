@@ -9,7 +9,6 @@
 void ClientMain::init() {
     window_->setMouseCallback(
         [&](GLFWwindow* window, double x, double y) { this->processMouseCallback(window, x, y); });
-
     window_->setKeyboardCallback([&](GLFWwindow* window, int32_t key, int32_t scancode, int32_t action, int32_t mode) {
         this->processKeyBoardCallback(window, key, scancode, action, mode);
     });
@@ -21,6 +20,8 @@ void ClientMain::init() {
     imgui_displayer_.addInfo(&bridge_->serverBuffer());
 
     skybox = new CubeMap();
+    level_render_->init();
+
     //   skybox->init();
     // setup update function
     this->window_->onLogic([this](double delta) {

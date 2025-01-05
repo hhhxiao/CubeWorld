@@ -1,4 +1,6 @@
 #include "terrain_generator.h"
+#include <functional>
+#include "position.h"
 #include "single/PerlinNoise.hpp"
 #include "block.h"
 #include "chunk.h"
@@ -40,6 +42,45 @@ void PerlinTerrainGeneratror::fill(LevelChunk* chunk) {
             for (int i = height - 1; i >= 0; i--) {
                 chunk->setBlock(x, i, z, dirt);
             }
+        }
+    }
+
+    auto hasher = std::hash<ChunkPos>();
+    random_engine_.seed(static_cast<unsigned int>(hasher(chunk->pos())));
+    // tree
+    auto try_place_tree = random_engine_() % 10;
+    for (auto i = 0; i < try_place_tree; i++) {
+        int dx = random_engine_() % 16;
+        int dz = random_engine_() % 16;
+        auto y = chunk->topY(dx, dz);
+        if (chunk->getBlock(dx, y, dz) == grass) {
+            this->placeTree(chunk, {dx, y, dz}, random_engine_() % 3 + 4);
+        }
+    }
+}
+
+void PerlinTerrainGeneratror::placeTree(LevelChunk* chunk, const BlockPos& pos, int height) {
+    if (pos.x < 2 || pos.x > 14 || pos.z < 2 || pos.z > 14) {
+        return;
+    }
+
+    for (int i = 1; i <= height; i++) {
+        chunk->setBlock(pos.x, pos.y + i, pos.z, oakLog);
+    }
+
+    for (int i = -2; i <= 2; i++) {
+        for (int j = -2; j <= 2; j++) {
+            if (i == 0 && j == 0) {
+                continue;
+            }
+            chunk->setBlock(pos.x + i, pos.y + height, pos.z + j, oakLeaves);
+            chunk->setBlock(pos.x + i, pos.y + height - 1, pos.z + j, oakLeaves);
+        }
+    }
+
+    for (int i = -1; i <= 1; i++) {
+        for (int j = -1; j <= 1; j++) {
+            chunk->setBlock(pos.x + i, pos.y + height + 1, pos.z + j, oakLeaves);
         }
     }
 }

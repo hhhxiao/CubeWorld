@@ -8,6 +8,7 @@
 #include <unordered_map>
 #include "chunk.h"
 #include "position.h"
+#include "renderable.h"
 
 class ChunkMesh;
 class RenderContext;
@@ -43,5 +44,6 @@ class LevelRenderer {
     ChunkMesh* current_mesh_{nullptr};
     // data
     // debug
+    Light light;
 };
 #endif

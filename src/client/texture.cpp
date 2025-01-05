@@ -4,6 +4,7 @@
 
 #include "texture.h"
 #include <algorithm>
+#include <array>
 #include <filesystem>
 #include <stdexcept>
 #include <string>
@@ -33,9 +34,12 @@ namespace {
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, nrChannels == 3 ? GL_RGB : GL_RGBA, GL_UNSIGNED_BYTE,
-                     data);
+        LD("texture: %s => %d channels", path.string().c_str(), nrChannels);
+
+        glTexImage2D(GL_TEXTURE_2D, 0, nrChannels == 3 ? GL_RGB : GL_RGBA, width, height, 0,
+                     nrChannels == 3 ? GL_RGB : GL_RGBA, GL_UNSIGNED_BYTE, data);
         glGenerateMipmap(GL_TEXTURE_2D);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         stbi_image_free(data);
         return true;
     }
@@ -82,6 +86,45 @@ namespace {
         glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
         return true;
     }
+
+    bool parse_block_texture(const std::string &stem, BlockType &type, std::vector<Face> &faces) {
+        std::unordered_map<std::string, BlockType> block_type_map;
+        for (const auto &entry : magic_enum::enum_entries<BlockType>()) {
+            block_type_map[std::string(entry.second)] = entry.first;
+        }
+
+        auto p = stem.find("_");
+        auto name = p == std::string::npos ? stem : stem.substr(0, p);
+        if (block_type_map.count(name) == 0) {
+            return false;
+        }
+        type = block_type_map[name];
+        if (p == std::string::npos) {
+            faces = {nx, px, ny, py, nz, pz};
+            return true;
+        } else {
+            auto suffix = stem.substr(p + 1);
+            if (suffix == "side") {
+                faces = {nx, nz, px, pz};
+            } else if (suffix == "nx") {
+                faces = {nx};
+            } else if (suffix == "px") {
+                faces = {px};
+            } else if (suffix == "ny" || suffix == "buttom") {
+                faces = {ny};
+            } else if (suffix == "py" || suffix == "top") {
+                faces = {py};
+            } else if (suffix == "nz") {
+                faces = {nz};
+            } else if (suffix == "pz") {
+                faces = {pz};
+            } else {
+                return false;
+            }
+        }
+        return true;
+    }
+
 }  // namespace
 
 GLuint TexturePool::getTextureID(BlockType type, Face face) {
@@ -107,32 +150,52 @@ GLuint TexturePool::getCubeMapID(const std::string &name) {
 
 void TexturePool::init(const std::filesystem::path &path) {
     LD("Texture root path: %s", path.string().c_str());
-    std::unordered_map<std::string, BlockType> block_type_map;
-    for (const auto &entry : magic_enum::enum_entries<BlockType>()) {
-        block_type_map[std::string(entry.second)] = entry.first;
-    }
+
+    std::array<std::vector<fs::path>, 3> paths{};
+
     for (const auto &entry : fs::directory_iterator(path)) {
-        if (entry.is_regular_file() && (entry.path().extension() == ".jpg" || entry.path().extension() == ".png")) {
-            auto filename = entry.path().stem().string();
-            if (filename.find("_") == std::string::npos) {
-                if (block_type_map.count(filename)) {
-                    auto block_id = block_type_map[filename];
-                    GLuint textureId;
-                    if (load_texture(entry.path(), &textureId)) {
-                        for (const auto &kv : magic_enum::enum_entries<Face>()) {
-                            this->texture_ids_[block_id][kv.first] = textureId;
-                        }
-                    }
+        if (!entry.is_regular_file()) continue;
+        auto ext = entry.path().extension();
+        if (ext != ".jpg" && ext != ".png") continue;
+        auto stem = entry.path().stem().string();
+        auto p = stem.find("_");
+        if (p == std::string::npos) {
+            paths[0].push_back(entry.path());
+        } else {
+            auto suffix = stem.substr(p + 1);
+            if (suffix == "side") {
+                paths[1].push_back(entry.path());
+            } else {
+                auto faceNames = {"nx", "px", "ny", "py", "nz", "pz", "top", "buttom"};
+                if (std::find(faceNames.begin(), faceNames.end(), suffix) == faceNames.end()) {
+                    LW("Invalid texture %s", path.string().c_str());
+                    continue;
+                } else {
+                    paths[2].push_back(entry.path());
                 }
             }
         }
     }
-    for (const auto &entry : std::filesystem::directory_iterator(path)) {
-        if (entry.is_regular_file() && (entry.path().extension() == ".jpg" || entry.path().extension() == ".png")) {
-            // TODO:加载各个面的单独贴图
+
+    for (int i = 0; i < 3; i++) {
+        auto pathList = paths[i];
+        for (auto &path : pathList) {
+            BlockType type;
+            std::vector<Face> faces;
+            if (!parse_block_texture(path.stem().string(), type, faces)) {
+                LW("Invalid texture %s", path.string().c_str());
+                continue;
+            }
+            GLuint textureId;
+            if (load_texture(path, &textureId)) {
+                for (const auto &face : faces) {
+                    this->texture_ids_[type][face] = textureId;
+                }
+            } else {
+                LE("Can not load texture %s", path.string().c_str());
+            }
         }
     }
-
     loadCubeMaps(path / "cubemaps");
 }
 
