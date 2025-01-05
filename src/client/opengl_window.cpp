@@ -37,6 +37,7 @@ OpenGLWindow::OpenGLWindow(int width, int height, const std::string &name) {
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+    glfwWindowHint(GLFW_SAMPLES, 4);
     window_ = glfwCreateWindow(width, height, name.c_str(), nullptr, nullptr);
     if (window_ == nullptr) {
         LE("Can not create window");
