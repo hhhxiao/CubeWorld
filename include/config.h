@@ -30,7 +30,7 @@ class Config {
     static constexpr std::string_view SOFTWARE_VERSION = "0.0.1";
     static constexpr std::string_view RES_ROOT = R"(..\res)";
 
-    static constexpr auto VIEW_DISTANCE = 6;
+    static constexpr auto VIEW_DISTANCE = 7;
     static constexpr auto ENABLE_IMGUI = true;
     // runtime
     static float fov;

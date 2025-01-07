@@ -14,16 +14,11 @@ void ClientMain::init() {
     });
     render_ctx_.init();
     TexturePool::instance().init(render_ctx_.resourceMgr().texture_path());
-    this->level_render_->init();
     imgui_displayer_.init(window_->window());
     imgui_displayer_.addInfo(&render_ctx_.camera());
     imgui_displayer_.addInfo(&bridge_->serverBuffer());
-
-    skybox = new CubeMap();
     level_render_->init();
 
-    //   skybox->init();
-    // setup update function
     this->window_->onLogic([this](double delta) {
         processKeyBoardInput(this->window_->window(), delta);
         syncRead();
@@ -109,7 +104,6 @@ void ClientMain::processKeyBoardCallback(GLFWwindow* window, int32_t key, int32_
 
 ClientMain::~ClientMain() {
     delete window_;
-    delete skybox;
     delete level_render_;
     delete client_level_;
     ImGui_ImplOpenGL3_Shutdown();

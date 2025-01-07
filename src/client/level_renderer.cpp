@@ -10,6 +10,7 @@
 #include "chunk.h"
 #include "chunk_mesh.h"
 #include "config.h"
+#include "cube_map.h"
 #include "position.h"
 #include "render_context.h"
 #include "client_level.h"
@@ -17,12 +18,17 @@
 LevelRenderer::LevelRenderer(ClientLevel* clientLevel) : client_level_(clientLevel) {}
 
 void LevelRenderer::renderOneFrame(RenderContext& ctx) {
+    skybox->render(ctx);
     this->renderBlockWorld(ctx);
     light.render(ctx);
     // todo: render fog, env
 }
 
-void LevelRenderer::init() { light.init(); }
+void LevelRenderer::init() {
+    light.init();
+    skybox = new CubeMap();
+    skybox->init();
+}
 
 void LevelRenderer::updateMesh(RenderContext& ctx) {
     if (!render_chunk_queue_.empty()) {
@@ -116,7 +122,7 @@ LevelChunk* LevelRenderer::getChunkData(const ChunkPos& pos) {
     return it == this->data_.end() ? nullptr : &it->second;
 }
 
-LevelRenderer::~LevelRenderer() = default;
+LevelRenderer::~LevelRenderer() { delete skybox; }
 
 bool LevelChunkRenderOrder::operator()(const LevelChunk& r1, const LevelChunk& r2) {
     return r1.pos().dis2(camera) < r2.pos().dis2(camera);

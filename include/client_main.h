@@ -37,7 +37,6 @@ class ClientMain {
     OpenGLWindow* window_{nullptr};
     RenderContext render_ctx_;
     ImguiInfoDisplayer imgui_displayer_;
-    CubeMap* skybox{nullptr};
     LevelRenderer* level_render_{nullptr};
     // control
     bool mouse_enabled_{false};

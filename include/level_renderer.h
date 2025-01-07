@@ -8,6 +8,7 @@
 #include <unordered_map>
 #include "chunk.h"
 #include "position.h"
+#include "cube_map.h"
 #include "renderable.h"
 
 class ChunkMesh;
@@ -45,5 +46,6 @@ class LevelRenderer {
     // data
     // debug
     Light light;
+    CubeMap* skybox{nullptr};
 };
 #endif
