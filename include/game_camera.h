@@ -5,11 +5,9 @@
 #include <glm/gtc/type_ptr.hpp>
 #include "glm/detail/func_trigonometric.hpp"
 #include "glm/detail/type_vec.hpp"
-#include "imgui.h"
-#include "imgui_debug_info.h"
 #include "position.h"
 
-class GameCamera : public ImguiInfo {
+class GameCamera {
    public:
     enum Dir { left, right, forward, back, up, down, invalid };
 
@@ -20,13 +18,6 @@ class GameCamera : public ImguiInfo {
     GameCamera() : GameCamera({0., 70., 0.}, {0., -1., 0.}) {}
     virtual ~GameCamera() {}
     inline void updatePosition(const glm::vec3& newPosition) { position_ = newPosition; }
-
-    void showDebugInfo() override {
-        auto cp = ChunkPos::fromVec3(position_);
-        ImGui::Text("Pos: %.3f / %.3f / %.3f", position_.x, position_.y, position_.z);
-        ImGui::Text("Chunk pos: %d / %d", cp.x, cp.z);
-        ImGui::Text("Yaw / Pitch: %.3f / %.3f", yaw_, pitch_);
-    }
 
     inline void updateDir(float yawOffset, float pitchOffset) {
         yaw_ = yawOffset + yaw_;

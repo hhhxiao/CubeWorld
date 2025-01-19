@@ -12,7 +12,7 @@ class BlockPos {
     int x{0};
     int y{0};
     int z{0};
-    ChunkPos toChunkPos();
+    ChunkPos toChunkPos() const;
     static BlockPos fromVec3(const glm::vec3& vec3);
     friend size_t hash_value(const BlockPos& p) { return phmap::HashState().combine(0, p.x, p.y, p.z); }
     [[nodiscard]] std::string toString() const {

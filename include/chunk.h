@@ -41,5 +41,6 @@ class LevelChunk {
     std::array<std::array<std::array<BlockType, 16>, 16>, Config::CHUNK_HEIGHT> data_;
     // status
     tick_t tick_{-1};
+    bool enable_valid_check_{false};
     // bool dirty_{false};
 };

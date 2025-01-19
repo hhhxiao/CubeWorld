@@ -1,18 +1,18 @@
 #pragma once
+#include <cstdint>
 #include <string>
 #include "bridge.h"
 #include "client_level.h"
 #include "config.h"
-#include "cube_map.h"
 #include "glm/detail/type_vec.hpp"
 #include "imgui_debug_info.h"
 #include "level_renderer.h"
 #include "opengl_window.h"
 #include "render_context.h"
 
-class ClientMain {
+class ClientMain : public ImguiInfo {
    public:
-    explicit ClientMain(DataBridge* bridge) : bridge_(bridge) {
+    explicit ClientMain(DataBridge* bridge) : ImguiInfo("Client"), bridge_(bridge) {
         window_ = new OpenGLWindow(Config::window_width, Config::window_height, std::string(Config::SOFTWARE_NAME));
         window_->setMouseEnable(mouse_enabled_);
         client_level_ = new ClientLevel();
@@ -21,7 +21,7 @@ class ClientMain {
 
     void show();
     void init();
-    ~ClientMain();
+    virtual ~ClientMain();
 
    private:
     void renderTick();
@@ -31,6 +31,8 @@ class ClientMain {
     void processKeyBoardInput(GLFWwindow* window, double delta);  // old
     void processMouseCallback(GLFWwindow* window, double x, double y);
     void processKeyBoardCallback(GLFWwindow* window, int32_t key, int32_t scancode, int32_t action, int32_t mode);
+
+    void showDebugInfo();
 
    private:
     // render
@@ -47,4 +49,7 @@ class ClientMain {
     ClientLevel* client_level_{nullptr};
     // bridge
     DataBridge* bridge_{};
+
+    // stats
+    double mspt_;
 };

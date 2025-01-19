@@ -17,7 +17,7 @@ LevelChunk::LevelChunk(const ChunkPos& pos) : pos_(pos.x, pos.z) {
 }
 
 void LevelChunk::setBlock(int cx, int y, int cz, BlockType type) {
-    if (!posValid(cx, y, cz)) return;
+    if (enable_valid_check_ && !posValid(cx, y, cz)) return;
     this->data_[y][cx][cz] = type;
 }
 
@@ -35,7 +35,7 @@ void LevelChunk::tick(const tick_t ts) {
 }
 
 BlockType LevelChunk::getBlock(int cx, int y, int cz) {
-    if (!posValid(cx, y, cz)) return air;
+    if (enable_valid_check_ && !posValid(cx, y, cz)) return air;
     return this->data_[y][cx][cz];
 }
 int LevelChunk::topY(int cx, int cz) const {

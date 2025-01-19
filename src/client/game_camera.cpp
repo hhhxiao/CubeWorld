@@ -11,5 +11,4 @@ glm::mat4 GameCamera::getViewMatrix() {
     return glm::lookAt(position_, position_ + front_, up);
 }
 
-GameCamera::GameCamera(const glm::vec3& position, const glm::vec3& front)
-    : ImguiInfo("Camera"), position_(position), front_(front) {}
+GameCamera::GameCamera(const glm::vec3& position, const glm::vec3& front) : position_(position), front_(front) {}

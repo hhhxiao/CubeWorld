@@ -11,6 +11,7 @@
 
 ChunkBuilder::ChunkBuilder() {
     this->terrain_generator_ = new PerlinTerrainGeneratror(20);
+    // this->terrain_generator_ = new FlatTerrainGenerator();
     this->pool_ = new progschj::ThreadPool(Config::CHUNK_GEN_THREAD_NUM);
     // for debug
     for (int i = 0; i < Config::CHUNK_GEN_THREAD_NUM; i++) {

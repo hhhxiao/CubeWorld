@@ -53,9 +53,9 @@ OpenGLWindow::OpenGLWindow(int width, int height, const std::string &name) {
         LE("Failed to initialize GLA");
     }
     glfwSwapInterval(0);  // 关闭垂直同步
-                          //    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     glEnable(GL_DEPTH_TEST);
-    glEnable(GL_BLEND);
+    //  glEnable(GL_BLEND);
     glEnable(GL_CULL_FACE);
     glGenVertexArrays(1, &this->VAO);
     glBindVertexArray(VAO);
@@ -84,6 +84,12 @@ void OpenGLWindow::pool() {
         }
 
         if (curTime - last_frame_time_ >= Config::FRAME_TIME) {
+            frame_++;
+            if (frame_ % 100 == 0) {
+                auto cur_fps = 1.0 / (curTime - last_frame_time_);
+                this->fps_ = this->fps_ * 0.9 + cur_fps * 0.1;
+            }
+            // render
             this->on_render_(this->window_);
             glfwSwapBuffers(window_);
             last_frame_time_ = curTime;

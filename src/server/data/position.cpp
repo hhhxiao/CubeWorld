@@ -1,7 +1,7 @@
 #include "position.h"
 #include <cmath>
 
-ChunkPos BlockPos::toChunkPos() {
+ChunkPos BlockPos::toChunkPos() const {
     auto cx = x < 0 ? x - 15 : x;
     auto cz = z < 0 ? z - 15 : z;
     cx /= 16;
@@ -19,7 +19,7 @@ BlockPos BlockPos::fromVec3(const glm::vec3& vec3) {
 
 ChunkPos ChunkPos::fromVec3(const glm::vec3& vec3) { return BlockPos::fromVec3(vec3).toChunkPos(); }
 
-BlockPos ChunkPos::toBlockPos() const { return {x * 16, 0, z * 16}; }
+BlockPos ChunkPos::toBlockPos() const { return {x << 4, 0, z << 4}; }
 
 int ChunkPos::dis2(const ChunkPos& pos) const {
     auto dx = abs(x - pos.x);

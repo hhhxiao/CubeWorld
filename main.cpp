@@ -9,6 +9,7 @@
 #include "bridge.h"
 #include "level_server.h"
 #include "utils.h"
+#include "Remotery.h"
 
 #define _CRT_SECURE_NO_WARNINGS
 
@@ -26,6 +27,8 @@ void runServerOnly() {
     server->start();
 }
 int main(int argc, char **argv) {
+    Remotery *rmt;
+    rmt_CreateGlobalInstance(&rmt);
     initLogger(argc, argv);
     loguru::set_thread_name("Client");
     auto bridge = new DataBridge();
@@ -42,5 +45,6 @@ int main(int argc, char **argv) {
     delete server;
     delete client;
     delete bridge;
+    rmt_DestroyGlobalInstance(rmt);
     return 0;
 }

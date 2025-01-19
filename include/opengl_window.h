@@ -2,6 +2,7 @@
 // Created by xhy on 2024/5/3.
 //
 #pragma once
+#include <cstddef>
 #include <functional>
 #include <string>
 
@@ -27,6 +28,8 @@ class OpenGLWindow {
 
     void pool();
 
+    inline double fps() { return fps_; }
+
     ~OpenGLWindow();
 
    private:
@@ -37,5 +40,7 @@ class OpenGLWindow {
     double last_frame_time_{0.0};   // redner timer
     double last_update_time_{0.0};  // logic timer
     GLuint VAO{0};
-    // size
+    // stat
+    double fps_{0.0};
+    size_t frame_{0};
 };

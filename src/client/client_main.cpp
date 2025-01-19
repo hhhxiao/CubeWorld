@@ -1,7 +1,7 @@
 #include "client_main.h"
 #include "GLFW/glfw3.h"
-#include "cube_map.h"
-#include "renderable.h"
+#include "imgui.h"
+#include "position.h"
 #include "game_camera.h"
 #include "glm/detail/type_vec.hpp"
 #include "texture.h"
@@ -15,15 +15,19 @@ void ClientMain::init() {
     render_ctx_.init();
     TexturePool::instance().init(render_ctx_.resourceMgr().texture_path());
     imgui_displayer_.init(window_->window());
-    imgui_displayer_.addInfo(&render_ctx_.camera());
     imgui_displayer_.addInfo(&bridge_->serverBuffer());
+    imgui_displayer_.addInfo(this);
     level_render_->init();
 
     this->window_->onLogic([this](double delta) {
         processKeyBoardInput(this->window_->window(), delta);
+        using namespace std::chrono;
+        auto begin = steady_clock::now();
         syncRead();
         syncWrite();
         this->level_render_->updateMesh(render_ctx_);
+        auto end = steady_clock::now();
+        this->mspt_ = this->mspt_ * 0.95 + 0.05 * std::chrono::duration<double, std::milli>(end - begin).count();
     });
     this->window_->onRender([this](GLFWwindow*) {
         renderTick();
@@ -34,7 +38,6 @@ void ClientMain::init() {
 void ClientMain::renderTick() {
     glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    // skybox->render(render_ctx_);
     level_render_->renderOneFrame(render_ctx_);
 }
 
@@ -42,7 +45,7 @@ void ClientMain::syncRead() {
     auto& buffer = bridge_->serverBuffer();
     if (!buffer.beginRead()) return;
     if (buffer.dirty()) {
-        this->client_level_->syncChunks(buffer.chunks);
+        this->client_level_->syncChunks(buffer.chunks, ChunkPos::fromVec3(render_ctx_.camera().position_));
         buffer.cleanDirty();
     }
     buffer.endRead();
@@ -100,6 +103,27 @@ void ClientMain::processKeyBoardCallback(GLFWwindow* window, int32_t key, int32_
         mouse_status_changed_ = true;
         LD("Mouse changed");
     }
+}
+
+void ClientMain::showDebugInfo() {
+    ImGui::Text("FPS: %d", static_cast<int>(window_->fps()));
+    ImGui::Text("Logic frame time: %.3lf", mspt_);
+
+    auto cp = render_ctx_.camera().position_;
+    auto ccp = ChunkPos::fromVec3(cp);
+    ImGui::Text("Pos: %.3f / %.3f / %.3f", cp.x, cp.y, cp.z);
+    ImGui::Text("Chunk pos: %d / %d", ccp.x, ccp.z);
+    ImGui::Text("Yaw / Pitch: %.3f / %.3f", render_ctx_.camera().yaw_, render_ctx_.camera().pitch_);
+
+    auto& cr = level_render_->chunkRender();
+    auto& buffer = cr.buffer();
+    ImGui::Text("Chunk Mesh building:  Total: %zu, In queue: %zu", cr.mesh_size(), cr.mesh_queue_size());
+    ImGui::Text("Vertices: %zu", cr.last_vertices_count);
+    ImGui::Text("Chunks: %zu", cr.last_chunk_count);
+    ImGui::Text("Chunk Buffer: %zu / %zu", buffer.used_size(), buffer.unused_size() + buffer.used_size());
+    // for (auto& kv : meshes) {
+    //     ImGui::Text("%s %d", kv.first.toString().c_str(), ccp.dis2(kv.first));
+    // }
 }
 
 ClientMain::~ClientMain() {
