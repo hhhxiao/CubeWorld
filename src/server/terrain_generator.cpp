@@ -48,8 +48,8 @@ void PerlinTerrainGeneratror::fill(LevelChunk* chunk) {
     auto hasher = std::hash<ChunkPos>();
     random_engine_.seed(static_cast<unsigned int>(hasher(chunk->pos())));
     // tree
-    auto try_place_tree = random_engine_() % 10;
-    for (auto i = 0; i < try_place_tree; i++) {
+    int try_place_tree = random_engine_() % 10;
+    for (int i = 0; i < try_place_tree; i++) {
         int dx = random_engine_() % 16;
         int dz = random_engine_() % 16;
         auto y = chunk->topY(dx, dz);

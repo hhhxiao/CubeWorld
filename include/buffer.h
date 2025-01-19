@@ -5,23 +5,37 @@
 #include <set>
 #include "config.h"
 #include "glad/glad.h"
+#include "glm/detail/type_vec.hpp"
 #include "position.h"
 struct Vert {
     GLfloat x{0};
     GLfloat y{0};
     GLfloat z{0};
-    static Vert fromPos(const glm::vec3& pos) {
-        Vert v;
-        v.x = pos.x;
-        v.y = pos.y;
-        v.z = pos.z;
-        return v;
-    }
+    GLfloat r{0.0};
+    GLfloat g{0.0};
+    GLfloat b{0.0};
+    GLfloat a{1.0};
+    GLfloat nx{0.0};
+    GLfloat ny{0.0};
+    GLfloat nz{0.0};
+    Vert() = default;
+    Vert(const glm::vec3& pos, const glm::vec4& color, const glm::vec3& normal) {
+        x = pos.x;
+        y = pos.y;
+        z = pos.z;
+        r = color.r;
+        g = color.g;
+        b = color.b;
+        a = color.a;
+        nx = normal.x;
+        ny = normal.y;
+        nz = normal.z;
+    };
 };
 
 class ChunkBuffer {
    public:
-    static constexpr auto BUCKET_SIZE = (256) * 24;
+    static constexpr auto BUCKET_SIZE = (64) * 24;
     struct BucketInstance {
         size_t index{0};
         Vert* bucket{nullptr};
@@ -35,8 +49,13 @@ class ChunkBuffer {
     inline size_t unused_size() const { return unused_.size(); }
 
     inline size_t used_size() const { return used_.size(); }
+    inline size_t size() const { return buffer_data_.size(); }
 
     void bind();
+
+    void unbind();
+
+    void enableVertexAttribArray();
 
     ~ChunkBuffer();
     // assign a bucket to chunk for vertices
@@ -48,10 +67,9 @@ class ChunkBuffer {
 
    private:
     size_t max_chunks_num_{0};
-    std::vector<Vert> solid_buffer_;
-    //    std::vector<VertBucket> transparent_buffer_;
+    std::vector<Vert> buffer_data_;
     std::set<size_t> used_, unused_;
-    GLuint vbo_solid_{0};
+    GLuint vbo_{0};
 };
 
 #endif

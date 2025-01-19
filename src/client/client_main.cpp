@@ -1,5 +1,6 @@
 #include "client_main.h"
 #include "GLFW/glfw3.h"
+#include "buffer.h"
 #include "imgui.h"
 #include "position.h"
 #include "game_camera.h"
@@ -116,14 +117,15 @@ void ClientMain::showDebugInfo() {
     ImGui::Text("Yaw / Pitch: %.3f / %.3f", render_ctx_.camera().yaw_, render_ctx_.camera().pitch_);
 
     auto& cr = level_render_->chunkRender();
-    auto& buffer = cr.buffer();
+    auto& sb = cr.solid_buffer();
+    auto& tb = cr.translucent_buffer();
     ImGui::Text("Chunk Mesh building:  Total: %zu, In queue: %zu", cr.mesh_size(), cr.mesh_queue_size());
     ImGui::Text("Vertices: %zu", cr.last_vertices_count);
     ImGui::Text("Chunks: %zu", cr.last_chunk_count);
-    ImGui::Text("Chunk Buffer: %zu / %zu", buffer.used_size(), buffer.unused_size() + buffer.used_size());
-    // for (auto& kv : meshes) {
-    //     ImGui::Text("%s %d", kv.first.toString().c_str(), ccp.dis2(kv.first));
-    // }
+    ImGui::Text("Solid chunk Buffer: %zu / %zu", sb.used_size(), sb.unused_size() + sb.used_size());
+    ImGui::Text("Translucent chunk Buffer: %zu / %zu", tb.used_size(), tb.unused_size() + tb.used_size());
+    auto usage = cr.last_vertices_count * 100.0 / (sb.size() * 2);
+    ImGui::Text("Bucket utilization: %.3lf %%", usage);
 }
 
 ClientMain::~ClientMain() {
