@@ -8,6 +8,7 @@
 #include "buffer.h"
 #include "chunk.h"
 #include "config.h"
+#include "glm/detail/func_geometric.hpp"
 #include "glm/detail/type_vec.hpp"
 #include "level_renderer.h"
 #include "position.h"
@@ -361,15 +362,32 @@ void ChunkRenderer::render(RenderContext& ctx) {
     glEnable(GL_BLEND);
     translucent_buffer_.bind();
     translucent_buffer_.enableVertexAttribArray();
+    // sorting is not simple
+    struct SortingItem {
+        GLint offset;
+        GLsizei size;
+        glm::vec3 pos;
+        float dist;
+    };
+    std::vector<SortingItem> items;
     for (auto& kv : chunk_meshes_) {
         if (camera_cp.dis2(kv.first) > Config::VIEW_DISTANCE * Config::VIEW_DISTANCE) continue;
         auto* mesh = kv.second;
         last_chunk_count++;
         for (auto& bi : mesh->translucent_buckets_) {
-            offsets_.push_back(static_cast<GLint>(bi.index) * ChunkBuffer::BUCKET_SIZE);
-            sizes_.push_back(static_cast<GLsizei>(bi.size));
+            auto idx = static_cast<GLint>(bi.index) * ChunkBuffer::BUCKET_SIZE;
             last_vertices_count += bi.size;
+            auto pos = glm::vec3{bi.bucket[0].x, bi.bucket[0].y, bi.bucket[0].z};
+            items.push_back({idx, static_cast<GLsizei>(bi.size), pos});
         }
+    }
+    for (auto& item : items) {
+        item.dist = glm::length(ctx.camera().position_ - item.pos);
+    }
+    std::ranges::sort(items, [](const SortingItem& p1, const SortingItem& p2) { return p1.dist > p2.dist; });
+    for (auto& item : items) {
+        offsets_.push_back(item.offset);
+        sizes_.push_back(item.size);
     }
     glMultiDrawArrays(GL_TRIANGLES, offsets_.data(), sizes_.data(), static_cast<GLsizei>(offsets_.size()));
     translucent_buffer_.unbind();
