@@ -44,7 +44,6 @@ void ChunkBuffer::bind() {
 void ChunkBuffer::reclaim(const ChunkPos& pos, size_t index) {
     unused_.insert(index);
     used_.erase(index);
-    //  LD("Reclaiming buffer %zu at chunk %s", index, pos.toString().c_str());
 }
 
 void ChunkBuffer::rebufferBucket(const BucketInstance& inst) {

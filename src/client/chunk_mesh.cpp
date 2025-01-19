@@ -195,13 +195,11 @@ void ChunkMesh::freeBuckect(ChunkRenderer& chunk_renderer) {
 void ChunkMesh::build(ChunkRenderer& renderer) {
     // reclaim old
     freeBuckect(renderer);
-
     // fetch neghbor chunks;
-
-    auto* cpx = renderer.getChunk({pos_.x + 1, pos_.z});
-    auto* cnx = renderer.getChunk({pos_.x - 1, pos_.z});
-    auto* cpz = renderer.getChunk({pos_.x, pos_.z + 1});
-    auto* cnz = renderer.getChunk({pos_.x, pos_.z - 1});
+    auto* cpx = renderer.getChunk(pos_ + ChunkPos{1, 0});
+    auto* cnx = renderer.getChunk(pos_ - ChunkPos{1, 0});
+    auto* cpz = renderer.getChunk(pos_ + ChunkPos{0, 1});
+    auto* cnz = renderer.getChunk(pos_ + ChunkPos{0, -1});
     auto* self = renderer.getChunk(pos_);
     if (!self) {
         LE("Error in building chunk mesh: self nullptr");
@@ -211,7 +209,7 @@ void ChunkMesh::build(ChunkRenderer& renderer) {
     static int dy[] = {0, 0, 1, -1, 0, 0};
     static int dz[] = {0, 0, 0, 0, 1, -1};
     static Face faces[] = {px, nx, py, ny, pz, nz};
-    LevelChunk* target{self};
+    LevelChunk* target{nullptr};
     auto obp = pos_.toBlockPos();
     for (int y = 0; y < Config::CHUNK_HEIGHT; y++) {
         for (int x = 0; x < 16; x++) {
@@ -219,15 +217,33 @@ void ChunkMesh::build(ChunkRenderer& renderer) {
                 auto cur = self->getBlock(x, y, z);
                 if (cur == air) continue;
                 for (int i = 0; i < 6; i++) {
+                    target = self;
                     auto px = dx[i] + x;
                     auto py = dy[i] + y;
                     auto pz = dz[i] + z;
-                    if (px >= 0 && px < 16 && py >= 0 && py < Config::CHUNK_HEIGHT && pz >= 0 && pz < 16) {
-                        auto nb = self->getBlock(px, py, pz);
-                        if (nb == air) {
-                            addFace({faces[i], cur, {x + obp.x, y + obp.y, z + obp.z}}, renderer);
-                        }
+                    if (py >= Config::CHUNK_HEIGHT || py < 0) continue;
+                    if (px < 0) {
+                        target = cnx;
+                        px = 15;
+                    } else if (px >= 16) {
+                        target = cpx;
+                        px = 0;
                     }
+                    if (pz < 0) {
+                        target = cnz;
+                        pz = 15;
+                    } else if (pz >= 16) {
+                        target = cpz;
+                        pz = 0;
+                    }
+                    if (target && target->getBlock(px, py, pz) == air) {
+                        addFace({faces[i], cur, {x + obp.x, y + obp.y, z + obp.z}}, renderer);
+                    }
+
+                    // auto nb = self->getBlock(px, py, pz);
+                    // if (nb == air) {
+                    // }
+
                     // if (py < 0 || py >= Config::CHUNK_HEIGHT) continue;
                     // if (px == 16) {
                     //     target = cpx;

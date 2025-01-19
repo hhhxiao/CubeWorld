@@ -40,6 +40,10 @@ class ChunkPos {
 
     bool operator!=(const ChunkPos& p) const { return !(x == p.x && z == p.z); }
 
+    ChunkPos operator+(const ChunkPos& p) const { return {x + p.x, z + p.z}; }
+
+    ChunkPos operator-(const ChunkPos& p) const { return {x - p.x, z - p.z}; }
+
     static ChunkPos fromVec3(const glm::vec3& vec3);
 };
 
