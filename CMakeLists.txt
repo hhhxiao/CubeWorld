@@ -47,6 +47,7 @@ src/client/render_context.cpp
 src/client/cube_map.cpp
 src/client/client_level.cpp
 src/client/buffer.cpp
+src/client/image.cpp
 #server
 src/server/level_server.cpp
 src/server/chunk.cpp 

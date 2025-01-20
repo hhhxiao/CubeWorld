@@ -5,12 +5,14 @@
 #include "texture.h"
 #include <algorithm>
 #include <array>
+#include <cstdio>
 #include <filesystem>
 #include <stdexcept>
 #include <string>
 #include <unordered_map>
 #include <vector>
 #include "block.h"
+#include "image.h"
 #include "utils.h"
 #include "magic_enum/magic_enum.hpp"
 #include <algorithm>
@@ -149,10 +151,35 @@ GLuint TexturePool::getCubeMapID(const std::string &name) {
 }
 
 void TexturePool::init(const std::filesystem::path &path) {
-    LD("Texture root path: %s", path.string().c_str());
+    loadBlockTexture(path / "blocks");
+    loadCubeMaps(path / "cubemaps");
+}
 
+void TexturePool::loadBlockTexture(const fs::path &path) {}
+
+void TexturePool::loadCubeMaps(const fs::path &path) {
+    LD("Cube map path: %s", path.string().c_str());
+    for (const auto &entry : fs::directory_iterator(path)) {
+        GLuint cubeMapId;
+        auto name = entry.path().filename().string();
+        if (load_cumbe_map(entry.path(), &cubeMapId)) {
+            this->cubemap_ids_[name] = cubeMapId;
+        } else {
+            LE("Can not load cube map %s", name.c_str());
+        }
+    }
+}
+
+void BlockTextureAtlas::init(const fs::path &path) {
+    LD("Block Atlas root path: %s", path.string().c_str());
+    auto *texture = new Image(ATLAS_WIDTH * BLOCK_TEXTURE_SIZE, ATLAS_HEIGHT * BLOCK_TEXTURE_SIZE, 4);
+    for (int i = 0; i < texture->width(); i++) {
+        for (int j = 0; j < texture->width(); j++) {
+            texture->get(i, j)[3] = 255;
+        }
+    }
+    // find all paths (for pri)
     std::array<std::vector<fs::path>, 3> paths{};
-
     for (const auto &entry : fs::directory_iterator(path)) {
         if (!entry.is_regular_file()) continue;
         auto ext = entry.path().extension();
@@ -177,37 +204,62 @@ void TexturePool::init(const std::filesystem::path &path) {
         }
     }
 
+    // load valid textures
+    int width, height, nrChannels;
+    int x{0};
+    int y{0};
     for (int i = 0; i < 3; i++) {
         auto pathList = paths[i];
         for (auto &path : pathList) {
+            // parse block info
             BlockType type;
             std::vector<Face> faces;
             if (!parse_block_texture(path.stem().string(), type, faces)) {
                 LW("Invalid texture %s", path.string().c_str());
                 continue;
             }
-            GLuint textureId;
-            if (load_texture(path, &textureId)) {
-                for (const auto &face : faces) {
-                    this->texture_ids_[type][face] = textureId;
+            LD("Load texture %s in %d %d (u= %f v=%f)", path.string().c_str(), x, y, x * 1. / ATLAS_WIDTH,
+               y * 1. / ATLAS_HEIGHT);
+            // load img
+            auto *data = stbi_load(path.string().c_str(), &width, &height, &nrChannels, 0);
+            if (!data) {
+                LE("Can not load texture %s", path.string().c_str());
+                stbi_image_free(data);
+                continue;
+            }
+            if (width != BLOCK_TEXTURE_SIZE || height != BLOCK_TEXTURE_SIZE) {
+                LD("Invalid texture size: %s", path.string().c_str());
+                continue;
+            }
+            Image img(width, height, nrChannels, data, false);
+            if (x < ATLAS_WIDTH && y < ATLAS_HEIGHT) {
+                texture->copyFromImage(x * 16, y * 16, img);
+                x++;
+                if (x >= ATLAS_WIDTH) {
+                    x = 0;
+                    y++;
                 }
             } else {
-                LE("Can not load texture %s", path.string().c_str());
+                LE("The atlas is too small, some block texture can not be loaded.");
+            }
+
+            stbi_image_free(data);
+            auto u = static_cast<float>(x) / ATLAS_WIDTH;
+            auto v = 1. - static_cast<float>(y + 1) / ATLAS_HEIGHT;  // stbimg y轴方向和opengl v的y轴方向相反
+            for (auto &face : faces) {
+                auto &info = this->atlas_table_[static_cast<BlockType>(type)][face];
+                info.u = u;
+                info.v = v;
+                info.type = type;
             }
         }
     }
-    loadCubeMaps(path / "cubemaps");
-}
+    texture->save("atlas.bmp");
 
-void TexturePool::loadCubeMaps(const fs::path &path) {
-    LD("Cube map path: %s", path.string().c_str());
-    for (const auto &entry : fs::directory_iterator(path)) {
-        GLuint cubeMapId;
-        auto name = entry.path().filename().string();
-        if (load_cumbe_map(entry.path(), &cubeMapId)) {
-            this->cubemap_ids_[name] = cubeMapId;
-        } else {
-            LE("Can not load cube map %s", name.c_str());
+    for (auto &bs : atlas_table_) {
+        for (auto b : bs) {
+            LD("Block %d: uv = (%.2f,%.2f)", b.type, b.u, b.v);
         }
     }
+    delete texture;
 }
