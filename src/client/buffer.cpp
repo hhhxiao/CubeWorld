@@ -45,6 +45,8 @@ void ChunkBuffer::enableVertexAttribArray() {
     glEnableVertexAttribArray(1);
     glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(Vert), reinterpret_cast<void*>(7 * sizeof(GLfloat)));
     glEnableVertexAttribArray(2);
+    glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, sizeof(Vert), reinterpret_cast<void*>(10 * sizeof(GLfloat)));
+    glEnableVertexAttribArray(3);
 }
 
 // reclaim the buffer

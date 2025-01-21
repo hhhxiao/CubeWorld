@@ -3,6 +3,7 @@
 //
 
 #include "texture.h"
+#include <float.h>
 #include <algorithm>
 #include <array>
 #include <cstdio>
@@ -22,30 +23,6 @@
 #include "stb_image.h"
 
 namespace {
-    bool load_texture(const std::filesystem::path &path, GLuint *texture_id) {
-        int width, height, nrChannels;
-        unsigned char *data = stbi_load(path.string().c_str(), &width, &height, &nrChannels, 0);
-        if (!data) {
-            LE("Can not load texture %s", path.string().c_str());
-            stbi_image_free(data);
-            return false;
-        }
-        glGenTextures(1, texture_id);
-        glBindTexture(GL_TEXTURE_2D, *texture_id);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-        LD("texture: %s => %d channels", path.string().c_str(), nrChannels);
-
-        glTexImage2D(GL_TEXTURE_2D, 0, nrChannels == 3 ? GL_RGB : GL_RGBA, width, height, 0,
-                     nrChannels == 3 ? GL_RGB : GL_RGBA, GL_UNSIGNED_BYTE, data);
-        glGenerateMipmap(GL_TEXTURE_2D);
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-        stbi_image_free(data);
-        return true;
-    }
-
     bool load_cumbe_map(const fs::path &path, GLuint *textureId) {
         std::vector<fs::path> paths;
         paths.resize(6);
@@ -128,47 +105,46 @@ namespace {
     }
 
 }  // namespace
+// GLuint TexturePool::getTextureID(BlockType type, Face face) {
+//     auto it = this->texture_ids_.find(type);
+//     if (it == this->texture_ids_.end()) {
+//         return getTextureID(invalid, nx);
+//     }
+//     auto it2 = this->texture_ids_[type].find(face);
+//     if (it2 == this->texture_ids_[type].end()) {
+//         return getTextureID(invalid, nx);
+//     }
+//     return it2->second;
+// }
 
-GLuint TexturePool::getTextureID(BlockType type, Face face) {
-    auto it = this->texture_ids_.find(type);
-    if (it == this->texture_ids_.end()) {
-        return getTextureID(invalid, nx);
-    }
-    auto it2 = this->texture_ids_[type].find(face);
-    if (it2 == this->texture_ids_[type].end()) {
-        return getTextureID(invalid, nx);
-    }
-    return it2->second;
-}
+// GLuint TexturePool::getCubeMapID(const std::string &name) {
+//     auto id = this->cubemap_ids_.find(name);
+//     if (id == this->cubemap_ids_.end()) {
+//         LE("Can not found cubemap texture %s", name.c_str());
+//         throw std::runtime_error("Can not find cube map texture" + name);
+//     }
+//     return id->second;
+// }
 
-GLuint TexturePool::getCubeMapID(const std::string &name) {
-    auto id = this->cubemap_ids_.find(name);
-    if (id == this->cubemap_ids_.end()) {
-        LE("Can not found cubemap texture %s", name.c_str());
-        throw std::runtime_error("Can not find cube map texture" + name);
-    }
-    return id->second;
-}
+// void TexturePool::init(const std::filesystem::path &path) {
+//     loadBlockTexture(path / "blocks");
+//     loadCubeMaps(path / "cubemaps");
+// }
 
-void TexturePool::init(const std::filesystem::path &path) {
-    loadBlockTexture(path / "blocks");
-    loadCubeMaps(path / "cubemaps");
-}
+// void TexturePool::loadBlockTexture(const fs::path &path) {}
 
-void TexturePool::loadBlockTexture(const fs::path &path) {}
-
-void TexturePool::loadCubeMaps(const fs::path &path) {
-    LD("Cube map path: %s", path.string().c_str());
-    for (const auto &entry : fs::directory_iterator(path)) {
-        GLuint cubeMapId;
-        auto name = entry.path().filename().string();
-        if (load_cumbe_map(entry.path(), &cubeMapId)) {
-            this->cubemap_ids_[name] = cubeMapId;
-        } else {
-            LE("Can not load cube map %s", name.c_str());
-        }
-    }
-}
+// void TexturePool::loadCubeMaps(const fs::path &path) {
+//     LD("Cube map path: %s", path.string().c_str());
+//     for (const auto &entry : fs::directory_iterator(path)) {
+//         GLuint cubeMapId;
+//         auto name = entry.path().filename().string();
+//         if (load_cumbe_map(entry.path(), &cubeMapId)) {
+//             this->cubemap_ids_[name] = cubeMapId;
+//         } else {
+//             LE("Can not load cube map %s", name.c_str());
+//         }
+//     }
+// }
 
 void BlockTextureAtlas::init(const fs::path &path) {
     LD("Block Atlas root path: %s", path.string().c_str());
@@ -204,7 +180,7 @@ void BlockTextureAtlas::init(const fs::path &path) {
         }
     }
 
-    // load valid textures
+    // // load valid textures
     int width, height, nrChannels;
     int x{0};
     int y{0};
@@ -231,9 +207,21 @@ void BlockTextureAtlas::init(const fs::path &path) {
                 LD("Invalid texture size: %s", path.string().c_str());
                 continue;
             }
+
             Image img(width, height, nrChannels, data, false);
             if (x < ATLAS_WIDTH && y < ATLAS_HEIGHT) {
                 texture->copyFromImage(x * 16, y * 16, img);
+
+                // set uv
+                auto u = static_cast<float>(x) / ATLAS_WIDTH;
+                auto v = static_cast<float>(y) / ATLAS_HEIGHT;  // stbimg y轴方向和opengl v的y轴方向相反
+                for (auto &face : faces) {
+                    auto &info = this->atlas_table_[static_cast<BlockType>(type)][face];
+                    info.u = u;
+                    info.v = v;
+                    info.type = type;
+                }
+
                 x++;
                 if (x >= ATLAS_WIDTH) {
                     x = 0;
@@ -242,24 +230,32 @@ void BlockTextureAtlas::init(const fs::path &path) {
             } else {
                 LE("The atlas is too small, some block texture can not be loaded.");
             }
-
             stbi_image_free(data);
-            auto u = static_cast<float>(x) / ATLAS_WIDTH;
-            auto v = 1. - static_cast<float>(y + 1) / ATLAS_HEIGHT;  // stbimg y轴方向和opengl v的y轴方向相反
-            for (auto &face : faces) {
-                auto &info = this->atlas_table_[static_cast<BlockType>(type)][face];
-                info.u = u;
-                info.v = v;
-                info.type = type;
-            }
         }
     }
-    texture->save("atlas.bmp");
+    texture->save("atlas.bmp");  // for debug
 
     for (auto &bs : atlas_table_) {
-        for (auto b : bs) {
-            LD("Block %d: uv = (%.2f,%.2f)", b.type, b.u, b.v);
-        }
+        auto b = bs[0];
+        LD("Block %d: uv = (%.2f,%.2f)", b.type, b.u, b.v);
     }
+
+    auto *atlas = stbi_load("atlas.bmp", &width, &height, &nrChannels, 0);
+    // // gen id
+    glGenTextures(1, &this->id);
+    glBindTexture(GL_TEXTURE_2D, this->id);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texture->width(), texture->height(), 0, GL_RGBA, GL_UNSIGNED_BYTE, atlas);
+    glGenerateMipmap(GL_TEXTURE_2D);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glBindTexture(GL_TEXTURE_2D, 0);
     delete texture;
+}
+
+TextureManager &TextureManager::instance() {
+    static TextureManager mgr;
+    return mgr;
 }

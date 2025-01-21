@@ -14,7 +14,6 @@ class RenderContext {
     inline GameCamera &camera() { return camera_; }
     inline ResourceManager &resourceMgr() { return resource_manager_; }
     inline Shader &shader() { return shader_; }
-
     void init();
 
    private:

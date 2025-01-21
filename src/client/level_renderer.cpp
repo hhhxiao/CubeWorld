@@ -16,16 +16,16 @@
 LevelRenderer::LevelRenderer(ClientLevel* clientLevel) : client_level_(clientLevel) {}
 
 void LevelRenderer::renderOneFrame(RenderContext& ctx) {
-    skybox->render(ctx);
+    //  skybox->render(ctx);
     this->renderBlockWorld(ctx);
     //   light.render(ctx);
     // todo: render fog, env
 }
 
 void LevelRenderer::init() {
-    light.init();
-    skybox = new CubeMap();
-    skybox->init();
+    // light.init();
+    // skybox = new CubeMap();
+    // skybox->init();
     chunk_render_.init();
 }
 
@@ -67,7 +67,9 @@ LevelChunk* LevelRenderer::getChunkData(const ChunkPos& pos) {
     return nullptr;
 }
 
-LevelRenderer::~LevelRenderer() { delete skybox; }
+LevelRenderer::~LevelRenderer() {
+    // delete skybox;
+}
 
 bool LevelChunkRendererOrder::operator()(const LevelChunk& r1, const LevelChunk& r2) {
     return r1.pos().dis2(camera) < r2.pos().dis2(camera);

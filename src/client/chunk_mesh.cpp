@@ -1,6 +1,7 @@
 #include "chunk_mesh.h"
 #include <algorithm>
 #include <cstddef>
+#include <tuple>
 #include <unordered_map>
 #include <utility>
 #include <vector>
@@ -12,6 +13,7 @@
 #include "glm/detail/type_vec.hpp"
 #include "level_renderer.h"
 #include "position.h"
+#include "resource_manager.h"
 #include "texture.h"
 #include "render_context.h"
 #include "level_renderer.h"
@@ -19,12 +21,12 @@
 #include "Remotery.h"
 namespace {
     std::vector<int> createFaceVertices(Face face) {
-        if (face == px) return {1, 3, 7, 5};
-        if (face == nx) return {2, 0, 4, 6};
-        if (face == py) return {4, 5, 7, 6};
-        if (face == ny) return {2, 3, 1, 0};
-        if (face == pz) return {3, 2, 6, 7};
-        if (face == nz) return {0, 1, 5, 4};
+        if (face == px) return {5, 7, 3, 1};
+        if (face == nx) return {6, 4, 0, 2};
+        if (face == py) return {4, 6, 7, 5};
+        if (face == ny) return {0, 1, 3, 2};
+        if (face == pz) return {7, 6, 2, 3};
+        if (face == nz) return {4, 5, 1, 0};
         throw std::exception("error in create Face indices");
     }
 
@@ -38,142 +40,6 @@ namespace {
         throw std::exception("error in create Face indices");
     }
 }  // namespace
-// void ChunkMeshOld::genBuffer() {
-//     vertices_.clear();
-//     texture_mappings_.clear();
-//     glGenBuffers(1, &VBO);
-//     status_ = HashGenBuffer;
-// }
-
-// void ChunkMeshOld::buildMesh(LevelRenderer* level) {
-//     auto* chunk = level->getChunkData(this->pos());
-//     if (!chunk) {
-//         status_ = HasBufferData;
-//         return;
-//     }
-//     auto bp = this->pos_.toBlockPos();
-//     if (status_ == HashGenBuffer) {
-//         int by = current_build_height_;
-//         current_build_height_ = std::min(current_build_height_ + ChunkMeshOld::GRANULARYTY,
-//         (int)Config::CHUNK_HEIGHT); for (int x = 0; x < 16; x++) {
-//             for (int y = by; y < current_build_height_; y++) {
-//                 for (int z = 0; z < 16; z++) {
-//                     auto p = BlockPos{x + bp.x, y + bp.y, z + bp.z};
-//                     auto b = level->getBlock(p.x, p.y, p.z);
-//                     if (b == air) continue;
-//                     if (getBlock({p.x + 1, p.y, p.z}, chunk, level) == air) fis_.emplace_back(px, b, p);
-//                     if (getBlock({p.x - 1, p.y, p.z}, chunk, level) == air) fis_.emplace_back(nx, b, p);
-//                     if (getBlock({p.x, p.y + 1, p.z}, chunk, level) == air) fis_.emplace_back(py, b, p);
-//                     if (getBlock({p.x, p.y - 1, p.z}, chunk, level) == air) fis_.emplace_back(ny, b, p);
-//                     if (getBlock({p.x, p.y, p.z + 1}, chunk, level) == air) fis_.emplace_back(pz, b, p);
-//                     if (getBlock({p.x, p.y, p.z - 1}, chunk, level) == air) fis_.emplace_back(nz, b, p);
-//                 }
-//             }
-//         }
-//     }
-//     if (current_build_height_ >= Config::CHUNK_HEIGHT) status_ = HasBuildMesh;
-// }
-
-// void ChunkMeshOld::bufferData() {
-//     std::unordered_map<GLuint, std::vector<ChunkMeshOld::V>> tmp_mappings;
-//     for (auto f : fis_) {
-//         auto vs = createFaceVertices(f.face);
-//         auto normal = getFaceNormal(f.face);
-//         auto pos = f.pos;
-//         std::vector<V> vertices;
-//         vertices.reserve(4);
-//         for (int i = 0; i < vs.size(); i++) {
-//             auto v = vs[i];
-//             auto U = 0.0f, V = 0.0f;
-//             if (i == 2) U = 1.0f;
-//             if (i == 0) V = 1.0f;
-//             if (i == 1) U = 1.0f, V = 1.0f;
-//             auto dx = static_cast<GLfloat>(v % 2);
-//             auto dy = static_cast<GLfloat>(v >= 4 ? 1 : 0);
-//             auto dz = static_cast<GLfloat>((v % 4) >= 2 ? 1 : 0);
-//             auto vert = V::fromPos(glm::vec3(dx + pos.x, dy + pos.y, dz + pos.z));
-//             vert.setNormal((GLfloat)normal.x, (GLfloat)normal.y, (GLfloat)normal.z);
-//             vert.setUV(U, V);
-//             if (f.type == oakLeaves) {
-//                 vert.r = 0.13f;
-//                 vert.g = 0.74f;
-//                 vert.b = 0.0f;
-//                 // #
-//             } else if (f.type == water) {
-//                 vert.r = 0.6f;
-//                 vert.g = 0.6f;
-//                 vert.b = 1.0f;
-//                 vert.a = 0.6f;
-//             }
-//             vertices.push_back(vert);
-//         }
-//         auto& array = tmp_mappings[TexturePool::instance().getTextureID(f.type, f.face)];
-//         array.push_back(vertices[0]);
-//         array.push_back(vertices[2]);
-//         array.push_back(vertices[1]);
-//         array.push_back(vertices[2]);
-//         array.push_back(vertices[0]);
-//         array.push_back(vertices[3]);
-//     }
-
-//     // build verticles
-//     for (auto& kv : tmp_mappings) {
-//         auto begin = vertices_.size();
-//         auto cnt = kv.second.size();
-//         vertices_.insert(vertices_.end(), kv.second.begin(), kv.second.end());
-//         this->texture_mappings_[kv.first] = std::make_pair(begin, cnt);
-//     }
-//     // buffer data
-//     glBindBuffer(GL_ARRAY_BUFFER, VBO);
-//     glBufferData(GL_ARRAY_BUFFER, static_cast<GLuint>(vertices_.size() * sizeof(ChunkMeshOld::V)), vertices_.data(),
-//                  GL_STATIC_DRAW);
-//     status_ = HasBufferData;
-// }
-
-// bool ChunkMeshOld::stepInit(LevelRenderer* level) {
-//     if (status_ == Init) {
-//         genBuffer();
-//         return false;
-//     }
-//     if (status_ == HashGenBuffer) {
-//         buildMesh(level);
-//         return false;
-//     }
-//     if (status_ == HasBuildMesh) {
-//         bufferData();
-//     }
-//     return true;
-// }
-
-// void ChunkMeshOld::render(RenderContext& ctx) {
-//     if (status_ < HasBufferData) return;
-//     glBindBuffer(GL_ARRAY_BUFFER, VBO);
-//     // glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(ChunkMeshOld::V), static_cast<void*>(0 *
-//     sizeof(float))); glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(ChunkMeshOld::V),
-//                           reinterpret_cast<void*>(0 * sizeof(float)));
-//     glEnableVertexAttribArray(0);
-//     // 顶点颜色
-//     glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(ChunkMeshOld::V),
-//                           reinterpret_cast<void*>(3 * sizeof(float)));
-//     glEnableVertexAttribArray(1);
-//     // 顶点纹理
-//     glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(ChunkMeshOld::V),
-//                           reinterpret_cast<void*>(7 * sizeof(float)));
-//     glEnableVertexAttribArray(2);
-//     // 顶点法线
-//     glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(ChunkMeshOld::V),
-//                           reinterpret_cast<void*>(9 * sizeof(float)));
-//     glEnableVertexAttribArray(3);
-
-//     for (auto& [textureID, vbo] : this->texture_mappings_) {
-//         glBindTexture(GL_TEXTURE_2D, textureID);
-//         glDrawArrays(GL_TRIANGLES, static_cast<GLuint>(vbo.first), static_cast<GLsizei>(vbo.second));
-//     }
-// }
-// ChunkMeshOld::~ChunkMeshOld() {
-//     if (status_ != Init) glDeleteBuffers(1, &VBO);
-// }
-
 /////////////////Above is old///////////////
 
 ChunkMesh::ChunkMesh(const ChunkPos& pos) : pos_(pos) {}
@@ -296,19 +162,20 @@ void ChunkMesh::addFace(const BlockFaceInfo& f, ChunkBuffer& buffer, bool solid)
     auto color = BlockRegistry::instance().get(f.type).color;
     std::vector<Vert> verts;
     auto normal = getFaceNormal(f.face);
+    auto [u, v] = TextureManager::instance().blockAtlas().uv(f.type, f.face);
+    static float ua[] = {0.f, 1.f, 1.f, 0.f};
+    static float va[] = {0.f, 0.f, 1.f, 1.f};
     for (int i = 0; i < vs.size(); i++) {
-        auto v = vs[i];
-        // auto U = 0.0f, V = 0.0f;
-        // if (i == 2) U = 1.0f;
-        // if (i == 0) V = 1.0f;
-        // if (i == 1) U = 1.0f, V = 1.0f;
-        auto dx = static_cast<GLfloat>(v % 2);
-        auto dy = static_cast<GLfloat>(v >= 4 ? 1 : 0);
-        auto dz = static_cast<GLfloat>((v % 4) >= 2 ? 1 : 0);
+        auto idx = vs[i];
+        auto dx = static_cast<GLfloat>(idx % 2);
+        auto dy = static_cast<GLfloat>(idx >= 4 ? 1 : 0);
+        auto dz = static_cast<GLfloat>((idx % 4) >= 2 ? 1 : 0);
         glm::vec3 pos{dx + f.pos.x, dy + f.pos.y, dz + f.pos.z};
-        verts.emplace_back(pos, color, glm::vec3(normal.x, normal.y, normal.z));
+        // uv scale
+        verts.emplace_back(pos, color, glm::vec3(normal.x, normal.y, normal.z),
+                           glm::vec2{ua[i] * BlockTextureAtlas::U_SCALUE + u, va[i] * BlockTextureAtlas::V_SCALUE + v});
     }
-    static int idxs[] = {0, 2, 1, 2, 0, 3};
+    static int idxs[] = {0, 1, 2, 3, 0, 2};
     auto& buckect = buckets.back();
     for (int i = 0; i < 6; i++) {
         buckect.bucket[buckect.size] = verts[idxs[i]];
@@ -339,6 +206,8 @@ void ChunkRenderer::render(RenderContext& ctx) {
     std::vector<GLsizei> sizes_;
 
     glEnable(GL_CULL_FACE);
+    glCullFace(GL_BACK);
+    TextureManager::instance().blockAtlas().bind();
     solid_buffer_.bind();
     solid_buffer_.enableVertexAttribArray();
     for (auto& kv : chunk_meshes_) {

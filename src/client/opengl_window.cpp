@@ -55,6 +55,7 @@ OpenGLWindow::OpenGLWindow(int width, int height, const std::string &name) {
     glfwSwapInterval(0);  // 关闭垂直同步
                           //  glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     glEnable(GL_DEPTH_TEST);
+    glFrontFace(GL_CCW);
     glGenVertexArrays(1, &this->VAO);
     glBindVertexArray(VAO);
 }

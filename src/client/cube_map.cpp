@@ -29,7 +29,7 @@ CubeMap::CubeMap() : Renderable("cubemap") {
         indices_.push_back(i * 3 + 1);
         indices_.push_back(i * 3 + 2);
     }
-    texture_ = TexturePool::instance().getCubeMapID("overworld_sky");
+    //   texture_ = TexturePool::instance().getCubeMapID("overworld_sky");
 }
 
 void CubeMap::render(RenderContext& ctx) {

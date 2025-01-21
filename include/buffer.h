@@ -18,8 +18,10 @@ struct Vert {
     GLfloat nx{0.0};
     GLfloat ny{0.0};
     GLfloat nz{0.0};
+    GLfloat u{0.0};
+    GLfloat v{0.0};
     Vert() = default;
-    Vert(const glm::vec3& pos, const glm::vec4& color, const glm::vec3& normal) {
+    Vert(const glm::vec3& pos, const glm::vec4& color, const glm::vec3& normal, const glm::vec2& uv) {
         x = pos.x;
         y = pos.y;
         z = pos.z;
@@ -30,6 +32,8 @@ struct Vert {
         nx = normal.x;
         ny = normal.y;
         nz = normal.z;
+        u = uv.x;
+        v = uv.y;
     };
 };
 

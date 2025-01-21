@@ -29,27 +29,24 @@ void runServerOnly() {
     server->start();
 }
 int main(int argc, char **argv) {
-    // Remotery *rmt;
-    // rmt_CreateGlobalInstance(&rmt);
+    Remotery *rmt;
+    rmt_CreateGlobalInstance(&rmt);
     initLogger(argc, argv);
-    // loguru::set_thread_name("Client");
-    // auto bridge = new DataBridge();
-    // auto client = new ClientMain(bridge);
-    // auto server = new LevelServer(bridge);
-    // client->init();
-    // std::thread serverThread([server]() {
-    //     loguru::set_thread_name("Server");
-    //     server->start();
-    // });
-    // client->show();
-    // server->stop();
-    // serverThread.join();
-    // delete server;
-    // delete client;
-    // delete bridge;
-    // rmt_DestroyGlobalInstance(rmt);
-
-    BlockTextureAtlas atlas;
-    atlas.init("..\\res\\textures\\blocks");
+    loguru::set_thread_name("Client");
+    auto bridge = new DataBridge();
+    auto client = new ClientMain(bridge);
+    auto server = new LevelServer(bridge);
+    client->init();
+    std::thread serverThread([server]() {
+        loguru::set_thread_name("Server");
+        server->start();
+    });
+    client->show();
+    server->stop();
+    serverThread.join();
+    delete server;
+    delete client;
+    delete bridge;
+    rmt_DestroyGlobalInstance(rmt);
     return 0;
 }

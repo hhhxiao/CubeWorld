@@ -17,7 +17,7 @@ struct BlockFaceInfo {
 
 struct Block {
     BlockType type{invalid};
-    glm::vec4 color{1.0, 1.0, 0.0, 1.0};
+    glm::vec4 color{1.0, 1.0, 1.0, 1.0};
     bool solid{true};
     bool liquid{false};
 };

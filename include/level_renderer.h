@@ -48,8 +48,8 @@ class LevelRenderer {
     // ChunkMeshOld* current_mesh_{nullptr};
     // data
     // debug
-    Light light;
-    CubeMap* skybox{nullptr};
+    //  Light light;
+    // CubeMap* skybox{nullptr};
     ChunkRenderer chunk_render_;
 };
 #endif

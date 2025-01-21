@@ -14,12 +14,11 @@ void ClientMain::init() {
         this->processKeyBoardCallback(window, key, scancode, action, mode);
     });
     render_ctx_.init();
-    TexturePool::instance().init(render_ctx_.resourceMgr().texture_path());
+    TextureManager::instance().init(render_ctx_.resourceMgr().texture_path());
     imgui_displayer_.init(window_->window());
     imgui_displayer_.addInfo(&bridge_->serverBuffer());
     imgui_displayer_.addInfo(this);
     level_render_->init();
-
     this->window_->onLogic([this](double delta) {
         processKeyBoardInput(this->window_->window(), delta);
         using namespace std::chrono;
