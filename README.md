@@ -19,4 +19,4 @@ Simple Minecraft in OpenGL
 - [x] 面剔除
 - [x] 透明方块渲染
 - [x] 半透明方块渲染（透明水面）
-- [ ] 纹理合并 (Texture atlas)
+- [x] 纹理合并 (Texture atlas)
