@@ -1,5 +1,4 @@
 #include "terrain_generator.h"
-#include <functional>
 #include "position.h"
 #include "single/PerlinNoise.hpp"
 #include "block.h"
@@ -24,6 +23,9 @@ void FlatTerrainGenerator::fill(LevelChunk* chunk) {
 
 PerlinTerrainGeneratror::PerlinTerrainGeneratror(siv::PerlinNoise::seed_type seed) {
     this->perlin_ = new siv::PerlinNoise(seed);
+    this->continents_ = new SplineCurvesNorse(seed, {{-1.0, -1.0}, {0.5, 0.6}, {1.0, 1.0}});
+    this->mountains_ = new SplineCurvesNorse(seed + 1);
+    this->plains_ = new SplineCurvesNorse(seed + 2, {{-1.0, -1.0}, {-0.05, -0.99}, {0.05, 0.99}, {1.0, 1.0}});
 }
 
 void PerlinTerrainGeneratror::fill(LevelChunk* chunk) {
@@ -31,32 +33,33 @@ void PerlinTerrainGeneratror::fill(LevelChunk* chunk) {
         for (int z = 0; z < 16; z++) {
             const auto xx = chunk->pos().x * 16 + x;
             const auto zz = chunk->pos().z * 16 + z;
-            generartor_lock_.lock();
-            const auto height = static_cast<int>(this->perlin_->octave2D_11(xx * 0.03, zz * 0.03, 4) * 16) + 64;
-            // auto height = 65;
-            generartor_lock_.unlock();
-            chunk->setBlock(x, height, z, grass);
+            //   generartor_lock_.lock();
+            auto scale = 0.001;
+            auto continent = this->continents_->noise(xx * scale * 4, zz * scale * 4);
+            auto mountain = this->mountains_->noise(xx * scale * 20, zz * scale * 20);
+            auto plain = this->plains_->noise(xx * scale, zz * scale);
+            auto height = static_cast<int>((continent * 0.1 + mountain * 0.9) * 80 + 64);
             for (int i = 64; i >= height; i--) {
-                chunk->setBlock(x, i, z, water);
+                chunk->setBlock(x, i - 1, z, water);
             }
             for (int i = height - 1; i >= 0; i--) {
-                chunk->setBlock(x, i, z, dirt);
+                chunk->setBlock(x, i, z, stone);
             }
         }
     }
 
-    auto hasher = std::hash<ChunkPos>();
-    random_engine_.seed(static_cast<unsigned int>(hasher(chunk->pos())));
-    // tree
-    int try_place_tree = random_engine_() % 10;
-    for (int i = 0; i < try_place_tree; i++) {
-        int dx = random_engine_() % 16;
-        int dz = random_engine_() % 16;
-        auto y = chunk->topY(dx, dz);
-        if (chunk->getBlock(dx, y, dz) == grass) {
-            this->placeTree(chunk, {dx, y, dz}, random_engine_() % 3 + 4);
-        }
-    }
+    // auto hasher = std::hash<ChunkPos>();
+    // random_engine_.seed(static_cast<unsigned int>(hasher(chunk->pos())));
+    // // tree
+    // int try_place_tree = random_engine_() % 10;
+    // for (int i = 0; i < try_place_tree; i++) {
+    //     int dx = random_engine_() % 16;
+    //     int dz = random_engine_() % 16;
+    //     auto y = chunk->topY(dx, dz);
+    //     if (chunk->getBlock(dx, y, dz) == grass) {
+    //         this->placeTree(chunk, {dx, y, dz}, random_engine_() % 3 + 4);
+    //     }
+    // }
 }
 
 void PerlinTerrainGeneratror::placeTree(LevelChunk* chunk, const BlockPos& pos, int height) {

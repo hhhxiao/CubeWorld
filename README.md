@@ -20,3 +20,7 @@ Simple Minecraft in OpenGL
 - [x] 透明方块渲染
 - [x] 半透明方块渲染（透明水面）
 - [x] 纹理合并 (Texture atlas)
+- [x] 天空
+- [ ] 云
+- [x] 雾
+- [ ] 使用纹理数组取代纹理合并以解决 atlas 的接缝问题

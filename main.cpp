@@ -8,10 +8,8 @@
 #include "client_main.h"
 #include "bridge.h"
 #include "level_server.h"
-#include "texture.h"
 #include "utils.h"
 #include "Remotery.h"
-#include "image.h"
 
 #define _CRT_SECURE_NO_WARNINGS
 

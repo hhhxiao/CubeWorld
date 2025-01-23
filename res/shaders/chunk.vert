@@ -11,7 +11,6 @@ uniform mat4 projection;
 out vec4 outColor;
 out vec2 outTexCoord;
 out vec3 outNormal;
-
 out vec3 FragPos;
 
 void main(){

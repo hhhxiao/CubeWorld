@@ -42,7 +42,8 @@ class Image {
     inline int height() const { return height_; }
     inline int channel() const { return channel_; }
 
-    void copyFromImage(int x, int y, const Image& img);
+    // will auto fill
+    void buildAtlas(int x, int y, const Image& img);
 
    private:
     int width_{0};

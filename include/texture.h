@@ -50,34 +50,17 @@ class TextureManager {
    public:
     static TextureManager& instance();
     inline BlockTextureAtlas& blockAtlas() { return block_alas_; }
-    inline void init(const fs::path& path) { block_alas_.init(path / "blocks"); }
+    inline void init(const fs::path& path) {
+        block_alas_.init(path / "blocks");
+        loadCubeMaps(path / "cubemaps");
+    }
+
+    inline GLuint getCubeMapID(const std::string& name) { return cubemap_ids_[name]; }
 
    private:
+    void loadCubeMaps(const fs::path& path);
+    std::unordered_map<std::string, GLuint> cubemap_ids_;
     BlockTextureAtlas block_alas_;
 };
-
-// 简单的实现，没有缓存
-// class TexturePool {
-//    public:
-//     inline static TexturePool& instance() {
-//         static TexturePool pool;
-//         return pool;
-//     }
-
-//     GLuint getTextureID(BlockType type, Face face);
-
-//     GLuint getCubeMapID(const std::string& name);
-
-//     void init(const fs::path& path);
-
-//    private:
-//     void loadBlockTexture(const fs::path& path);
-//     void loadCubeMaps(const fs::path& path);
-
-//    private:
-//     std::unordered_map<std::string, GLuint> cubemap_ids_;
-//     // block faceid textureID
-//     std::unordered_map<BlockType, std::unordered_map<Face, GLuint>> texture_ids_;
-// };
 
 #endif  // LEARNOPENGL_TEXTURE_H

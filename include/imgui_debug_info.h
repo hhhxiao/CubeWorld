@@ -52,4 +52,14 @@ class ImguiInfoDisplayer {
    private:
     std::unordered_map<std::string, ImguiInfo *> infos_;
 };
+
+class FogInfoDisplay : public ImguiInfo {
+   public:
+    FogInfoDisplay() : ImguiInfo("Fog") {}
+    void showDebugInfo() override {
+        ImGui::Checkbox("Enable Fog", &Config::enableFog);
+        ImGui::SliderFloat("For Near", &Config::fogNear, 0, Config::VIEW_DISTANCE * 16 + 20);
+        ImGui::SliderFloat("For Far", &Config::fogFar, 0, Config::VIEW_DISTANCE * 16 + 20);
+    };
+};
 #endif

@@ -10,7 +10,7 @@
 #include "utils.h"
 
 ChunkBuilder::ChunkBuilder() {
-    this->terrain_generator_ = new PerlinTerrainGeneratror(20);
+    this->terrain_generator_ = new PerlinTerrainGeneratror(100);
     // this->terrain_generator_ = new FlatTerrainGenerator();
     this->pool_ = new progschj::ThreadPool(Config::CHUNK_GEN_THREAD_NUM);
     // for debug
@@ -47,7 +47,6 @@ LevelChunk* ChunkBuilder::requestChunk(const ChunkPos& pos) {
         this->pool_->enqueue([pos, this]() {
             auto* chunk = new LevelChunk(pos);
             terrain_generator_->fill(chunk);
-            std::this_thread::sleep_for(std::chrono::milliseconds(10));
             {
                 std::scoped_lock<std::mutex> lc(this->lock_);
                 chunks_[pos] = chunk;

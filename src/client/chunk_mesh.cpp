@@ -199,8 +199,12 @@ void ChunkRenderer::render(RenderContext& ctx) {
     glm::mat4 model;
     model = glm::translate(model, glm::vec3{0, 0, 0});
     shader.setMat4("model", model);
-    auto camera_cp = ChunkPos::fromVec3(ctx.camera().position_);
+    shader.setVec3("world_camera", ctx.camera().position_);
+    shader.setFloat("fogNear", Config::fogNear);
+    shader.setFloat("fogFar", Config::fogFar);
+    shader.setBool("enableFog", Config::enableFog);
 
+    auto camera_cp = ChunkPos::fromVec3(ctx.camera().position_);
     // draw solid
     std::vector<GLint> offsets_;
     std::vector<GLsizei> sizes_;

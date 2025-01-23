@@ -11,7 +11,6 @@
 #include <unordered_map>
 #include <unordered_set>
 #include "utils.h"
-#include <moodycamel/concurrentqueue.h>
 
 class ChunkBuilder {
    public:

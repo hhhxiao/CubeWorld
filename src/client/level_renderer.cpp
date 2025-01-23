@@ -16,22 +16,20 @@
 LevelRenderer::LevelRenderer(ClientLevel* clientLevel) : client_level_(clientLevel) {}
 
 void LevelRenderer::renderOneFrame(RenderContext& ctx) {
-    //  skybox->render(ctx);
+    skybox->render(ctx);
     this->renderBlockWorld(ctx);
-    //   light.render(ctx);
-    // todo: render fog, env
 }
 
 void LevelRenderer::init() {
-    // light.init();
-    // skybox = new CubeMap();
-    // skybox->init();
+    skybox = new CubeMap();
+    skybox->init();
     chunk_render_.init();
 }
 
 void LevelRenderer::updateMesh(RenderContext& ctx) { chunk_render_.updateMesh(*this, ctx); }
 
 void LevelRenderer::renderBlockWorld(RenderContext& ctx) {
+    skybox->render(ctx);
     chunk_render_.render(ctx);
     // auto& shader = ctx.shader();
     // shader.use("chunk");

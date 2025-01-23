@@ -7,6 +7,11 @@ float Config::zFar = 400.0f;
 int Config::window_width = 1920;
 int Config::window_height = 1080;
 
+// fog
+float Config::fogFar = VIEW_DISTANCE * 16;
+float Config::fogNear = (VIEW_DISTANCE - 1.0) * 16;
+bool Config::enableFog = true;
+
 void Config::updateWindowSize(int w, int h) {
     window_width = w;
     window_height = h;

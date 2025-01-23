@@ -49,7 +49,7 @@ class LevelRenderer {
     // data
     // debug
     //  Light light;
-    // CubeMap* skybox{nullptr};
+    CubeMap* skybox{nullptr};
     ChunkRenderer chunk_render_;
 };
 #endif

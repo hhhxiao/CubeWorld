@@ -18,6 +18,8 @@ void ClientMain::init() {
     imgui_displayer_.init(window_->window());
     imgui_displayer_.addInfo(&bridge_->serverBuffer());
     imgui_displayer_.addInfo(this);
+    imgui_displayer_.addInfo(new FogInfoDisplay());
+
     level_render_->init();
     this->window_->onLogic([this](double delta) {
         processKeyBoardInput(this->window_->window(), delta);

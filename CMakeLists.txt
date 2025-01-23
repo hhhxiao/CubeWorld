@@ -30,9 +30,8 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4819")
 set_target_properties(base PROPERTIES LINKER_LANGUAGE CXX)
 target_link_libraries(base ${PROJECT_SOURCE_DIR}/3rd/glfw3.lib)
 
-add_executable(
-main 
-main.cpp
+add_library(
+cube_world
 # client
 src/client/opengl_window.cpp
 src/client/client_main.cpp
@@ -62,4 +61,12 @@ src/common/config.cpp
 src/common/utils.cpp
 src/common/bridge.cpp
 )
-target_link_libraries(main base)
+target_link_libraries(cube_world base)
+
+add_executable(main main.cpp)
+target_link_libraries(main cube_world)
+
+
+add_executable(sky_box_gen tools/sky_box_gen.cpp)
+target_link_libraries(sky_box_gen cube_world)
+
