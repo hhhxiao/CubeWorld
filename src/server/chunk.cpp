@@ -10,15 +10,10 @@ LevelChunk::LevelChunk(const ChunkPos& pos) : pos_(pos.x, pos.z) {
     for (int x = 0; x < 16; x++) {
         for (int z = 0; z < 16; z++) {
             for (int y = 0; y < Config::CHUNK_HEIGHT; y++) {
-                this->data_[y][x][z] = air;
+                this->data_[y][x][z] = {air, 0.0};
             }
         }
     }
-}
-
-void LevelChunk::setBlock(int cx, int y, int cz, BlockType type) {
-    if (enable_valid_check_ && !posValid(cx, y, cz)) return;
-    this->data_[y][cx][cz] = type;
 }
 
 // copy chunks
@@ -36,11 +31,17 @@ void LevelChunk::tick(const tick_t ts) {
 
 BlockType LevelChunk::getBlock(int cx, int y, int cz) {
     if (enable_valid_check_ && !posValid(cx, y, cz)) return air;
-    return this->data_[y][cx][cz];
+    return this->data_[y][cx][cz].type;
 }
+
+LevelChunk::ChunkBlock* LevelChunk::getPosition(int cx, int y, int cz) {
+    if (enable_valid_check_ && !posValid(cx, y, cz)) return nullptr;
+    return &this->data_[y][cx][cz];
+}
+
 int LevelChunk::topY(int cx, int cz) const {
     for (int y = Config::CHUNK_HEIGHT - 1; y >= 0; y--) {
-        if (this->data_[y][cx][cz] != air) {
+        if (this->data_[y][cx][cz].type != air) {
             return y;
         }
     }

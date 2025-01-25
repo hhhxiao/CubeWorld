@@ -119,12 +119,9 @@ void TextureManager::loadCubeMaps(const fs::path &path) {
 
 void BlockTextureAtlas::init(const fs::path &path) {
     LD("Block Atlas root path: %s", path.string().c_str());
-    auto *texture = new Image(ATLAS_WIDTH * BLOCK_TEXTURE_SIZE, ATLAS_HEIGHT * BLOCK_TEXTURE_SIZE, 4);
-    for (int i = 0; i < texture->width(); i++) {
-        for (int j = 0; j < texture->width(); j++) {
-            texture->get(i, j)[3] = 255;
-        }
-    }
+
+    auto *texture = new Image(P_TEX_SIZE * ATLAS_WIDTH, P_TEX_SIZE * ATLAS_HEIGHT, 4);
+
     // find all paths (for pri)
     std::array<std::vector<fs::path>, 3> paths{};
     for (const auto &entry : fs::directory_iterator(path)) {
@@ -165,26 +162,24 @@ void BlockTextureAtlas::init(const fs::path &path) {
                 LW("Invalid texture %s", path.string().c_str());
                 continue;
             }
-            LD("Load texture %s in %d %d (u= %f v=%f)", path.string().c_str(), x, y, x * 1. / ATLAS_WIDTH,
-               y * 1. / ATLAS_HEIGHT);
             // load img
+            LD("Process %s", path.string().c_str());
             auto *data = stbi_load(path.string().c_str(), &width, &height, &nrChannels, 0);
             if (!data) {
                 LE("Can not load texture %s", path.string().c_str());
                 stbi_image_free(data);
                 continue;
             }
-            if (width != BLOCK_TEXTURE_SIZE || height != BLOCK_TEXTURE_SIZE) {
+            if (width != TEX_SIZE || height != TEX_SIZE) {
                 LD("Invalid texture size: %s", path.string().c_str());
+                stbi_image_free(data);
                 continue;
             }
-
             Image img(width, height, nrChannels, data, false);
             if (x < ATLAS_WIDTH && y < ATLAS_HEIGHT) {
-                texture->buildAtlas(x * 16, y * 16, img);
-                // set uv
-                auto u = static_cast<float>(x) / ATLAS_WIDTH;
-                auto v = static_cast<float>(y) / ATLAS_HEIGHT;  // stbimg y轴方向和opengl v的y轴方向相反
+                texture->buildAtlas(x * P_TEX_SIZE, y * P_TEX_SIZE, img, PADDING);
+                auto u = static_cast<float>(x * P_TEX_SIZE + PADDING) / (P_TEX_SIZE * ATLAS_WIDTH);
+                auto v = static_cast<float>(y * P_TEX_SIZE + PADDING) / (P_TEX_SIZE * ATLAS_HEIGHT);
                 for (auto &face : faces) {
                     auto &info = this->atlas_table_[static_cast<BlockType>(type)][face];
                     info.u = u;
@@ -215,13 +210,12 @@ void BlockTextureAtlas::init(const fs::path &path) {
     glBindTexture(GL_TEXTURE_2D, this->id);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    // https://gamedev.stackexchange.com/questions/46963/how-to-avoid-texture-bleeding-in-a-texture-atlas
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texture->width(), texture->height(), 0, GL_RGBA, GL_UNSIGNED_BYTE,
                  texture->data());
     glGenerateMipmap(GL_TEXTURE_2D);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 1);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 4);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glBindTexture(GL_TEXTURE_2D, 0);
     delete texture;

@@ -43,7 +43,7 @@ class Image {
     inline int channel() const { return channel_; }
 
     // will auto fill
-    void buildAtlas(int x, int y, const Image& img);
+    void buildAtlas(int x, int y, const Image& img, int padding);
 
    private:
     int width_{0};

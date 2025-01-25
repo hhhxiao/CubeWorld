@@ -1,6 +1,8 @@
 #include "image.h"
 #include <algorithm>
 #include <cassert>
+#include <cstddef>
+#include <cstdint>
 #include <cstring>
 
 #define STB_IMAGE_WRITE_IMPLEMENTATION
@@ -24,29 +26,25 @@ void Image::save(const fs::path& path) {
     stbi_write_bmp(path.string().c_str(), width_, height_, channel_, (const void*)this->data_);
 }
 
-void Image::buildAtlas(int x, int y, const Image& img) {
+void Image::buildAtlas(int x, int y, const Image& img, int padding) {
     assert(this->channel_ == 4);
-    for (int i = 0; i < img.width_; i++) {
-        for (int j = 0; j < img.height_; j++) {
+    uint8_t pixel[4]{0, 0, 0, 255};
+    for (int i = 0; i < img.width_ + padding * 2; i++) {
+        for (int j = 0; j < img.height_ + padding * 2; j++) {
             auto dx = i + x;
             auto dy = j + y;
-            if (!(dx >= 0 && dx < width_ && dy >= 0 && dy < height_)) continue;
-            if (img.channel_ == 1) {
-                for (int n = 0; n < 3; n++) {
-                    this->get(dx, dy)[n] = img.get(i, j)[0];
-                }
-                this->get(dx, dy)[3] = 255;
-            } else if (img.channel_ == 3) {
-                for (int n = 0; n < 3; n++) {
-                    this->get(dx, dy)[n] = img.get(i, j)[n];
-                }
 
-                this->get(dx, dy)[3] = 255;
+            auto ix = std::clamp(i - padding, 0, img.width_ - 1);
+            auto iy = std::clamp(j - padding, 0, img.height_ - 1);
+            // init
+            pixel[0] = pixel[1] = pixel[2] = 0;
+            pixel[3] = 255;
+            //
+            for (int n = 0; n < img.channel_; n++) pixel[n] = img.get(ix, iy)[n];
+            if (img.channel_ == 1) pixel[2] = pixel[1] = pixel[0];
 
-            } else if (img.channel_ == 4) {
-                for (int n = 0; n < 4; n++) {
-                    this->get(dx, dy)[n] = img.get(i, j)[n];
-                }
+            for (int n = 0; n < 4; n++) {
+                this->get(dx, dy)[n] = pixel[n];
             }
         }
     }

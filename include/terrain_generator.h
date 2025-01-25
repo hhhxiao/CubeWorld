@@ -1,6 +1,7 @@
 #pragma once
 #include <algorithm>
 #include <cmath>
+#include <cstddef>
 #include <cstdint>
 #include <mutex>
 #include <random>
@@ -10,6 +11,10 @@
 #include "single/PerlinNoise.hpp"
 #include "utils.h"
 #include <map>
+
+using value_type = siv::PerlinNoise::value_type;
+using seed_type = siv::PerlinNoise::seed_type;
+using kv_list = std::vector<std::pair<value_type, value_type>>;
 
 class LevelChunk;
 class AbstractTerrainGenerator {
@@ -27,12 +32,12 @@ class FlatTerrainGenerator : public AbstractTerrainGenerator {
 class SplineCurves {
     // give x, return
    public:
-    SplineCurves(const std::vector<std::pair<float, float>> &kvs) : kvs_(kvs) {
+    SplineCurves(const kv_list &kvs) : kvs_(kvs) {
         if (kvs.empty()) {
             //   LE("The spline curuves is empty.");
         }
     }
-    inline float get(float x) {
+    inline value_type get(value_type x) {
         if (kvs_.empty()) return x;
         auto min = kvs_.begin()->first;
         auto max = kvs_.rbegin()->first;
@@ -49,17 +54,20 @@ class SplineCurves {
     }
 
    private:
-    std::vector<std::pair<float, float>> kvs_;
+    kv_list kvs_;
 };
 
 class SplineCurvesNorse {
    public:
-    SplineCurvesNorse(siv::PerlinNoise::seed_type seed, const std::vector<std::pair<float, float>> &keys) : sc_(keys) {
-        this->noise_ = new siv::PerlinNoise(seed);
+    SplineCurvesNorse(seed_type seed, const kv_list &keys) : sc_(keys) { this->noise_ = new siv::PerlinNoise(seed); }
+    SplineCurvesNorse(seed_type seed) : sc_({}) { this->noise_ = new siv::PerlinNoise(seed); }
+    value_type noise2D(value_type x, value_type y) { return sc_.get(noise_->noise2D(x, y)); }
+
+    value_type octave2D(value_type x, value_type y, const std::int32_t octave, value_type persistence = 0.5) {
+        return sc_.get(noise_->octave2D(x, y, octave, persistence));
     }
-    SplineCurvesNorse(siv::PerlinNoise::seed_type seed) : sc_({}) { this->noise_ = new siv::PerlinNoise(seed); }
-    float noise(siv::PerlinNoise::value_type x, siv::PerlinNoise::value_type y) {
-        return sc_.get((float)noise_->noise2D(x, y));
+    value_type octave2D_01(value_type x, value_type y, const std::int32_t octave, value_type persistence = 0.5) {
+        return sc_.get(noise_->octave2D_01(x, y, octave, persistence));
     }
 
     ~SplineCurvesNorse() { delete noise_; }
@@ -69,24 +77,26 @@ class SplineCurvesNorse {
 
 class PerlinTerrainGeneratror : public AbstractTerrainGenerator {
    public:
-    PerlinTerrainGeneratror(siv::PerlinNoise::seed_type seed);
+    PerlinTerrainGeneratror(seed_type seed);
 
     void fill(LevelChunk *chunk) override;
 
-    void placeTree(LevelChunk *chunk, const BlockPos &pos, int height);
+    void placeSurface(LevelChunk *chunk, int xx, int zz, int height);
 
     ~PerlinTerrainGeneratror() override {
-        delete perlin_;
-        delete continents_;
-        delete mountains_;
+        delete mountain_;
+        delete plain_;
+        delete sea_;
+        delete river_;
+        delete forest_;
     }
 
    private:
     siv::PerlinNoise *perlin_;
-    std::mutex generartor_lock_;
-    SplineCurvesNorse *continents_{nullptr};
-    SplineCurvesNorse *mountains_{nullptr};
-    SplineCurvesNorse *plains_{nullptr};
-    // random seed
+    SplineCurvesNorse *sea_;
+    SplineCurvesNorse *mountain_;
+    SplineCurvesNorse *plain_;
+    SplineCurvesNorse *river_;
+    SplineCurvesNorse *forest_;
     std::default_random_engine random_engine_;
 };

@@ -8,6 +8,7 @@ BlockRegistry::BlockRegistry() {
     add({BlockType::oakLog});
     add({BlockType::oakLeaves, {0.16, 0.44, 0.27, 1.0}, false});
     add({BlockType::stone});
+    add({BlockType::sand});
     add({BlockType::bedrock});
 }
 

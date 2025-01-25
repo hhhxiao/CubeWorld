@@ -4,6 +4,7 @@
 #include <cstdint>
 #include <tuple>
 #include <unordered_map>
+#include "PerlinNoise.hpp"
 #include "config.h"
 #include "position.h"
 #include "block.h"
@@ -13,13 +14,19 @@ class Shader;
 class AbstractTerrainGenerator;
 
 class LevelChunk {
+    struct ChunkBlock {
+        BlockType type;
+        // noise cache
+        siv::PerlinNoise::value_type sea;
+    };
+
    public:
     LevelChunk(const ChunkPos& pos);
 
     LevelChunk(const LevelChunk& chunk);
 
-    void setBlock(int cx, int y, int cz, BlockType type);
     BlockType getBlock(int cx, int y, int cz);
+    ChunkBlock* getPosition(int cx, int y, int cz);
     [[nodiscard]] ChunkPos pos() const { return pos_; }
     void tick(tick_t ts);
     [[nodiscard]] bool isDead(const tick_t now) const { return tick_ != -1 && now - tick_ > Config::CHUNK_LIFE_TICK; }
@@ -38,7 +45,7 @@ class LevelChunk {
    private:
     // data
     ChunkPos pos_{};
-    std::array<std::array<std::array<BlockType, 16>, 16>, Config::CHUNK_HEIGHT> data_;
+    std::array<std::array<std::array<ChunkBlock, 16>, 16>, Config::CHUNK_HEIGHT> data_;
     // status
     tick_t tick_{-1};
     bool enable_valid_check_{false};

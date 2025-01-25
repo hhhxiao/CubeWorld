@@ -3,7 +3,7 @@
 #include <cassert>
 #include <glm/glm.hpp>
 #include <vector>
-enum BlockType { air, grass, dirt, water, bedrock, oakLog, oakLeaves, stone, invalid };
+enum BlockType { air, grass, dirt, water, bedrock, oakLog, oakLeaves, stone, sand, invalid };
 
 enum Face { nx = 0, px = 1, ny = 2, py = 3, nz = 4, pz = 5 };
 

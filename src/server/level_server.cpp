@@ -58,9 +58,11 @@ void LevelServer::syncWrite() {
         if (cp.dis2(pos) > Config::LOAD_RADIUS * Config::LOAD_RADIUS) continue;
         buffer.chunks.push_back(*c);
     }
+
     buffer.player_position = player_->getPos();
     buffer.mspt = mspt_timer_.mean();
     buffer.chunk_cache_size = liveChunks.size();
+
     buffer.endWrite();
 }
 

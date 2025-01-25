@@ -1,4 +1,6 @@
 #include "terrain_generator.h"
+#include <algorithm>
+#include <cstdlib>
 #include "position.h"
 #include "single/PerlinNoise.hpp"
 #include "block.h"
@@ -7,25 +9,19 @@
 void FlatTerrainGenerator::fill(LevelChunk* chunk) {
     for (int x = 0; x < 16; x++) {
         for (int z = 0; z < 16; z++) {
-            chunk->setBlock(x, 0, z, bedrock);
-            chunk->setBlock(x, 1, z, dirt);
-            chunk->setBlock(x, 2, z, dirt);
-            chunk->setBlock(x, 3, z, dirt);
-            chunk->setBlock(x, 4, z, dirt);
-            chunk->setBlock(x, 5, z, dirt);
-            chunk->setBlock(x, 6, z, grass);
-            for (int y = 7; y < Config::CHUNK_HEIGHT; y++) {
-                chunk->setBlock(x, y, z, air);
-            }
         }
     }
 }
 
 PerlinTerrainGeneratror::PerlinTerrainGeneratror(siv::PerlinNoise::seed_type seed) {
-    this->perlin_ = new siv::PerlinNoise(seed);
-    this->continents_ = new SplineCurvesNorse(seed, {{-1.0, -1.0}, {0.5, 0.6}, {1.0, 1.0}});
-    this->mountains_ = new SplineCurvesNorse(seed + 1);
-    this->plains_ = new SplineCurvesNorse(seed + 2, {{-1.0, -1.0}, {-0.05, -0.99}, {0.05, 0.99}, {1.0, 1.0}});
+    this->sea_ =
+        new SplineCurvesNorse(seed, {{-1.0, 0.1}, {-0.4, 0.15}, {-0.1, 0.2}, {0.1, 0.8}, {0.2, 1.0}, {1.0, 1.0}});
+    this->plain_ = new SplineCurvesNorse(seed);
+    this->forest_ = new SplineCurvesNorse(seed + 1, {{-1.0, 0}, {1.0, 1.0}});
+    this->mountain_ =
+        new SplineCurvesNorse(seed, {{-1.0, 0.5}, {-0.3, 0.02}, {0, 0.05}, {0.4, 0.03}, {0.7, 0.4}, {1.0, 1.0}});
+    this->river_ = new SplineCurvesNorse(
+        seed, {{-1.0, 0.0}, {-0.08, 0.0}, {-0.02, 0.9}, {0, 1.0}, {0.02, 0.9}, {0.08, 0.0}, {1.0, 0.0}});
 }
 
 void PerlinTerrainGeneratror::fill(LevelChunk* chunk) {
@@ -33,57 +29,79 @@ void PerlinTerrainGeneratror::fill(LevelChunk* chunk) {
         for (int z = 0; z < 16; z++) {
             const auto xx = chunk->pos().x * 16 + x;
             const auto zz = chunk->pos().z * 16 + z;
-            //   generartor_lock_.lock();
-            auto scale = 0.001;
-            auto continent = this->continents_->noise(xx * scale * 4, zz * scale * 4);
-            auto mountain = this->mountains_->noise(xx * scale * 20, zz * scale * 20);
-            auto plain = this->plains_->noise(xx * scale, zz * scale);
-            auto height = static_cast<int>((continent * 0.1 + mountain * 0.9) * 80 + 64);
-            for (int i = 64; i >= height; i--) {
-                chunk->setBlock(x, i - 1, z, water);
+            auto scale = 1.f / 1024;
+
+            auto sea = sea_->octave2D(xx * scale * 2, zz * scale * 2, 5);
+            auto plain = plain_->octave2D(xx * scale * 16, zz * scale * 16, 2);
+            auto mountain = mountain_->octave2D(xx * scale * 10, zz * scale * 10, 4);
+            auto river = river_->octave2D(xx * scale * 5, zz * scale * 4, 5);
+
+            auto sea_height = static_cast<int>(sea * 42) + 20;
+            auto plain_height = static_cast<int>(plain * 5);
+            auto mountain_height = static_cast<int>(mountain * 60);
+            auto river_height = static_cast<int>(river * 10);
+            bool is_river = river > 0 && mountain < 0.1 && sea > 0.99;
+
+            if (!is_river) river_height = 0;  // no river in sea and mountain
+
+            auto total_height = static_cast<int>(sea_height + plain_height + mountain_height - river_height);
+
+            for (int i = 0; i <= total_height; i++) {
+                chunk->getPosition(x, i, z)->type = stone;
             }
-            for (int i = height - 1; i >= 0; i--) {
-                chunk->setBlock(x, i, z, stone);
+            // water
+            for (int i = total_height + 1; i < 62; i++) {
+                chunk->getPosition(x, i, z)->type = water;
             }
+            if ((sea >= 0.8 && sea < 1.0) || river > 0.1) {
+                chunk->getPosition(x, total_height, z)->type = sand;
+            }
+            if (sea >= 1.0) {
+                chunk->getPosition(x, total_height, z)->type = grass;
+                chunk->getPosition(x, total_height - 1, z)->type = dirt;
+            }
+            // fill mountain
+            if (mountain >= 0.1) {
+                for (int i = total_height; i >= 0; i--) {
+                    chunk->getPosition(x, i, z)->type = stone;
+                }
+
+                auto about_height = total_height + mountain_height * 1;
+                if (about_height > 62 && about_height < 120) {  // grass not in water, if too height , keey stone
+                    chunk->getPosition(x, total_height, z)->type = grass;
+                    chunk->getPosition(x, total_height - 1, z)->type = dirt;
+                }
+            }
+
+            if (is_river) {
+                chunk->getPosition(x, total_height, z)->type = sand;
+            }
+            // placeSurface(chunk, xx, zz, total_height);
         }
     }
-
-    // auto hasher = std::hash<ChunkPos>();
-    // random_engine_.seed(static_cast<unsigned int>(hasher(chunk->pos())));
-    // // tree
-    // int try_place_tree = random_engine_() % 10;
-    // for (int i = 0; i < try_place_tree; i++) {
-    //     int dx = random_engine_() % 16;
-    //     int dz = random_engine_() % 16;
-    //     auto y = chunk->topY(dx, dz);
-    //     if (chunk->getBlock(dx, y, dz) == grass) {
-    //         this->placeTree(chunk, {dx, y, dz}, random_engine_() % 3 + 4);
-    //     }
-    // }
 }
 
-void PerlinTerrainGeneratror::placeTree(LevelChunk* chunk, const BlockPos& pos, int height) {
-    if (pos.x < 2 || pos.x > 14 || pos.z < 2 || pos.z > 14) {
-        return;
-    }
+void PerlinTerrainGeneratror::placeSurface(LevelChunk* chunk, int xx, int zz, int height) {
+    // tree
 
-    for (int i = 1; i <= height; i++) {
-        chunk->setBlock(pos.x, pos.y + i, pos.z, oakLog);
-    }
-
-    for (int i = -2; i <= 2; i++) {
-        for (int j = -2; j <= 2; j++) {
-            if (i == 0 && j == 0) {
-                continue;
+    auto scale = 1.f / 1024;
+    auto forest = forest_->octave2D(xx * scale * 32, zz * scale * 32, 4);
+    if (forest > 0.5) {
+        if (!(xx < 2 || xx > 14 || zz < 2 || zz > 14)) {
+            for (int i = 1; i <= 4; i++) {
+                chunk->getPosition(xx, height + i, zz)->type = oakLog;
             }
-            chunk->setBlock(pos.x + i, pos.y + height, pos.z + j, oakLeaves);
-            chunk->setBlock(pos.x + i, pos.y + height - 1, pos.z + j, oakLeaves);
-        }
-    }
 
-    for (int i = -1; i <= 1; i++) {
-        for (int j = -1; j <= 1; j++) {
-            chunk->setBlock(pos.x + i, pos.y + height + 1, pos.z + j, oakLeaves);
+            for (int i = -2; i <= 2; i++) {
+                for (int j = -2; j <= 2; j++) {
+                    if (i == 0 && j == 0) {
+                        continue;
+                    }
+                    chunk->getPosition(xx + i, 5 + height, zz + j)->type = oakLeaves;
+                    chunk->getPosition(xx + i, 4 + height, zz + j)->type = oakLeaves;
+                    chunk->getPosition(xx + i, 3 + height, zz + j)->type = oakLeaves;
+                }
+            }
         }
     }
 }

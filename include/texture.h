@@ -19,12 +19,13 @@ namespace fs = std::filesystem;
 
 class BlockTextureAtlas {
    public:
-    static constexpr auto BLOCK_TEXTURE_SIZE = 16;
+    static constexpr auto TEX_SIZE = 16;
+    static constexpr auto PADDING = 2;
+    static constexpr auto P_TEX_SIZE = TEX_SIZE + PADDING * 2;
     static constexpr auto ATLAS_WIDTH = 4;
     static constexpr auto ATLAS_HEIGHT = 4;
-    static constexpr float U_SCALUE = 1.f / ATLAS_WIDTH;
-    static constexpr float V_SCALUE = 1.f / ATLAS_HEIGHT;
-
+    static constexpr float U_SCALUE = TEX_SIZE * 1.f / (ATLAS_WIDTH * P_TEX_SIZE);
+    static constexpr float V_SCALUE = TEX_SIZE * 1.f / (ATLAS_HEIGHT * P_TEX_SIZE);
     BlockTextureAtlas() {}
     struct AtlasInfo {
         BlockType type{invalid};
