@@ -2,7 +2,6 @@
 #define CLIENT_LEVEL_H
 #include <atomic>
 #include <unordered_map>
-#include <vector>
 #include "chunk.h"
 #include "position.h"
 
@@ -12,7 +11,7 @@ class ClientLevel {
    public:
     ClientLevel();
 
-    void syncChunks(const std::vector<LevelChunk>& data, const ChunkPos& camera);
+    void syncChunks(const std::unordered_map<ChunkPos, LevelChunk>& data, const ChunkPos& camera);
 
     [[nodiscard]] std::unordered_map<ChunkPos, LevelChunk>& newestChunks() { return this->newest_chunks_; }
     auto newDataReceived() -> bool const { return has_new_data_; }

@@ -49,20 +49,29 @@ void LevelServer::syncRead() {
 }
 
 void LevelServer::syncWrite() {
-    auto& buffer = bridge_->serverBuffer();
-    buffer.beginWrite();
-    buffer.chunks.clear();
-    auto& liveChunks = chunk_builder_->allLiveChunks();
     auto cp = player_->getChunkPos();
+    auto& buffer = bridge_->serverBuffer();
+
+    buffer.beginWrite();
+    for (auto it = buffer.chunks.begin(); it != buffer.chunks.end();) {
+        if (cp.dis2(it->first) > Config::LOAD_RADIUS * Config::LOAD_RADIUS) {
+            it = buffer.chunks.erase(it);
+        } else {
+            ++it;
+        }
+    }
+
+    auto& liveChunks = chunk_builder_->allLiveChunks();
     for (auto& [pos, c] : liveChunks) {
         if (cp.dis2(pos) > Config::LOAD_RADIUS * Config::LOAD_RADIUS) continue;
-        buffer.chunks.push_back(*c);
+        if (!buffer.chunks.count(pos)) {
+            buffer.chunks.emplace(pos, *c);
+        }
     }
 
     buffer.player_position = player_->getPos();
     buffer.mspt = mspt_timer_.mean();
     buffer.chunk_cache_size = liveChunks.size();
-
     buffer.endWrite();
 }
 

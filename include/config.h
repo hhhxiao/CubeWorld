@@ -18,7 +18,7 @@ class Config {
 
     // client
     /// non-runtime
-    static constexpr auto MAX_FPS = 240.f;
+    static constexpr auto MAX_FPS = 1000.f;
     static constexpr auto FRAME_TIME = 1.f / MAX_FPS;
 
     static constexpr auto MAX_UPS = 240.f;

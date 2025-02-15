@@ -86,6 +86,7 @@ void OpenGLWindow::pool() {
             frame_++;
             if (frame_ % 100 == 0) {
                 auto cur_fps = 1.0 / (curTime - last_frame_time_);
+                this->fps_counter_.push(cur_fps);
                 this->fps_ = this->fps_ * 0.9 + cur_fps * 0.1;
             }
             // render

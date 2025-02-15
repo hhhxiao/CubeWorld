@@ -108,7 +108,7 @@ void ClientMain::processKeyBoardCallback(GLFWwindow* window, int32_t key, int32_
 }
 
 void ClientMain::showDebugInfo() {
-    ImGui::Text("FPS: %d", static_cast<int>(window_->fps()));
+    ImGui::Text("FPS: %d / %d", static_cast<int>(window_->fps()), static_cast<int>(window_->lowFps(1)));
     ImGui::Text("Logic frame time: %.3lf", mspt_);
 
     auto cp = render_ctx_.camera().position_;

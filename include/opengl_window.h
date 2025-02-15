@@ -5,9 +5,11 @@
 #include <cstddef>
 #include <functional>
 #include <string>
+#include <vector>
 
 #include "glad/glad.h"
 #include "GLFW/glfw3.h"
+#include "time_counter.h"
 
 class OpenGLWindow {
    public:
@@ -29,6 +31,7 @@ class OpenGLWindow {
     void pool();
 
     inline double fps() { return fps_; }
+    inline double lowFps(int percent) { return fps_counter_.low(percent); }
 
     ~OpenGLWindow();
 
@@ -42,5 +45,6 @@ class OpenGLWindow {
     GLuint VAO{0};
     // stat
     double fps_{0.0};
+    PeriodTimer fps_counter_{1000};
     size_t frame_{0};
 };

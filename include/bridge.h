@@ -8,7 +8,7 @@
 #include "imgui_debug_info.h"
 #include "position.h"
 #include <glm/glm.hpp>
-#include <vector>
+#include <unordered_map>
 
 class Buffer {
    public:
@@ -47,7 +47,7 @@ class ServerBuffer : public Buffer, public ImguiInfo {
         ImGui::Text("Cache size: %zu / %zu", chunks.size(), chunk_cache_size);
         ImGui::Text("Mspt: %.3lf", mspt);
     }
-    std::vector<LevelChunk> chunks;
+    std::unordered_map<ChunkPos, LevelChunk> chunks;
     // statics
     glm::vec3 player_position;
     size_t chunk_cache_size;
