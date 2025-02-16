@@ -9,10 +9,10 @@ ${PROJECT_SOURCE_DIR}/include/imgui
 ${PROJECT_SOURCE_DIR}/include/single
 ${PROJECT_SOURCE_DIR}/3rd
 )
-set_source_files_properties(3rd/Remotery.c PROPERTIES LANGUAGE CXX )
+set_source_files_properties(3rd/Remotery.c  3rd/glad.c PROPERTIES LANGUAGE CXX )
 add_library(base
         STATIC
-        3rd/glad.cpp
+        3rd/glad.c
         3rd/loguru.cpp
         3rd/imgui/imgui_demo.cpp
         3rd/imgui/imgui_draw.cpp

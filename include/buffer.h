@@ -76,4 +76,8 @@ class ChunkBuffer {
     GLuint vbo_{0};
 };
 
+class FrameBuffer {
+    GLuint fbo_;
+};
+
 #endif

@@ -30,6 +30,7 @@ class Config {
 
     static constexpr auto VIEW_DISTANCE = 10;
     static constexpr auto ENABLE_IMGUI = true;
+    static constexpr auto ENABLE_OPENGL_DEBUG = true;
     // runtime
     static float fov;
     static float zFar;

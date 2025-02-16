@@ -30,7 +30,7 @@ class BlockRegistry {
     void add(const Block& block);
     inline Block get(BlockType type) {
         auto id = static_cast<int>(type);
-        assert(id < blocks.size());
+        assert(id < blocks_.size());
         return blocks_[id];
     }
 
