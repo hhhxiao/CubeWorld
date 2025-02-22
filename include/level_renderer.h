@@ -27,14 +27,18 @@ class LevelRenderer {
     void updateMesh(RenderContext& ctx);
     void renderOneFrame(RenderContext& ctx);
     void renderBlockWorld(RenderContext& ctx);
+
+    void renderShadowMap(RenderContext& ctx);
+
     ChunkRenderer& chunkRender() { return chunk_render_; }
 
    private:
     ClientLevel* client_level_{nullptr};
     CubeMap* skybox{nullptr};
     ChunkRenderer chunk_render_;
-    // depth map
+    // shadow map rendering
     QuadScreenBuffer depth_map_debug_buffer_;
-    DepthMap level_depth_map_;
+    DepthMapBuffer level_depth_map_;
+    glm::mat4 depth_map_mvp_;
 };
 #endif

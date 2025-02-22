@@ -4,6 +4,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <string_view>
+#include "glm/detail/type_vec.hpp"
 
 class Config {
    public:
@@ -13,7 +14,7 @@ class Config {
     static constexpr auto CHUNK_GEN_THREAD_NUM = 4;
     static constexpr auto CHUNK_LIFE_TIME = 10;  // chunk存活动时间，如果超过30s没有被加载就析构
     static constexpr auto CHUNK_LIFE_TICK = CHUNK_LIFE_TIME * 1000 / MAX_MSPT;  // chuk存活时间(游戏刻单位)
-    static constexpr auto LOAD_RADIUS = 12;
+    static constexpr auto LOAD_RADIUS = 14;
     static constexpr auto CHUNK_CACHE_SIZE = 400;
 
     // client
@@ -28,7 +29,7 @@ class Config {
     static constexpr std::string_view SOFTWARE_VERSION = "0.0.1";
     static constexpr std::string_view RES_ROOT = R"(..\res)";
 
-    static constexpr auto VIEW_DISTANCE = 10;
+    static constexpr auto VIEW_DISTANCE = 13;
     static constexpr auto ENABLE_IMGUI = true;
     static constexpr auto ENABLE_OPENGL_DEBUG = true;
     // runtime
@@ -43,10 +44,14 @@ class Config {
     static float fogFar;
     static bool enableFog;
 
-    // depth math ortho
+    // shaow map depth math ortho matrix args
+    static bool show_debug_shadow_map;
     static float depth_ortho_side;
     static float depth_ortho_z_near;
     static float depth_ortho_z_far;
+    static glm::vec3 sun_light_dir;  // eye to sun
+
+    // function
     static void updateWindowSize(int w, int h);
     static glm::mat4 getProjectionMatrix();
     // window size

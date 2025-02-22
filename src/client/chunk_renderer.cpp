@@ -190,9 +190,9 @@ void ChunkRenderer::init() {
 void ChunkRenderer::render(RenderContext& ctx) {
     last_vertices_count = 0;
     last_chunk_count = 0;
-
     auto camera_cp = ChunkPos::fromVec3(ctx.camera().position_);
     // draw solid
+
     std::vector<GLint> offsets_;
     std::vector<GLsizei> sizes_;
     glEnable(GL_CULL_FACE);

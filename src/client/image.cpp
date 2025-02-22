@@ -1,7 +1,6 @@
 #include "image.h"
 #include <algorithm>
 #include <cassert>
-#include <cstddef>
 #include <cstdint>
 #include <cstring>
 

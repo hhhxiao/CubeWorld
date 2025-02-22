@@ -132,7 +132,7 @@ class FrameBuffer : public FrameBufferInterface {
     GLuint rbo_{0};
 };
 
-class DepthMap : public FrameBufferInterface {
+class DepthMapBuffer : public FrameBufferInterface {
    public:
     void init();
     auto id() { return depth_map_; }

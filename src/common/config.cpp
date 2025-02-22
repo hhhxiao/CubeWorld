@@ -1,4 +1,5 @@
 #include "config.h"
+#include "glm/detail/type_vec.hpp"
 
 float Config::fov = 30.0f;
 float Config::zNear = 0.1f;
@@ -12,9 +13,11 @@ float Config::fogFar = VIEW_DISTANCE * 16;
 float Config::fogNear = (VIEW_DISTANCE - 1.0) * 16;
 bool Config::enableFog = true;
 
-float Config::depth_ortho_side = 100;
+bool Config::show_debug_shadow_map = true;
+float Config::depth_ortho_side = 256;
 float Config::depth_ortho_z_near = -100;
 float Config::depth_ortho_z_far = 300;
+glm::vec3 Config::sun_light_dir = {-1.0, -1.0, -1.0};  // sun to player
 
 void Config::updateWindowSize(int w, int h) {
     window_width = w;
