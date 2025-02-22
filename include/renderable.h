@@ -9,7 +9,6 @@
 #include "glm/detail/type_vec.hpp"
 #include "render_context.h"
 #include "config.h"
-#include "utils.h"
 
 struct VertexAttribute {
     // 坐标

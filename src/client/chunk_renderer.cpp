@@ -1,6 +1,5 @@
-#include "chunk_mesh.h"
+#include "chunk_renderer.h"
 #include <algorithm>
-#include <cstddef>
 #include <tuple>
 #include <unordered_map>
 #include <utility>
@@ -13,7 +12,6 @@
 #include "glm/detail/type_vec.hpp"
 #include "level_renderer.h"
 #include "position.h"
-#include "resource_manager.h"
 #include "texture.h"
 #include "render_context.h"
 #include "level_renderer.h"
@@ -192,28 +190,15 @@ void ChunkRenderer::init() {
 void ChunkRenderer::render(RenderContext& ctx) {
     last_vertices_count = 0;
     last_chunk_count = 0;
-    auto& shader = ctx.shader();
-    shader.use("chunk2");
-    shader.setMat4("projection", Config::getProjectionMatrix());
-    shader.setMat4("view", ctx.camera().getViewMatrix());
-    glm::mat4 model;
-    model = glm::translate(model, glm::vec3{0, 0, 0});
-    shader.setMat4("model", model);
-    shader.setVec3("world_camera", ctx.camera().position_);
-    shader.setFloat("fogNear", Config::fogNear);
-    shader.setFloat("fogFar", Config::fogFar);
-    shader.setBool("enableFog", Config::enableFog);
 
     auto camera_cp = ChunkPos::fromVec3(ctx.camera().position_);
     // draw solid
     std::vector<GLint> offsets_;
     std::vector<GLsizei> sizes_;
-
     glEnable(GL_CULL_FACE);
     glCullFace(GL_BACK);
-    TextureManager::instance().blockAtlas().bind();
     solid_buffer_.bind();
-    solid_buffer_.enableVertexAttribArray();
+    solid_buffer_.enableVertexAttrArray();
     for (auto& kv : chunk_meshes_) {
         if (camera_cp.dis2(kv.first) > Config::VIEW_DISTANCE * Config::VIEW_DISTANCE) continue;
         auto* mesh = kv.second;
@@ -227,14 +212,13 @@ void ChunkRenderer::render(RenderContext& ctx) {
     glMultiDrawArrays(GL_TRIANGLES, offsets_.data(), sizes_.data(), static_cast<GLsizei>(offsets_.size()));
     solid_buffer_.unbind();
     glDisable(GL_CULL_FACE);
-
     // draw transluent
     offsets_.clear();
     sizes_.clear();
 
     glEnable(GL_BLEND);
     translucent_buffer_.bind();
-    translucent_buffer_.enableVertexAttribArray();
+    translucent_buffer_.enableVertexAttrArray();
     // sorting is not simple
     struct SortingItem {
         GLint offset;
@@ -294,7 +278,6 @@ void ChunkRenderer::updateMesh(LevelRenderer& level_render, RenderContext& ctx) 
     } else if (client_level->newDataReceived()) {
         rmt_ScopedCPUSample(processNewData, 0);
         // current basic data
-
         auto& data = client_level->newestChunks();
         std::unordered_map<ChunkPos, std::tuple<uint8_t, uint8_t>> newMasks;
         {

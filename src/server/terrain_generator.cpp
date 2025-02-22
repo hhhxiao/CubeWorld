@@ -1,6 +1,7 @@
 #include "terrain_generator.h"
 #include <algorithm>
 #include <cstdlib>
+#include "config.h"
 #include "position.h"
 #include "single/PerlinNoise.hpp"
 #include "block.h"
@@ -9,6 +10,10 @@
 void FlatTerrainGenerator::fill(LevelChunk* chunk) {
     for (int x = 0; x < 16; x++) {
         for (int z = 0; z < 16; z++) {
+            for (int y = 0; y < Config::CHUNK_HEIGHT; y++) {
+                auto is_stone = (y <= 4 || (x == 8 && y == 8 && z == 8)) && chunk->pos() == ChunkPos{0, 0};
+                chunk->getPosition(x, y, z)->type = is_stone ? stone : air;
+            }
         }
     }
 }

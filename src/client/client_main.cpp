@@ -2,6 +2,7 @@
 #include "GLFW/glfw3.h"
 #include "buffer.h"
 #include "imgui.h"
+#include "imgui_debug_info.h"
 #include "position.h"
 #include "game_camera.h"
 #include "glm/detail/type_vec.hpp"
@@ -18,7 +19,7 @@ void ClientMain::init() {
     imgui_displayer_.init(window_->window());
     imgui_displayer_.addInfo(&bridge_->serverBuffer());
     imgui_displayer_.addInfo(this);
-    imgui_displayer_.addInfo(new FogInfoDisplay());
+    imgui_displayer_.addInfo(new ConfigurationDisplay());
 
     level_render_->init();
     this->window_->onLogic([this](double delta) {
@@ -37,11 +38,7 @@ void ClientMain::init() {
     });
 }
 
-void ClientMain::renderTick() {
-    glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    level_render_->renderOneFrame(render_ctx_);
-}
+void ClientMain::renderTick() { level_render_->renderOneFrame(render_ctx_); }
 
 void ClientMain::syncRead() {
     auto& buffer = bridge_->serverBuffer();

@@ -1,0 +1,3 @@
+#ifndef SCREEN_RENDERER_H
+#define SCREEN_RENDERER_H
+#endif

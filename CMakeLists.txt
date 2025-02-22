@@ -40,8 +40,9 @@ src/client/simple_shader.cpp
 src/client/renderable.cpp
 src/client/resource_manager.cpp
 src/client/game_camera.cpp
-src/client/chunk_mesh.cpp
+src/client/chunk_renderer.cpp
 src/client/level_renderer.cpp
+src/client/screen_renderer.cpp
 src/client/render_context.cpp
 src/client/cube_map.cpp
 src/client/client_level.cpp

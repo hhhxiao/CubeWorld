@@ -53,13 +53,22 @@ class ImguiInfoDisplayer {
     std::unordered_map<std::string, ImguiInfo *> infos_;
 };
 
-class FogInfoDisplay : public ImguiInfo {
+class ConfigurationDisplay : public ImguiInfo {
    public:
-    FogInfoDisplay() : ImguiInfo("Fog") {}
+    ConfigurationDisplay() : ImguiInfo("Configurations") {}
     void showDebugInfo() override {
-        ImGui::Checkbox("Enable Fog", &Config::enableFog);
-        ImGui::SliderFloat("For Near", &Config::fogNear, 0, Config::VIEW_DISTANCE * 16 + 20);
-        ImGui::SliderFloat("For Far", &Config::fogFar, 0, Config::VIEW_DISTANCE * 16 + 20);
+        if (ImGui::CollapsingHeader("Fog")) {
+            ImGui::Checkbox("Enable Fog", &Config::enableFog);
+            ImGui::SliderFloat("For Near", &Config::fogNear, 0, Config::VIEW_DISTANCE * 16 + 20);
+            ImGui::SliderFloat("For Far", &Config::fogFar, 0, Config::VIEW_DISTANCE * 16 + 20);
+        }
+
+        if (ImGui::CollapsingHeader("ShadowMap")) {
+            ImGui::SliderFloat("Side", &Config::depth_ortho_side, 0, 1000);
+            ImGui::SliderFloat("Near", &Config::depth_ortho_z_near, -1000, 0);
+            ImGui::SliderFloat("Far", &Config::depth_ortho_z_far, 0, 6000);
+        }
     };
 };
+
 #endif

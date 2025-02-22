@@ -43,6 +43,10 @@ class Config {
     static float fogFar;
     static bool enableFog;
 
+    // depth math ortho
+    static float depth_ortho_side;
+    static float depth_ortho_z_near;
+    static float depth_ortho_z_far;
     static void updateWindowSize(int w, int h);
     static glm::mat4 getProjectionMatrix();
     // window size

@@ -206,8 +206,8 @@ void BlockTextureAtlas::init(const fs::path &path) {
     }
 
     // // gen id
-    glGenTextures(1, &this->id);
-    glBindTexture(GL_TEXTURE_2D, this->id);
+    glGenTextures(1, &this->id_);
+    glBindTexture(GL_TEXTURE_2D, this->id_);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);

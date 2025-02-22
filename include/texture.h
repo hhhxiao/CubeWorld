@@ -14,6 +14,7 @@
 #include <tuple>
 #include <unordered_map>
 #include "block.h"
+#include "chunk_renderer.h"
 
 namespace fs = std::filesystem;
 
@@ -35,15 +36,15 @@ class BlockTextureAtlas {
 
    public:
     void init(const fs::path& path);
-
+    inline GLuint id() const { return id_; }
     inline std::tuple<float, float> uv(BlockType type, Face face) {
         auto i = atlas_table_[type][face];
         return {i.u, i.v};
     }
-    inline void bind() { glBindTexture(GL_TEXTURE_2D, this->id); }
+    inline void bind() { glBindTexture(GL_TEXTURE_2D, this->id_); }
 
    private:
-    GLuint id{0};
+    GLuint id_{0};
     std::array<std::array<AtlasInfo, 6>, static_cast<size_t>(BlockType::invalid + 1)> atlas_table_;
 };
 
