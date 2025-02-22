@@ -23,4 +23,3 @@ void main(){
      FragPos = vec3(model * vec4(aPosition, 1.0));
      FragPosLightSpace = lightSpaceMatrix * vec4(FragPos, 1.0);
 }
-

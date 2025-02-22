@@ -1,6 +1,7 @@
 #ifndef LEVEL_RENDERER_H
 #define LEVEL_RENDERER_H
 
+#include <unordered_map>
 #include "buffer.h"
 #include "chunk.h"
 #include "chunk_renderer.h"
@@ -27,8 +28,10 @@ class LevelRenderer {
     void updateMesh(RenderContext& ctx);
     void renderOneFrame(RenderContext& ctx);
     void renderBlockWorld(RenderContext& ctx);
-
+    void renderGBuffer(RenderContext& ctx);
     void renderShadowMap(RenderContext& ctx);
+
+    void renderDebug(RenderContext& ctx);
 
     ChunkRenderer& chunkRender() { return chunk_render_; }
 
@@ -36,9 +39,12 @@ class LevelRenderer {
     ClientLevel* client_level_{nullptr};
     CubeMap* skybox{nullptr};
     ChunkRenderer chunk_render_;
-    // shadow map rendering
-    QuadScreenBuffer depth_map_debug_buffer_;
+    // shadow map
+    QuadScreenBuffer debug_buffer_;
     DepthMapBuffer level_depth_map_;
     glm::mat4 depth_map_mvp_;
+
+    // g-buffer
+    GBuffer g_buffer_;
 };
 #endif

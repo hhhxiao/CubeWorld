@@ -62,13 +62,16 @@ class ConfigurationDisplay : public ImguiInfo {
             ImGui::SliderFloat("For Near", &Config::fogNear, 0, Config::VIEW_DISTANCE * 16 + 20);
             ImGui::SliderFloat("For Far", &Config::fogFar, 0, Config::VIEW_DISTANCE * 16 + 20);
         }
-
         if (ImGui::CollapsingHeader("ShadowMap")) {
-            ImGui::Checkbox("Show shadowmap", &Config::show_debug_shadow_map);
             ImGui::SliderFloat("Side", &Config::depth_ortho_side, 0, 1000);
             ImGui::SliderFloat("Near", &Config::depth_ortho_z_near, -1000, 0);
             ImGui::SliderFloat("Far", &Config::depth_ortho_z_far, 0, 6000);
             ImGui::SliderFloat3("Sun light", &Config::sun_light_dir.x, -10, 10);
+        }
+
+        if (ImGui::CollapsingHeader("Debug")) {
+            ImGui::Checkbox("Show shadowmap", &Config::show_debug_frame_);
+            //  ImGui::ListBox("Select Frame", &Config::current_frame_, Config::debug_frame_items_, 2);
         }
     };
 };

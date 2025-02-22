@@ -44,13 +44,16 @@ class Config {
     static float fogFar;
     static bool enableFog;
 
-    // shaow map depth math ortho matrix args
-    static bool show_debug_shadow_map;
+    // shadow map depth math ortho matrix args
     static float depth_ortho_side;
     static float depth_ortho_z_near;
     static float depth_ortho_z_far;
     static glm::vec3 sun_light_dir;  // eye to sun
 
+    // debug buffer
+    static bool show_debug_frame_;
+    static int current_frame_;
+    static const char* debug_frame_items_[];
     // function
     static void updateWindowSize(int w, int h);
     static glm::mat4 getProjectionMatrix();

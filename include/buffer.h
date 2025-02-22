@@ -134,11 +134,26 @@ class FrameBuffer : public FrameBufferInterface {
 
 class DepthMapBuffer : public FrameBufferInterface {
    public:
-    void init();
+    void init() override;
     auto id() { return depth_map_; }
 
    private:
     GLuint depth_map_{0};
+};
+
+class GBuffer : public FrameBufferInterface {
+   public:
+    void init() override;
+
+    GLuint position_id() { return position_; }
+    GLuint normal_id() { return normal_; }
+    GLuint albedo_id() { return albedo_spec_; }
+
+   private:
+    GLuint position_{0};
+    GLuint normal_{0};
+    GLuint albedo_spec_{0};
+    GLuint depth_rbo_{0};
 };
 
 #endif

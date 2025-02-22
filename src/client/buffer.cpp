@@ -104,3 +104,48 @@ void DepthMapBuffer::init() {
     }
     unbind();
 }
+
+void GBuffer::init() {
+    glGenFramebuffers(1, &fbo_);
+    bind();
+    // position
+    glGenTextures(1, &position_);
+    glBindTexture(GL_TEXTURE_2D, position_);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, Config::window_width, Config::window_height, 0, GL_RGBA, GL_FLOAT, NULL);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, position_, 0);
+
+    // normal
+    glGenTextures(1, &normal_);
+    glBindTexture(GL_TEXTURE_2D, normal_);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, Config::window_width, Config::window_height, 0, GL_RGB, GL_FLOAT, NULL);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, normal_, 0);
+
+    // - color + spec
+    glGenTextures(1, &albedo_spec_);
+    glBindTexture(GL_TEXTURE_2D, albedo_spec_);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, Config::window_width, Config::window_height, 0, GL_RGBA, GL_FLOAT, NULL);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_TEXTURE_2D, albedo_spec_, 0);
+
+    GLuint attachments[3] = {GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2};
+    glDrawBuffers(3, attachments);
+    // // depth
+    GLuint rboDepth;
+    glGenRenderbuffers(1, &rboDepth);
+    glBindRenderbuffer(GL_RENDERBUFFER, rboDepth);
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, Config::window_width, Config::window_height);
+    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, rboDepth);
+    if (!doCheckSuccess()) {
+        LW("Create G-buffer failed.");
+    } else {
+        LD("G-buffer created.");
+    }
+    unbind();
+}

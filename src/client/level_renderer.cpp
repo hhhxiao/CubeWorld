@@ -16,16 +16,19 @@ void LevelRenderer::renderOneFrame(RenderContext& ctx) {
     glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     this->renderShadowMap(ctx);
+    this->renderGBuffer(ctx);
     skybox->render(ctx);
     this->renderBlockWorld(ctx);
+    this->renderDebug(ctx);
 }
 
 void LevelRenderer::init() {
     skybox = new CubeMap();
     skybox->init();
     chunk_render_.init();
-    depth_map_debug_buffer_.init();
+    debug_buffer_.init();
     level_depth_map_.init();
+    g_buffer_.init();
 }
 
 void LevelRenderer::updateMesh(RenderContext& ctx) { chunk_render_.updateMesh(*this, ctx); }
@@ -49,15 +52,6 @@ void LevelRenderer::renderBlockWorld(RenderContext& ctx) {
     glActiveTexture(GL_TEXTURE1);
     glBindTexture(GL_TEXTURE_2D, level_depth_map_.id());
     chunk_render_.render(ctx);
-
-    if (Config::show_debug_shadow_map) {
-        glViewport(0, 0, 512, 512);
-        ctx.shader().use("shadow_map_debug");
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, level_depth_map_.id());
-        depth_map_debug_buffer_.render();
-        glViewport(0, 0, Config::window_width, Config::window_height);
-    }
 }
 
 void LevelRenderer::renderShadowMap(RenderContext& ctx) {
@@ -79,6 +73,34 @@ void LevelRenderer::renderShadowMap(RenderContext& ctx) {
     chunk_render_.render(ctx);
     level_depth_map_.unbind();
     glViewport(0, 0, Config::window_width, Config::window_height);
+}
+
+void LevelRenderer::renderGBuffer(RenderContext& ctx) {
+    g_buffer_.bind();
+    glEnable(GL_DEPTH_TEST);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    auto& shader = ctx.shader();
+    shader.use("gbuffer");
+    shader.setMat4("projection", Config::getProjectionMatrix());
+    shader.setMat4("view", ctx.camera().getViewMatrix());
+    shader.setMat4("model", glm::mat4(1.0));
+    shader.setFloat("near", Config::zNear);
+    shader.setFloat("far", Config::zFar);
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, TextureManager::instance().blockAtlas().id());
+    chunk_render_.render(ctx);
+    g_buffer_.unbind();
+}
+
+void LevelRenderer::renderDebug(RenderContext& ctx) {
+    if (Config::show_debug_frame_) {
+        ctx.shader().use("screen_debug");
+        ctx.shader().setFloat("aspectRatio",
+                              static_cast<float>(Config::window_width) / static_cast<float>(Config::window_height));
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, g_buffer_.position_id());
+        debug_buffer_.render();
+    }
 }
 
 LevelRenderer::~LevelRenderer() { delete skybox; }
