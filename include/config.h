@@ -17,10 +17,10 @@ class Config {
     static constexpr auto CHUNK_CACHE_SIZE = 400;
 
     // client
-    /// non-runtime
+    // fps
     static constexpr auto MAX_FPS = 1000.f;
     static constexpr auto FRAME_TIME = 1.f / MAX_FPS;
-
+    // tps
     static constexpr auto MAX_UPS = 240.f;
     static constexpr auto UPDATE_TIME = 1.f / MAX_UPS;
 

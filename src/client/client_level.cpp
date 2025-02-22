@@ -10,11 +10,21 @@ ClientLevel::ClientLevel() : debug_generator_(nullptr) {}
 void ClientLevel::syncChunks(const std::unordered_map<ChunkPos, LevelChunk>& data, const ChunkPos& camera) {
     rmt_ScopedCPUSample(syncChunks, 0);
     auto vd2 = (Config::VIEW_DISTANCE + 1) * (Config::VIEW_DISTANCE + 1);
-    newest_chunks_.clear();
+
+    for (auto it = newest_chunks_.begin(); it != newest_chunks_.end();) {
+        if (!data.contains(it->first)) {
+            it = newest_chunks_.erase(it);
+        } else {
+            ++it;
+        }
+    }
+
     for (auto& kv : data) {
         auto& chunk = kv.second;
         if (camera.dis2(chunk.pos()) > vd2) continue;
-        newest_chunks_.emplace(chunk.pos(), chunk);
+        if (!newest_chunks_.contains(chunk.pos())) {
+            newest_chunks_.emplace(chunk.pos(), chunk);
+        }
     }
     has_new_data_ = true;
 }
