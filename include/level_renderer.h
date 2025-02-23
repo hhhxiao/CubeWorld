@@ -30,7 +30,7 @@ class LevelRenderer {
     void renderBlockWorld(RenderContext& ctx);
     void renderGBuffer(RenderContext& ctx);
     void renderShadowMap(RenderContext& ctx);
-
+    void renderSSAO(RenderContext& ctx);
     void renderDebug(RenderContext& ctx);
 
     ChunkRenderer& chunkRender() { return chunk_render_; }
@@ -39,12 +39,14 @@ class LevelRenderer {
     ClientLevel* client_level_{nullptr};
     CubeMap* skybox{nullptr};
     ChunkRenderer chunk_render_;
-    // shadow map
-    QuadScreenBuffer debug_buffer_;
-    DepthMapBuffer level_depth_map_;
-    glm::mat4 depth_map_mvp_;
-
+    // screen space buffer
+    QuadScreenBuffer quad_screen_buffer_;
     // g-buffer
     GBuffer g_buffer_;
+    // shadow map
+    DepthMapBuffer level_depth_map_;
+    glm::mat4 depth_map_mvp_;
+    // ssao
+    SSAOBuffer ssao_buffer_, ssao_blur_buffer_;
 };
 #endif

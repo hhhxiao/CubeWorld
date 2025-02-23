@@ -48,13 +48,26 @@ class BlockTextureAtlas {
     std::array<std::array<AtlasInfo, 6>, static_cast<size_t>(BlockType::invalid + 1)> atlas_table_;
 };
 
+class SSAONoiseTexture {
+   public:
+    void init();
+    GLuint id() { return id_; }
+    const std::vector<glm::vec3>& kernel() { return ssao_kernel_; }
+
+   private:
+    GLuint id_{0};
+    std::vector<glm::vec3> ssao_kernel_;
+};
+
 class TextureManager {
    public:
     static TextureManager& instance();
     inline BlockTextureAtlas& blockAtlas() { return block_alas_; }
+    inline SSAONoiseTexture& ssaoNoiseTexture() { return ssao_noise_; }
     inline void init(const fs::path& path) {
         block_alas_.init(path / "blocks");
         loadCubeMaps(path / "cubemaps");
+        ssao_noise_.init();
     }
 
     inline GLuint getCubeMapID(const std::string& name) { return cubemap_ids_[name]; }
@@ -63,6 +76,7 @@ class TextureManager {
     void loadCubeMaps(const fs::path& path);
     std::unordered_map<std::string, GLuint> cubemap_ids_;
     BlockTextureAtlas block_alas_;
+    SSAONoiseTexture ssao_noise_;
 };
 
 #endif  // LEARNOPENGL_TEXTURE_H

@@ -20,7 +20,7 @@ float LinearizeDepth(float depth)
 
 void main() {
     gPositionDepth.xyz = FragPos;
-    gPositionDepth.a =  LinearizeDepth(gl_FragCoord.z) / far;
+    gPositionDepth.w = LinearizeDepth(gl_FragCoord.z) / far;
     gNormal = normalize(Normal);
     gAlbedoSpec.rgba = texture(blockTexture, TexCoords);
 }

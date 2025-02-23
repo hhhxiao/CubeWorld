@@ -4,8 +4,7 @@ layout (location = 1) in vec2 aTexCoords;
 
 out vec2 TexCoords;
 
-uniform float scale = 0.3; // scale should be set to 1/n
-uniform float aspectRatio; // aspect ratio of the screen (width / height)
+uniform float scale = 0.4; // scale should be set to 1/n
 
 void main()
 {

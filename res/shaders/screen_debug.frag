@@ -12,8 +12,14 @@ void main()
     
     
     //GBuffer
-    //normal / color
+   // normal / color
    // FragColor = texture(screenTexture, TexCoords);
-    float depthValue = texture(screenTexture, TexCoords).a;
-    FragColor = vec4(vec3(depthValue), 1.0);
+
+
+    // float depthValue = texture(screenTexture, TexCoords).a;
+    // FragColor = vec4(vec3(depthValue), 1.0);
+
+    // //SSAO
+    float v = texture(screenTexture, TexCoords).r;
+    FragColor = vec4(vec3(v), 1.0);
 }

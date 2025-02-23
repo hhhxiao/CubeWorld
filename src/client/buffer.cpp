@@ -127,12 +127,12 @@ void GBuffer::init() {
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, normal_, 0);
 
     // - color + spec
-    glGenTextures(1, &albedo_spec_);
-    glBindTexture(GL_TEXTURE_2D, albedo_spec_);
+    glGenTextures(1, &albedo_);
+    glBindTexture(GL_TEXTURE_2D, albedo_);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, Config::window_width, Config::window_height, 0, GL_RGBA, GL_FLOAT, NULL);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_TEXTURE_2D, albedo_spec_, 0);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_TEXTURE_2D, albedo_, 0);
 
     GLuint attachments[3] = {GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2};
     glDrawBuffers(3, attachments);
@@ -146,6 +146,23 @@ void GBuffer::init() {
         LW("Create G-buffer failed.");
     } else {
         LD("G-buffer created.");
+    }
+    unbind();
+}
+
+void SSAOBuffer::init() {
+    glGenFramebuffers(1, &fbo_);
+    bind();
+    glGenTextures(1, &ssao_id_);
+    glBindTexture(GL_TEXTURE_2D, ssao_id_);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, Config::window_width, Config::window_height, 0, GL_RED, GL_FLOAT, NULL);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, ssao_id_, 0);
+    if (!doCheckSuccess()) {
+        LW("Create SSAO-buffer failed.");
+    } else {
+        LD("SSAO-buffer created.");
     }
     unbind();
 }

@@ -50,10 +50,12 @@ class Config {
     static float depth_ortho_z_far;
     static glm::vec3 sun_light_dir;  // eye to sun
 
+    // ssao
+    static bool enableSSAO;
+
     // debug buffer
     static bool show_debug_frame_;
     static int current_frame_;
-    static const char* debug_frame_items_[];
     // function
     static void updateWindowSize(int w, int h);
     static glm::mat4 getProjectionMatrix();

@@ -147,13 +147,21 @@ class GBuffer : public FrameBufferInterface {
 
     GLuint position_id() { return position_; }
     GLuint normal_id() { return normal_; }
-    GLuint albedo_id() { return albedo_spec_; }
+    GLuint albedo_id() { return albedo_; }
 
    private:
     GLuint position_{0};
     GLuint normal_{0};
-    GLuint albedo_spec_{0};
-    GLuint depth_rbo_{0};
+    GLuint albedo_{0};
+};
+
+class SSAOBuffer : public FrameBufferInterface {
+   public:
+    void init() override;
+    GLuint id() { return ssao_id_; }
+
+   private:
+    GLuint ssao_id_;
 };
 
 #endif
