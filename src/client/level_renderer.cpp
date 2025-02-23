@@ -18,9 +18,9 @@ void LevelRenderer::renderOneFrame(RenderContext& ctx) {
     this->renderShadowMap(ctx);
     this->renderGBuffer(ctx);
     this->renderSSAO(ctx);
-    skybox->render(ctx);
-    this->renderBlockWorld(ctx);
-    this->renderDebug(ctx);
+    // skybox->render(ctx);
+    // this->renderBlockWorld(ctx);
+    // this->renderDebug(ctx);
 }
 
 void LevelRenderer::init() {
@@ -121,7 +121,7 @@ void LevelRenderer::renderDebug(RenderContext& ctx) {
 }
 
 void LevelRenderer::renderSSAO(RenderContext& ctx) {
-    ssao_buffer_.bind();
+    // ssao_buffer_.bind();
     glClear(GL_COLOR_BUFFER_BIT);
     auto& shader = ctx.shader();
     shader.use("ssao");
@@ -140,14 +140,14 @@ void LevelRenderer::renderSSAO(RenderContext& ctx) {
     glActiveTexture(GL_TEXTURE2);
     glBindTexture(GL_TEXTURE_2D, TextureManager::instance().ssaoNoiseTexture().id());
     quad_screen_buffer_.render();
-    ssao_buffer_.unbind();
+    //   ssao_buffer_.unbind();
     // // blur
-    ssao_blur_buffer_.bind();
-    shader.use("ssao_blur");
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, ssao_buffer_.id());
-    quad_screen_buffer_.render();
-    ssao_blur_buffer_.unbind();
+    // ssao_blur_buffer_.bind();
+    // shader.use("ssao_blur");
+    // glActiveTexture(GL_TEXTURE0);
+    // glBindTexture(GL_TEXTURE_2D, ssao_buffer_.id());
+    // quad_screen_buffer_.render();
+    // ssao_blur_buffer_.unbind();
 }
 
 LevelRenderer::~LevelRenderer() { delete skybox; }

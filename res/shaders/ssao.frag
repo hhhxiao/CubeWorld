@@ -1,5 +1,5 @@
 #version 330 core
-out float FragColor;
+out vec3 FragColor;
 in vec2 TexCoords;
 
 uniform sampler2D gPositionDepth;
@@ -50,5 +50,5 @@ void main()
     }
     occlusion = 1.0 - (occlusion / kernelSize);
     
-    FragColor = occlusion;
+    FragColor = vec3(occlusion,occlusion,occlusion);
 }
