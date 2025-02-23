@@ -3,23 +3,9 @@ out vec4 FragColor;
 in vec2 TexCoords;
 
 uniform sampler2D screenTexture;
-
 void main()
 {   
-    //shadow depth map
-    // float depthValue = texture(screenTexture, TexCoords).r;
-    // FragColor = vec4(vec3(depthValue), 1.0);
-    
-    
-    //GBuffer
-   // normal / color
-   // FragColor = texture(screenTexture, TexCoords);
-
-
-    // float depthValue = texture(screenTexture, TexCoords).a;
-    // FragColor = vec4(vec3(depthValue), 1.0);
-
     // //SSAO
     float v = texture(screenTexture, TexCoords).r;
-    FragColor = vec4(vec3(v), 1.0);
+    FragColor = vec4(v,v,v,1.0);
 }

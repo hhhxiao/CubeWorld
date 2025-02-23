@@ -45,6 +45,7 @@ class Config {
     static bool enableFog;
 
     // shadow map depth math ortho matrix args
+    static bool enableShadow;
     static float depth_ortho_side;
     static float depth_ortho_z_near;
     static float depth_ortho_z_far;
@@ -53,9 +54,14 @@ class Config {
     // ssao
     static bool enableSSAO;
 
+    // lighting
+    static float ambient_strength;
+    static float diffuse_strength;
+
     // debug buffer
     static bool show_debug_frame_;
     static int current_frame_;
+
     // function
     static void updateWindowSize(int w, int h);
     static glm::mat4 getProjectionMatrix();

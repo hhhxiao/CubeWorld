@@ -126,7 +126,7 @@ void GBuffer::init() {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, normal_, 0);
 
-    // - color + spec
+    // - color
     glGenTextures(1, &albedo_);
     glBindTexture(GL_TEXTURE_2D, albedo_);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, Config::window_width, Config::window_height, 0, GL_RGBA, GL_FLOAT, NULL);
@@ -134,8 +134,16 @@ void GBuffer::init() {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_TEXTURE_2D, albedo_, 0);
 
-    GLuint attachments[3] = {GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2};
-    glDrawBuffers(3, attachments);
+    // shadow
+    glGenTextures(1, &shadow_id_);
+    glBindTexture(GL_TEXTURE_2D, shadow_id_);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_R16, Config::window_width, Config::window_height, 0, GL_RED, GL_FLOAT, NULL);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT3, GL_TEXTURE_2D, shadow_id_, 0);
+
+    GLuint attachments[4] = {GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT3};
+    glDrawBuffers(4, attachments);
     // // depth
     GLuint rboDepth;
     glGenRenderbuffers(1, &rboDepth);

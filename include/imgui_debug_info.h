@@ -68,6 +68,10 @@ class ConfigurationDisplay : public ImguiInfo {
             ImGui::SliderFloat("Far", &Config::depth_ortho_z_far, 0, 6000);
             ImGui::SliderFloat3("Sun light", &Config::sun_light_dir.x, -10, 10);
         }
+        if (ImGui::CollapsingHeader("Lighting")) {
+            ImGui::SliderFloat("Ambient", &Config::ambient_strength, 0, 5.0);
+            ImGui::SliderFloat("Diffuse", &Config::diffuse_strength, 0, 5.0);
+        }
         if (ImGui::CollapsingHeader("SSAO")) {
             ImGui::Checkbox("Enabele SSAO", &Config::enableSSAO);
         }

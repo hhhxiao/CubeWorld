@@ -26,4 +26,5 @@ Simple Minecraft in OpenGL
 - [x] 使用纹理数组取代纹理合并以解决 atlas 的接缝问题
 - [x] 阴影映射
 - [x] 新的渲染架构（极大幅减少 drawcall 数量）
-- [ ] SSAO
+- [x] 使用 GBuffer 优化渲染管线
+- [x] SSAO
