@@ -6,7 +6,6 @@
 #include "chunk.h"
 #include "chunk_renderer.h"
 #include "position.h"
-#include "cube_map.h"
 
 class ChunkMeshOld;
 class RenderContext;
@@ -37,7 +36,8 @@ class LevelRenderer {
 
    private:
     ClientLevel* client_level_{nullptr};
-    CubeMap* skybox{nullptr};
+    SkyBoxBuffer skybox;
+    // chunk
     ChunkRenderer chunk_render_;
     // screen space buffer
     QuadScreenBuffer quad_screen_buffer_;

@@ -10,6 +10,7 @@ out vec3 Normal;
 out vec2 TexCoords;
 out vec4 FragPosLightSpace;
 out vec3 FragNormal;
+out vec4 ExtraColor;
 
 uniform mat4 model;
 uniform mat4 view;
@@ -25,5 +26,6 @@ void main() {
     mat3 normalMatrix = transpose(inverse(mat3(view * model)));
     Normal = normalMatrix * aNormal;
     FragNormal = aNormal;
+    ExtraColor = aColor;
     gl_Position = projection * viewPos;
 }

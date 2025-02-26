@@ -10,6 +10,7 @@ in vec4 FragPosLightSpace;
 in vec3 Normal;
 in vec3 FragNormal;
 in vec2 TexCoords;
+in vec4 ExtraColor;
 
 uniform sampler2D blockTexture;
 uniform sampler2D depthMap;
@@ -54,5 +55,5 @@ void main() {
     gPositionDepth.w = LinearizeDepth(gl_FragCoord.z) / far;
     gNormal = normalize(Normal);
     gShadow = ShadowCalculation(FragPosLightSpace);
-    gAlbedoSpec.rgba = texture(blockTexture, TexCoords);
+    gAlbedoSpec.rgba = texture(blockTexture, TexCoords) * ExtraColor;
 }

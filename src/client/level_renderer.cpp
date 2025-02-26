@@ -4,7 +4,6 @@
 #include "chunk.h"
 #include "chunk_renderer.h"
 #include "config.h"
-#include "cube_map.h"
 #include "position.h"
 #include "render_context.h"
 #include "client_level.h"
@@ -15,17 +14,22 @@ LevelRenderer::LevelRenderer(ClientLevel* clientLevel) : client_level_(clientLev
 void LevelRenderer::renderOneFrame(RenderContext& ctx) {
     glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    this->renderShadowMap(ctx);
-    this->renderGBuffer(ctx);
-    this->renderSSAO(ctx);
-    // skybox->render(ctx);
-    this->renderBlockWorld(ctx);
+
+    ctx.shader().use("overworld_sky");
+    ctx.shader().setMat4("projection", Config::getProjectionMatrix());
+    ctx.shader().setMat4("view", glm::mat4(glm::mat3(ctx.camera().getViewMatrix())));
+    glBindTexture(GL_TEXTURE_CUBE_MAP, TextureManager::instance().getCubeMapID("overworld_sky"));
+    skybox.render();
+    // this->renderShadowMap(ctx);
+    // this->renderGBuffer(ctx);
+    // this->renderSSAO(ctx);
+    // this->renderBlockWorld(ctx);
+
     // this->renderDebug(ctx);
 }
 
 void LevelRenderer::init() {
-    skybox = new CubeMap();
-    skybox->init();
+    skybox.init();
     chunk_render_.init();
     quad_screen_buffer_.init();
     level_depth_map_.init();
@@ -97,7 +101,7 @@ void LevelRenderer::renderGBuffer(RenderContext& ctx) {
     g_buffer_.bind();
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     auto& shader = ctx.shader();
-    shader.use("gbuffer");
+    shader.use("gbuffer_chunk");
     shader.setMat4("projection", Config::getProjectionMatrix());
     shader.setMat4("view", ctx.camera().getViewMatrix());
     shader.setMat4("model", glm::mat4(1.0));
@@ -156,7 +160,7 @@ void LevelRenderer::renderSSAO(RenderContext& ctx) {
     ssao_blur_buffer_.unbind();
 }
 
-LevelRenderer::~LevelRenderer() { delete skybox; }
+LevelRenderer::~LevelRenderer() {}
 
 bool LevelChunkRendererOrder::operator()(const LevelChunk& r1, const LevelChunk& r2) {
     return r1.pos().dis2(camera) < r2.pos().dis2(camera);
