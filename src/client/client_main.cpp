@@ -46,6 +46,7 @@ void ClientMain::syncRead() {
     if (!buffer.beginRead()) return;
     if (buffer.dirty()) {
         this->client_level_->syncChunks(buffer.chunks, ChunkPos::fromVec3(render_ctx_.camera().position_));
+        this->time_ = buffer.server_time_;
         buffer.cleanDirty();
     }
     buffer.endRead();
@@ -125,6 +126,7 @@ void ClientMain::showDebugInfo() {
     ImGui::Text("Translucent chunk Buffer: %zu / %zu", tb.used_size(), tb.unused_size() + tb.used_size());
     auto usage = cr.last_vertices_count * 100.0 / (sb.size() * 2);
     ImGui::Text("Bucket utilization: %.3lf %%", usage);
+    ImGui::Text("Client Time: %d", time_);
 }
 
 ClientMain::~ClientMain() {

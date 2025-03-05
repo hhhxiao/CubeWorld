@@ -53,7 +53,6 @@ void LevelServer::syncRead() {
 void LevelServer::syncWrite() {
     auto cp = player_->getChunkPos();
     auto& buffer = bridge_->serverBuffer();
-    buffer.server_time_ = time_;
     buffer.beginWrite();
     for (auto it = buffer.chunks.begin(); it != buffer.chunks.end();) {
         if (cp.dis2(it->first) > Config::LOAD_RADIUS * Config::LOAD_RADIUS) {
@@ -74,6 +73,7 @@ void LevelServer::syncWrite() {
     buffer.player_position = player_->getPos();
     buffer.mspt = mspt_timer_.mean();
     buffer.chunk_cache_size = liveChunks.size();
+    buffer.server_time_ = time_;
     buffer.endWrite();
 }
 

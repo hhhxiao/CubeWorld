@@ -162,6 +162,7 @@ void LevelRenderer::renderSkyBox(RenderContext& ctx) {
     shader.use("overworld_sky");
     shader.setMat4("projection", Config::getProjectionMatrix());
     shader.setMat4("view", glm::mat4(glm::mat3(ctx.camera().getViewMatrix())));
+    shader.setInt("gameTime", client_level_->time());
     shader.setInt("skybox", 0);
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_CUBE_MAP, TextureManager::instance().getCubeMapID("overworld_sky"));

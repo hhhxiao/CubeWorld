@@ -9,14 +9,14 @@
 class Config {
    public:
     // server
-    static constexpr auto MAX_MSPT = 1000;
+    static constexpr auto MAX_MSPT = 50;
     static constexpr auto CHUNK_HEIGHT = 256;
     static constexpr auto CHUNK_GEN_THREAD_NUM = 4;
     static constexpr auto CHUNK_LIFE_TIME = 10;  // chunk存活动时间，如果超过30s没有被加载就析构
     static constexpr auto CHUNK_LIFE_TICK = CHUNK_LIFE_TIME * 1000 / MAX_MSPT;  // chuk存活时间(游戏刻单位)
     static constexpr auto LOAD_RADIUS = 14;
     static constexpr auto CHUNK_CACHE_SIZE = 400;
-    static constexpr auto TICK_PER_DAY = 2 * 60 * 1000 / MAX_MSPT;
+    static constexpr auto TICK_PER_DAY = 20 * 60 * 1000 / MAX_MSPT;
 
     // client
     // fps

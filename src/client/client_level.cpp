@@ -1,11 +1,11 @@
 #include "client_level.h"
 #include <unordered_map>
 #include "chunk.h"
+#include "client_main.h"
 #include "position.h"
 #include "Remotery.h"
 
-ClientLevel::ClientLevel() : debug_generator_(nullptr) {}
-
+ClientLevel::ClientLevel(ClientMain* client) : debug_generator_(nullptr), client_(client) {}
 // 同步来自服务器的数据
 void ClientLevel::syncChunks(const std::unordered_map<ChunkPos, LevelChunk>& data, const ChunkPos& camera) {
     rmt_ScopedCPUSample(syncChunks, 0);
@@ -28,3 +28,5 @@ void ClientLevel::syncChunks(const std::unordered_map<ChunkPos, LevelChunk>& dat
     }
     has_new_data_ = true;
 }
+
+int ClientLevel::time() const { return client_->time(); }

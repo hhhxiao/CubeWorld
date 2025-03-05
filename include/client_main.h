@@ -15,7 +15,7 @@ class ClientMain : public ImguiInfo {
     explicit ClientMain(DataBridge* bridge) : ImguiInfo("Client"), bridge_(bridge) {
         window_ = new OpenGLWindow(Config::window_width, Config::window_height, std::string(Config::SOFTWARE_NAME));
         window_->setMouseEnable(mouse_enabled_);
-        client_level_ = new ClientLevel();
+        client_level_ = new ClientLevel(this);
         level_render_ = new LevelRenderer(this->client_level_);
     }
 
@@ -24,6 +24,7 @@ class ClientMain : public ImguiInfo {
     virtual ~ClientMain();
 
     DataBridge* bridge() { return bridge_; }
+    int time() const { return time_; }
 
    private:
     void renderTick();
@@ -49,6 +50,7 @@ class ClientMain : public ImguiInfo {
 
     // data
     ClientLevel* client_level_{nullptr};
+    int time_{0};
     // bridge
     DataBridge* bridge_{};
 

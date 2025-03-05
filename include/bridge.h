@@ -79,10 +79,10 @@ class ServerBuffer : public Buffer, public ImguiInfo {
         ImGui::Text("Chunk: %d / %d", cp.x, cp.z);
         ImGui::Text("Cache size: %zu / %zu", chunks.size(), chunk_cache_size);
         ImGui::Text("Mspt: %.3lf", mspt);
-        ImGui::Text("Server Time: %zu", server_time_);
+        ImGui::Text("Server Time: %d", server_time_);
     }
     std::unordered_map<ChunkPos, LevelChunk> chunks;
-    size_t server_time_{0};
+    int server_time_{0};
     // statics
     glm::vec3 player_position;
     size_t chunk_cache_size;
