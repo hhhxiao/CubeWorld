@@ -12,20 +12,15 @@
 LevelRenderer::LevelRenderer(ClientLevel* clientLevel) : client_level_(clientLevel) {}
 
 void LevelRenderer::renderOneFrame(RenderContext& ctx) {
-    glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+    glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    ctx.shader().use("overworld_sky");
-    ctx.shader().setMat4("projection", Config::getProjectionMatrix());
-    ctx.shader().setMat4("view", glm::mat4(glm::mat3(ctx.camera().getViewMatrix())));
-    glBindTexture(GL_TEXTURE_CUBE_MAP, TextureManager::instance().getCubeMapID("overworld_sky"));
-    skybox.render();
-    // this->renderShadowMap(ctx);
-    // this->renderGBuffer(ctx);
-    // this->renderSSAO(ctx);
-    // this->renderBlockWorld(ctx);
-
-    // this->renderDebug(ctx);
+    this->renderShadowMap(ctx);
+    this->renderGBuffer(ctx);
+    this->renderSSAO(ctx);
+    this->renderSkyBox(ctx);
+    this->renderBlockWorld(ctx);
+    this->renderBaseUI(ctx);
 }
 
 void LevelRenderer::init() {
@@ -101,6 +96,7 @@ void LevelRenderer::renderGBuffer(RenderContext& ctx) {
     g_buffer_.bind();
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     auto& shader = ctx.shader();
+    // // render chunks
     shader.use("gbuffer_chunk");
     shader.setMat4("projection", Config::getProjectionMatrix());
     shader.setMat4("view", ctx.camera().getViewMatrix());
@@ -125,7 +121,7 @@ void LevelRenderer::renderDebug(RenderContext& ctx) {
         ctx.shader().setFloat("aspectRatio",
                               static_cast<float>(Config::window_width) / static_cast<float>(Config::window_height));
         glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, g_buffer_.shadow_id());
+        glBindTexture(GL_TEXTURE_2D, g_buffer_.albedo_id());
         quad_screen_buffer_.render();
     }
 }
@@ -158,6 +154,31 @@ void LevelRenderer::renderSSAO(RenderContext& ctx) {
     glBindTexture(GL_TEXTURE_2D, ssao_buffer_.id());
     quad_screen_buffer_.render();
     ssao_blur_buffer_.unbind();
+}
+
+void LevelRenderer::renderSkyBox(RenderContext& ctx) {
+    auto& shader = ctx.shader();
+    glDepthMask(GL_FALSE);
+    shader.use("overworld_sky");
+    shader.setMat4("projection", Config::getProjectionMatrix());
+    shader.setMat4("view", glm::mat4(glm::mat3(ctx.camera().getViewMatrix())));
+    shader.setInt("skybox", 0);
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_CUBE_MAP, TextureManager::instance().getCubeMapID("overworld_sky"));
+    skybox.render();
+    glDepthMask(GL_TRUE);
+}
+void LevelRenderer::renderBaseUI(RenderContext& ctx) {
+    auto& shader = ctx.shader();
+    shader.use("cursor");
+    shader.setInt("srcWidth", Config::window_width);
+    shader.setInt("srcHeight", Config::window_height);
+    shader.setInt("gAlbedo", 0);
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, g_buffer_.albedo_id());
+    glDisable(GL_DEPTH_TEST);
+    quad_screen_buffer_.render();
+    glEnable(GL_DEPTH_TEST);
 }
 
 LevelRenderer::~LevelRenderer() {}

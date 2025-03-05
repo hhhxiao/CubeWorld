@@ -24,8 +24,8 @@ glm::vec3 Config::sun_light_dir = {-1.0, -1.0, -1.0};  // sun to player
 bool Config::enableSSAO = true;
 
 // lighting
-float Config::ambient_strength = 1.0f;
-float Config::diffuse_strength = 0.6f;
+float Config::ambient_strength = 0.9f;
+float Config::diffuse_strength = 0.1f;
 
 bool Config::show_debug_frame_ = true;
 void Config::updateWindowSize(int w, int h) {

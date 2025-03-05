@@ -23,6 +23,8 @@ class ClientMain : public ImguiInfo {
     void init();
     virtual ~ClientMain();
 
+    DataBridge* bridge() { return bridge_; }
+
    private:
     void renderTick();
     void syncRead();

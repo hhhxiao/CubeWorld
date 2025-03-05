@@ -105,8 +105,12 @@ class QuadScreenBuffer : public VertexBufferInterface {
     }
 
    private:
-    float data_[24] = {-1.0f, 1.0f, 0.0f, 1.0f, -1.0f, -1.0f, 0.0f, 0.0f, 1.0f, -1.0f, 1.0f, 0.0f,
-                       -1.0f, 1.0f, 0.0f, 1.0f, 1.0f,  -1.0f, 1.0f, 0.0f, 1.0f, 1.0f,  1.0f, 1.0f};
+    float data_[24] = {-1.0f, 1.0f,  0.0f, 1.0f,  //
+                       -1.0f, -1.0f, 0.0f, 0.0f,  //
+                       1.0f,  -1.0f, 1.0f, 0.0f,  //
+                       -1.0f, 1.0f,  0.0f, 1.0f,  //
+                       1.0f,  -1.0f, 1.0f, 0.0f,  //
+                       1.0f,  1.0f,  1.0f, 1.0f};
 };
 
 class SkyBoxBuffer : public VertexBufferInterface {

@@ -38,13 +38,16 @@ void main()
     vec3 FragPos = texture(gPosition, TexCoords).rgb;
     float shadow = texture(shadowMap, TexCoords).r;
 
+    if(Diffuse.a < 0.1) discard;
+
+
     vec4 ambient_color = vec4(1.0,1.0,1.0,1.0);
     float ambientOcclusion = texture(ssao, TexCoords).r;
     if(!enableSSAO){
         ambientOcclusion = 1.0;
     }
     vec4 ambient = ambient_strength * ambient_color * Diffuse * ambientOcclusion;
-    
+
     vec4 diffuse = max(dot(Normal, -sunLightDir), 0.0) * Diffuse * (1.0 -shadow) * diffuse_strength;
     vec4 color = diffuse + ambient;
     float fog = fogColor(FragPos);

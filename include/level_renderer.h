@@ -30,6 +30,9 @@ class LevelRenderer {
     void renderGBuffer(RenderContext& ctx);
     void renderShadowMap(RenderContext& ctx);
     void renderSSAO(RenderContext& ctx);
+    void renderSkyBox(RenderContext& ctx);
+    void renderBaseUI(RenderContext& ctx);
+    // for debug
     void renderDebug(RenderContext& ctx);
 
     ChunkRenderer& chunkRender() { return chunk_render_; }

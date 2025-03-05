@@ -16,6 +16,7 @@ class Config {
     static constexpr auto CHUNK_LIFE_TICK = CHUNK_LIFE_TIME * 1000 / MAX_MSPT;  // chuk存活时间(游戏刻单位)
     static constexpr auto LOAD_RADIUS = 14;
     static constexpr auto CHUNK_CACHE_SIZE = 400;
+    static constexpr auto TICK_PER_DAY = 2 * 60 * 1000 / MAX_MSPT;
 
     // client
     // fps

@@ -8,6 +8,7 @@
 #include "imgui_impl_opengl3.h"
 #include <string>
 #include <unordered_map>
+#include "utils.h"
 class ImguiInfo {
    public:
     ImguiInfo(const std::string &name) : imgui_win_name_(name) {}
@@ -83,4 +84,14 @@ class ConfigurationDisplay : public ImguiInfo {
     };
 };
 
+class ClientMain;
+class InGamingConfigDisplay : public ImguiInfo {
+   public:
+    InGamingConfigDisplay(ClientMain *client) : ImguiInfo("Gaming"), client_(client) {}
+    void showDebugInfo() override;
+
+   private:
+    int time_{0};
+    ClientMain *client_;
+};
 #endif

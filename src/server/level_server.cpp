@@ -35,6 +35,7 @@ void LevelServer::tick() {
     syncRead();
     syncWrite();
     tickChunks();
+    time_ = (time_ + 1) % Config::TICK_PER_DAY;
     mspt_timer_.end();
 }
 
@@ -42,6 +43,7 @@ void LevelServer::syncRead() {
     auto& buffer = bridge_->clientBuffer();
     if (!buffer.beginRead()) return;
     if (buffer.dirty()) {
+        buffer.time_command_.consume(this);
         player_->setPos(buffer.camera_position);
         buffer.cleanDirty();
     }
@@ -51,7 +53,7 @@ void LevelServer::syncRead() {
 void LevelServer::syncWrite() {
     auto cp = player_->getChunkPos();
     auto& buffer = bridge_->serverBuffer();
-
+    buffer.server_time_ = time_;
     buffer.beginWrite();
     for (auto it = buffer.chunks.begin(); it != buffer.chunks.end();) {
         if (cp.dis2(it->first) > Config::LOAD_RADIUS * Config::LOAD_RADIUS) {

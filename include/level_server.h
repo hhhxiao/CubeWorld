@@ -1,6 +1,7 @@
 #pragma once
 
 #include <atomic>
+#include <cstddef>
 #include "bridge.h"
 #include "chunk_builder.h"
 #include "glm/detail/type_vec.hpp"
@@ -28,6 +29,9 @@ class LevelServer {
     // ticking
     void tickChunks();
 
+   public:  // commands
+    inline void setTime(size_t time) { this->time_ = time; }
+
    private:
     Player* player_;
 
@@ -35,7 +39,8 @@ class LevelServer {
     tick_t tick_{0};
     ChunkBuilder* chunk_builder_{nullptr};
     DataBridge* bridge_{nullptr};
-
+    // current time
+    size_t time_{0};
     // statics
     PeriodTimer mspt_timer_;
 };

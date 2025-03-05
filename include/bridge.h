@@ -1,6 +1,7 @@
 #ifndef BRIDGE_H
 #define BRIDGE_H
 #include <cstddef>
+#include <memory>
 #include <mutex>
 #include "chunk.h"
 #include "glm/detail/type_vec.hpp"
@@ -9,6 +10,21 @@
 #include "position.h"
 #include <glm/glm.hpp>
 #include <unordered_map>
+#include <vector>
+
+class LevelServer;
+class CommandInterface {
+   public:
+    virtual void consume(LevelServer*) { consumed = true; }
+    virtual void produce() { consumed = false; }
+    bool consumed{true};
+};
+
+class TimeCommand : public CommandInterface {
+   public:
+    virtual void consume(LevelServer*);
+    int time_{0};
+};
 
 class Buffer {
    public:
@@ -32,10 +48,27 @@ class Buffer {
     bool dirty_{false};
 };
 
-class ClientBuffer : public Buffer {
+class ClientBuffer : public Buffer, public ImguiInfo {
    public:
+    ClientBuffer() : ImguiInfo("Gaming Control") {}
+    void showDebugInfo() {
+        ImGui::SliderInt("Time", &time_command_.time_, 0, Config::TICK_PER_DAY);
+        ImGui::SameLine();
+        if (ImGui::Button("SetTime")) {
+            beginWrite();
+            time_command_.produce();
+            endWrite();
+        }
+    }
+
+   public:
+    size_t client_time_;
     glm::vec3 camera_position;
+    std::vector<std::unique_ptr<CommandInterface>> commands_;
+    // commands
+    TimeCommand time_command_;
 };
+
 class ServerBuffer : public Buffer, public ImguiInfo {
    public:
     ServerBuffer() : ImguiInfo("Sever") {}
@@ -46,8 +79,10 @@ class ServerBuffer : public Buffer, public ImguiInfo {
         ImGui::Text("Chunk: %d / %d", cp.x, cp.z);
         ImGui::Text("Cache size: %zu / %zu", chunks.size(), chunk_cache_size);
         ImGui::Text("Mspt: %.3lf", mspt);
+        ImGui::Text("Server Time: %zu", server_time_);
     }
     std::unordered_map<ChunkPos, LevelChunk> chunks;
+    size_t server_time_{0};
     // statics
     glm::vec3 player_position;
     size_t chunk_cache_size;

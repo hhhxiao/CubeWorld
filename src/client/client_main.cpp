@@ -18,6 +18,7 @@ void ClientMain::init() {
     TextureManager::instance().init(render_ctx_.resourceMgr().texture_path());
     imgui_displayer_.init(window_->window());
     imgui_displayer_.addInfo(&bridge_->serverBuffer());
+    imgui_displayer_.addInfo(&bridge_->clientBuffer());
     imgui_displayer_.addInfo(this);
     imgui_displayer_.addInfo(new ConfigurationDisplay());
 
