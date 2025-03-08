@@ -69,7 +69,7 @@ void ClientMain::processKeyBoardInput(GLFWwindow* window, double delta) {
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) dir = GameCamera::right;
     if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) dir = GameCamera::up;
     if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS) dir = GameCamera::down;
-    render_ctx_.camera().move(dir, (float)delta * 15.0f);
+    render_ctx_.camera().move(dir, (float)delta * 25.0f);
 }
 
 void ClientMain::processMouseCallback(GLFWwindow* window, double x, double y) {

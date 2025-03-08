@@ -18,6 +18,8 @@ class BlockPos {
     [[nodiscard]] std::string toString() const {
         return "[" + std::to_string(x) + ", " + std::to_string(y) + ", " + std::to_string(z) + "]";
     }
+
+    BlockPos operator+(const BlockPos& p) const { return {x + p.x, y + p.y, z + p.z}; }
 };
 
 class ChunkPos {

@@ -76,12 +76,18 @@ class SplineCurvesNorse {
 };
 
 class PerlinTerrainGeneratror : public AbstractTerrainGenerator {
+    static constexpr auto SCALE = 1.0 / 1024;
+
    public:
     PerlinTerrainGeneratror(seed_type seed);
 
     void fill(LevelChunk *chunk) override;
 
-    void placeSurface(LevelChunk *chunk, int xx, int zz, int height);
+    // in chunk pos
+    void placeSurface(LevelChunk *chunk, int x, int z, int height);
+
+    // help functions
+    void placeTree(LevelChunk *chunk, int x, int z, int height);
 
     ~PerlinTerrainGeneratror() override {
         delete mountain_;

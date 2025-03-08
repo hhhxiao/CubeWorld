@@ -6,7 +6,7 @@ BlockRegistry::BlockRegistry() {
     add({BlockType::grass});
     add({BlockType::water, {0.3, 0.57, 0.67, 0.7}, false, true});
     add({BlockType::oakLog});
-    add({BlockType::oakLeaves, {0.16, 0.44, 0.27, 1.0}, false});
+    add({BlockType::oakLeaves, {92.0 / 255, 179.0 / 255, 56.0 / 255, 1.0}, false});
     add({BlockType::stone});
     add({BlockType::sand});
     add({BlockType::bedrock});

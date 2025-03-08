@@ -1,5 +1,6 @@
 #include "terrain_generator.h"
 #include <algorithm>
+#include <cstdint>
 #include <cstdlib>
 #include "config.h"
 #include "position.h"
@@ -34,22 +35,16 @@ void PerlinTerrainGeneratror::fill(LevelChunk* chunk) {
         for (int z = 0; z < 16; z++) {
             const auto xx = chunk->pos().x * 16 + x;
             const auto zz = chunk->pos().z * 16 + z;
-            auto scale = 1.f / 1024;
-
-            auto sea = sea_->octave2D(xx * scale * 2, zz * scale * 2, 5);
-            auto plain = plain_->octave2D(xx * scale * 16, zz * scale * 16, 2);
-            auto mountain = mountain_->octave2D(xx * scale * 10, zz * scale * 10, 4);
-            auto river = river_->octave2D(xx * scale * 5, zz * scale * 4, 5);
+            auto sea = sea_->octave2D(xx * SCALE * 2, zz * SCALE * 2, 5);
+            auto plain = plain_->octave2D(xx * SCALE * 16, zz * SCALE * 16, 2);
+            auto mountain = mountain_->octave2D(xx * SCALE * 10, zz * SCALE * 10, 4);
+            auto river = river_->octave2D(xx * SCALE * 5, zz * SCALE * 4, 5);
 
             auto sea_height = static_cast<int>(sea * 42) + 20;
             auto plain_height = static_cast<int>(plain * 5);
             auto mountain_height = static_cast<int>(mountain * 60);
-            auto river_height = static_cast<int>(river * 10);
-            bool is_river = river > 0 && mountain < 0.1 && sea > 0.99;
 
-            if (!is_river) river_height = 0;  // no river in sea and mountain
-
-            auto total_height = static_cast<int>(sea_height + plain_height + mountain_height - river_height);
+            auto total_height = static_cast<int>(sea_height + plain_height + mountain_height);
 
             for (int i = 0; i <= total_height; i++) {
                 chunk->getPosition(x, i, z)->type = stone;
@@ -62,7 +57,7 @@ void PerlinTerrainGeneratror::fill(LevelChunk* chunk) {
                 chunk->getPosition(x, total_height, z)->type = sand;
             }
             if (sea >= 1.0) {
-                chunk->getPosition(x, total_height, z)->type = grass;
+                chunk->getPosition(x, total_height, z)->type = total_height > 60 ? grass : dirt;
                 chunk->getPosition(x, total_height - 1, z)->type = dirt;
             }
             // fill mountain
@@ -73,40 +68,45 @@ void PerlinTerrainGeneratror::fill(LevelChunk* chunk) {
 
                 auto about_height = total_height + mountain_height * 1;
                 if (about_height > 62 && about_height < 120) {  // grass not in water, if too height , keey stone
-                    chunk->getPosition(x, total_height, z)->type = grass;
+                    chunk->getPosition(x, total_height, z)->type = total_height > 60 ? grass : dirt;
                     chunk->getPosition(x, total_height - 1, z)->type = dirt;
                 }
             }
 
-            if (is_river) {
-                chunk->getPosition(x, total_height, z)->type = sand;
-            }
-            // placeSurface(chunk, xx, zz, total_height);
+            placeSurface(chunk, x, z, total_height);
         }
     }
 }
 
-void PerlinTerrainGeneratror::placeSurface(LevelChunk* chunk, int xx, int zz, int height) {
-    // tree
+void PerlinTerrainGeneratror::placeSurface(LevelChunk* chunk, int x, int z, int height) {
+    auto pos = chunk->pos().toBlockPos() + BlockPos(x, z, height);
+    random_engine_.seed(static_cast<uint32_t>(std::hash<BlockPos>()(pos)));
+    const auto xx = chunk->pos().x * 16 + x;
+    const auto zz = chunk->pos().z * 16 + z;
+    auto forest = forest_->octave2D(xx * SCALE * 5, zz * SCALE * 4, 5);
+    if (forest > 0.8 || forest <= 0.2) {
+        // foest
+        if (random_engine_() % 16 == 0) placeTree(chunk, x, z, height);
+    } else {
+        if (random_engine_() % 1000 == 0) placeTree(chunk, x, z, height);
+    }
+}
 
-    auto scale = 1.f / 1024;
-    auto forest = forest_->octave2D(xx * scale * 32, zz * scale * 32, 4);
-    if (forest > 0.5) {
-        if (!(xx < 2 || xx > 14 || zz < 2 || zz > 14)) {
-            for (int i = 1; i <= 4; i++) {
-                chunk->getPosition(xx, height + i, zz)->type = oakLog;
-            }
+void PerlinTerrainGeneratror::placeTree(LevelChunk* chunk, int x, int z, int height) {
+    if (chunk->getBlock(x, height, z) != grass) return;
+    if (x <= 1 || x >= 14 || z <= 1 || z >= 14) return;
+    for (int i = 1; i <= 4; i++) {
+        chunk->getPosition(x, height + i, z)->type = oakLog;
+    }
 
-            for (int i = -2; i <= 2; i++) {
-                for (int j = -2; j <= 2; j++) {
-                    if (i == 0 && j == 0) {
-                        continue;
-                    }
-                    chunk->getPosition(xx + i, 5 + height, zz + j)->type = oakLeaves;
-                    chunk->getPosition(xx + i, 4 + height, zz + j)->type = oakLeaves;
-                    chunk->getPosition(xx + i, 3 + height, zz + j)->type = oakLeaves;
-                }
+    for (int i = -2; i <= 2; i++) {
+        for (int j = -2; j <= 2; j++) {
+            if (i == 0 && j == 0) {
+                continue;
             }
+            if (abs(i) != 2 || abs(j) != 2) chunk->getPosition(x + i, 5 + height, z + j)->type = oakLeaves;
+            chunk->getPosition(x + i, 4 + height, z + j)->type = oakLeaves;
+            chunk->getPosition(x + i, 3 + height, z + j)->type = oakLeaves;
         }
     }
 }
